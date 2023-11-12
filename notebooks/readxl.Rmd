@@ -1,0 +1,13 @@
+---
+title: "Reading data into R with `readxl`"
+author: "Michael Hunt"
+date: "12-11-2023"
+output:
+  html_document:
+    df_print: paged
+---
+
+# Learning how to use `readxl`
+
+We show how to get data nto R from Excel spreadsheets.
+
