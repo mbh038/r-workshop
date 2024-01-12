@@ -302,7 +302,7 @@ Now try producing graphs like the ones above, but for body mass rather than flip
 
 There are different ways to produce this commonly used way to summarise data. For example we might use one to compare the mean flipper lengths of the different penguin species. For a bar chart of these to be of any use at all, it needs to include error bars that show standard errors of the means (Why?). 
 
-I usually first create a summary of the data, in which calculate the means and standard error of the mean for each species for whatever variable I am inerested in, then feed this summary table to `ggplot` and use `geom_col()` to plot the bars, with `geom_errorbar()` on top of that to plot the error bars.
+I usually first create a summary of the data, in which we calculate the means and standard error of the mean for each species for whatever variable I am inerested in, then feed this summary table to `ggplot` and use `geom_col()` to plot the bars, with `geom_errorbar()` on top of that to plot the error bars.
 
 To calculate error bar lengths we use a formula $\text{SE} = \frac{\text{SD}}{\sqrt{n}}$ where $n$ is the number of observations, SD is the standard deviation of the sample and SE is the standard error of the means of the sample. We can use the summary functions `sd()` to calculate the standard deviation, and `n()` to calculate $n$.
 
@@ -319,8 +319,42 @@ penguins %>%
   theme_bw() 
 ```
 
-Can you alter this code so that each bar has a different fill colour, and can you then remove the legend, which is unnecessary?
+Now let's alter this code so that each bar has a different fill colour, and  remove the legend that then appears, since it is unnecessary?
+
+```{r}
+penguins %>%
+  drop_na() %>%
+  group_by(species) %>%
+  summarise(fl.mean = mean(flipper_length_mm), fl.se = sd(flipper_length_mm)/sqrt(n())) %>%
+  
+  ggplot(aes(x = species, y = fl.mean, fill = species)) + # we have altered this line
+  geom_col() +
+  geom_errorbar(aes(ymin=fl.mean-fl.se, ymax = fl.mean + fl.se),width=0.2) +
+  labs(x = "Species",
+       y = "Flipper length (mm)") +
+  theme_bw() +
+  theme(legend.position = "none")
+```
+
+Now let us replace this colour scheme with nicer ones (not just nice, but also colour-blind friendly, perhaps) offered by the Brewer palettes. 
+
+To do this we can add the line `scale_fill_brewer(palette = "Set2")`. Note: we use `scale_colour_brewer()` to alter the colours of points, like we did above, or the outline colour of bars, and use `scale_fill_brewer()` to alter the fill colour of bars. This is what we want to do here.
+
+```{r}
+penguins %>%
+  drop_na() %>%
+  group_by(species) %>%
+  summarise(fl.mean = mean(flipper_length_mm), fl.se = sd(flipper_length_mm)/sqrt(n())) %>%
+  
+  ggplot(aes(x = species, y = fl.mean, fill = species)) + # we have altered this line
+  geom_col() +
+  geom_errorbar(aes(ymin=fl.mean-fl.se, ymax = fl.mean + fl.se),width=0.2) +
+  labs(x = "Species",
+       y = "Flipper length (mm)") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_bw() +
+  theme(legend.position = "none")
+```
 
 
-
-
+If you don't like the colours of the palette "Set2" you can try another one. To find out what palettes are available, remember, you can type `?scale_fill_brewer()` into the console pane then look at the help that appears in the Help pane (bottom right), and scroll down to the Palettes section.
