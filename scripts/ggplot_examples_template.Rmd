@@ -23,7 +23,7 @@ Remember that the template is a markdown document, so you can add extra text bet
 ```{r}
 # install.packages("name of package") # run this line once, if you need to, if either package needs to be installed
 
-# enter lines of code to install the package tidyverse, here, devtools and palmerpenguins
+# enter three ines of code to install the packages tidyverse, here and palmerpenguins
 ```
 
 ### Load the Palmer penguin data
