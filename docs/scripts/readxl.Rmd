@@ -1,0 +1,35 @@
+---
+title: "Reading data into R with `readxl`"
+author: "Michael Hunt"
+date: "12-11-2023"
+output:
+  html_document:
+    df_print: paged
+---
+
+# Learning how to use `readxl`
+
+We show how to get data nto R from Excel spreadsheets.
+
+```{r}
+library(tidyverse)
+library(here)
+library(readxl)
+```
+
+
+Let us load this data:
+
+```{r}
+filepath_csv <- "https://mbh038.github.io/r-workshop/data/fish.csv"
+fish <- read_csv(filepath_csv)
+glimpse(fish)
+```
+
+```{r}
+filepath_xlsx <- "https://mbh038.github.io/r-workshop/data/test_data.xlsx"
+test_data <- read_excel(filepath_xlsx,"Sheet1")
+glimpse(test_data)
+```
+
+
