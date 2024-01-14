@@ -24,9 +24,10 @@ knitr::opts_chunk$set(warning=FALSE,message=FALSE)
 ```
 
 
+
 ### Load packages
 ```{r}
-# install.packages("name of package") # run this line once, if you need to, if either package needs to be installed
+# install.packages("name of package") # run this line once, if you need to, for any of the packages that need to be installed
 library(tidyverse)
 library(here)
 library(palmerpenguins)
