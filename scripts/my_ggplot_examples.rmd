@@ -1,7 +1,7 @@
 ---
 title: "Use of ggplot for plotting"
-author: "Michael Hunt"
-date: "10-01-2024"
+author: "your name"
+date: "the date"
 output:
   html_document:
     df_print: paged
@@ -18,19 +18,12 @@ As you complete each code chunk, try it out by pressing the green arrow at the t
 Remember that the template is a markdown document, so you can add extra text between the code chunks to explain to yourself what is going on. You can format this test, if you wish, according to the very basic markdown rules for doing this. See Help/Markdown Quick Reference. This formatting is only useful if you 'knit' the script, by pressing the knit button at the top of the script pane. Try this! I suggest you knit to html. This is how the worksheet you are working from was produced.
 
 
-```{r set-up, include = FALSE}
-# set up chunk
-knitr::opts_chunk$set(warning=FALSE,message=FALSE)
-```
-
 
 ### Load packages
 ```{r}
 # install.packages("name of package") # run this line once, if you need to, if either package needs to be installed
-library(tidyverse)
-library(here)
-library(palmerpenguins)
-library(devtools)
+
+# enter lines of code to install the package tidyverse, here, devtools and palmerpenguins
 ```
 
 ### Get the template script
@@ -39,9 +32,9 @@ This next chunk will download the template file that you need to fill in as you 
 
 
 ```{r}
-file_url <- "https://raw.githubusercontent.com/mbh038/r-workshop/gh-pages/scripts/ggplot_examples_template.Rmd"
-file_dest <- here("scripts","my_ggplot_examples.rmd")
-download.file(file_url,file_dest)
+# file_url <- "https://raw.githubusercontent.com/mbh038/r-workshop/gh-pages/notebooks/ggplot_examples_template.Rmd"
+# file_dest <- here("scripts","ggplot_examples.rmd")
+# download.file(file_url,file_dest)
 ```
 
 ### Load the Palmer penguin data
@@ -59,7 +52,7 @@ How many rows are there and how many columns?
 
 For more detailed meta-information on the data we just type the name of the data set with a question mark before it:
 ```{r}
-?penguins
+# enter the code to get help on the penguins data set
 ```
 
 
@@ -69,16 +62,20 @@ For more detailed meta-information on the data we just type the name of the data
 This is in general useful to get, at least for the columns that contain numerical data, since it shows which columns contains NAs,which is R-speak for missing data. They are how R represents what would be empty cells in an Excel spreadsheet.
 
 ```{r}
-summary(penguins)
+
+# enter the code to summary descriptive statistics on each column of the penguins data frame
+
 ```
+
 We see that there are some rows with NAs in for a few of the columns. We need to be aware of this when doing calculations wih the data, such as taking means.
 
 Here, we will remove those rows:
 
 ### Remove the rows with NAs
 ```{r}
-penguins <- penguins %>%
-  drop_na()
+
+# enter code to remove any row that contains an NA in at least one column
+
 ```
 
 
@@ -124,14 +121,15 @@ There are lots of geom types, but for a scatter plot we use `geom_point()`:
 ```{r scatter plot}
 penguins %>%
   ggplot(aes(x=flipper_length_mm,y=body_mass_g)) +
-  geom_point()
+# add one line of code to get a scatter plot
 ```
 
 This gives us a recognisable scatter plot, but it is deficient in a number of ways. For starters, we know that there are three species of penguin. It would be better if each were plotted using symbols of a different colour, shape or size. We can do this by adding in an extra argument to the aesthetic in the first line. Here we include `colour = species`.
 
 ```{r scatter plot by species}
 penguins %>%
-  ggplot(aes(x = flipper_length_mm,y = body_mass_g, colour = species)) +
+  # modify this line to get different point colours for each species
+  ggplot(aes(x = flipper_length_mm,y = body_mass_g)) +
   geom_point()
 ```
 
@@ -143,13 +141,10 @@ Now we add labels, titles and so on, using the line `labs(...)`. Note how we can
 penguins %>%
   ggplot(aes(x=flipper_length_mm,y=body_mass_g,colour=species)) +
   geom_point() +
-  labs(x = "Flipper length (mm)",
-       y = "Body mass (g)",
-       colour= "Species", # this changes the title of the legend.
-       title="Penguin size, Palmer Station LTER",
-       subtitle="Flipper length and body mass for Adelie, Chinstrap, and Gentoo Penguins",
-       caption = "Alternative place to put the information in the subtitle")
+# add arguments to this line to get good axis labels, a good legend title, a title, a subtitle and a caption
+  labs()
 ```
+
 
 It can be useful to include some combination of titles, subtitles and captions if the figure is to be used as part of a presentation or poster, but if it is to go in a report, you would normally only include a caption, and let the word-processing software do it, and if just for exploratory analysis, not even that. I normally do include axis labels, however.
 
@@ -165,8 +160,9 @@ penguins %>%
        colour= "Species",
        title="Penguin size, Palmer Station LTER",
        subtitle="Flipper length and body mass for Adelie, Chinstrap, and Gentoo Penguins") +
-  theme_bw()
+# add a line to get the 'black and white' theme
 ```
+
 
 Now we reposition the legend. We don't have to, but we might not like the default position of the legend. If not, we can move or even remove it using another `theme()` line. The position argument of this can be "none" if you want to remove it, top", "bottom", "left", "right" or a numerical vector in relative coordinates, where c(0,0) means bottom left within the plot, and c(1,1) means top-right. This is what we use here. Play around with different values.
 
@@ -180,10 +176,11 @@ penguins %>%
        title="Penguin size, Palmer Station LTER",
        subtitle="Flipper length and body mass for Adelie, Chinstrap, and Gentoo Penguins") +
   theme_bw() +
-  theme(legend.position = c(0.2,0.8)) # try "top", "left" etc
+  # add a line to the legend to be positioned inside the plot at relative cooords x = 0.2, y = 0.8
+  # try try also to get it be positoned above the plot (position = "top"), or on the left, etc
 ```
 
-Nicer colours. If you don't like the default colours offered by R, there are several other palettes available, for example the `Brewer` palettes, borrowed from the world of maps. See https://colorbrewer2.org ,and for a list of the available palettes, type >`?scale_colour_brewer` into the console pane then look at the help that appears in the Help pane (bottom right), and scroll down to the palettes section. Note that we dont *have* to alter the colours. But doing so can make your plots not only look nicer, but serve some other purpose, such as to be colour-blind friendly, or have colours that are appropriate for the variables being plotted (eg red points for red things, blue points for blue things). For an assignment or dissertation report, it is a good idea to pick a palette that you like and that works, and stick with it, so that all your plots have the same general look. Here we choose the qualitative palette `"Set2"` and use it by by adding the line `scale_colour_brewer(palette="Set2")`. Try a few other palettes.
+Nicer colours. If you don't like the default colours offered by R, there are several other palettes available, for example the `Brewer` palettes, borrowed from the world of maps. See https://colorbrewer2.org ,and for a list of the available palettes, type >`?scale_colour_brewer` into the console pane then look at the help that appears in the Help pane (bottom right), and scroll down to the palettes section. Note that we dont *have* to alter the colours. But doing so can make your plots not only look nicer, but serve some other purpose, such as to be colour-blind friendly. For an assignment or dissertation report, it is a good idea to pick a palette that you like and that works, and stick with it, so that all your plots have the same general look. Here we choose the qualitative palette `"Set2"` and use it by by adding the line `scale_colour_brewer(palette="Set2")`. Try a few other palettes.
 
 ```{r nicer colours}
 penguins %>%
@@ -194,7 +191,8 @@ penguins %>%
        colour= "Species",
        title="Penguin size, Palmer Station LTER",
        subtitle="Flipper length and body mass for Adelie, Chinstrap, and Gentoo Penguins") +
-  scale_colour_brewer(palette="Set2") + # try other palettes eg "Set3"
+  # add a line here to get the Brewer colour palette "Set2"
+  
   theme_bw() +
   theme(legend.position = c(0.2,0.8)) # try "top", "left" etc
 ```
@@ -206,7 +204,8 @@ If we like, we can add best fit lines to each subset of the data, using `geom_sm
 penguins %>%
   ggplot(aes(x=flipper_length_mm,y=body_mass_g,colour=species)) +
   geom_point() +
-  geom_smooth(method="lm", linewidth=0.5,se=FALSE) + # try leaving out the se argument
+  # add a line here to get straight best-fit lines for each species daa set.
+
   labs(x = "Flipper length (mm)",
        y = "Body mass (g)",
        colour= "Species",
@@ -219,34 +218,26 @@ penguins %>%
 
 ### Repeat for bill length and flipper length
 
-Modify the code of the previous plot so that you now plot bill length vs flipper length. Adjust any labels and titles as necessary. This time, put the legend in the bottom right of the plot.
+Modify the code of the previous plot so that you now plot bill length vs flipper lengh. Adjust any labels and titles as necessary. This time, put the legend in the bottom right of the plot.
 
 ```{r bill length vs flipper length}
-penguins %>%
-  ggplot(aes(x=flipper_length_mm,y=bill_length_mm,colour=species)) +
-  geom_point() +
-  geom_smooth(method="lm", linewidth=0.5,se=FALSE) + # try leaving out the se argument
-  labs(x = "Flipper length (mm)",
-       y = "Bill length (mm)",
-       colour= "Species",
-       title="Penguin size, Palmer Station LTER",
-       subtitle="Flipper length and bill length for Adelie, Chinstrap, and Gentoo Penguins") +
-   scale_colour_brewer(palette="Set2") +
-  theme_bw() +
-  theme(legend.position = c(0.9,0.2)) # play with the values to get it where you want it
+
+# add code here to modify that for the previous plot such that you get the same plot but for bill length vs flipper length.
+
 ```
 
 Do you see how straightforwrd it is to adapt the code that produces one plot to get the code you need for another, similar plot?
 
 ### Add yet more informtion to the plot
 
-Let us include the information of which island the penguins come from by making the shape of the plotted points be dependent on that:
+Let us include the additional information of which island the penguins come from by making the shape of the plotted points be dependent on that:
 
 ```{r islands and species}
 penguins %>%
-  ggplot(aes(x=flipper_length_mm,y=bill_length_mm,colour=species,shape=island)) +
+  # modify this line so that the point symbol shapes depend on the island variable
+  ggplot(aes(x=flipper_length_mm,y=bill_length_mm,colour=species)) +
   geom_point() +
-  #geom_smooth(method="lm", linewidth=0.5,se=FALSE) + # try leaving out the se argument
+  geom_smooth(method="lm", linewidth=0.5,se=FALSE) + # try leaving out the se argument
   labs(x = "Flipper length (mm)",
        y = "Bill length (mm)",
        colour= "Species",
@@ -255,7 +246,7 @@ penguins %>%
        subtitle="Flipper length and bill length for Adelie, Chinstrap, and Gentoo Penguins") +
    scale_colour_brewer(palette="Set2") +
   theme_bw() +
-  theme(legend.position = "right") # play with the position to get it where you want it. Try "top" etc.
+  theme(legend.position = "right") 
 ```
 
 ### Distribution of penguin flipper lengths
@@ -286,8 +277,10 @@ This we can achieve by:
 
 ```{r better histogram}
 penguins %>%
-  ggplot(aes(x=flipper_length_mm, fill = species)) +  # why is y not specified?
-  geom_histogram(position = "identity", alpha = 0.4, binwidth = 4)
+  # modify this line to give different bar fill colours for each species
+  ggplot(aes(x=flipper_length_mm)) +
+  # modify this line to ensure that the different histograms are not stacked,  that they have a transparency of 0.4 and a binwidth of 4
+  geom_histogram()
 ```
 
 So, a lot going on, but still only three lines of code!
@@ -298,13 +291,16 @@ Now add good axis labels, an overall theme, and choose a colour scheme you like,
 penguins %>%
   ggplot(aes(x=flipper_length_mm,fill=species)) +
   geom_histogram(position="identity",alpha = 0.4, binwidth = 4) +
-  labs(x = "Flipper length (mm)",
-       y = "Count",
-       fill= "Species", # specifies the legend title. See what happens if you omit this line.
-       title="Penguin flipper lengths") + # we wouldn't use this for a figure going in a report.
-  scale_fill_brewer(palette="Set2") + 
-  theme_bw() +
-  theme(legend.position = c(0.9,0.8)) # play with the position to get it where you want it
+  # add arguments for axis labels, for a chart title, and for a legend title that says "Species" 
+  labs() + 
+  # add a line to give the Brewer colour palette "Set2"
+
+  # add a line to give the black and white theme
+
+  # add a line to put the legend inside the plot at relative coordinates c(0.9,0.8)
+  # play with the position to get it where you want it
+  
+  
 ```
 
 In the scatter plot and the histogram, we have used colour to distinguish the different species. We can do this because our data set is tidy: there is just one column that species the species, and the same for every other variable. That same feature of the data enables to use another way to represent the different species: `facet_wrap(~species)`. This gives us three separate plots, side by side or one above the other. See it used here:
@@ -317,42 +313,45 @@ penguins %>%
        y = "Count",
        fill= "Species", 
        title="Penguin flipper lengths") + 
-  facet_wrap(~species) + #try adding the argument ncol = 1.
-  scale_fill_brewer(palette="Set2") + # try other palettes, eg "Set1".
+  # add a line to give three charts, one for each species
+
+  scale_fill_brewer(palette="Set2") + 
   theme_bw() +
   theme(legend.position="none") # we don't need a legend!
 ```
 
-Just a thought, but do the colours here serve any useful purpose? What extra information do they convey? If you ever think that a feature of a graph conveys no additional information, consider omitting it. Here is the figue before without colours, but going for white brs with grey outlines:
+Just a thought, but do the colours here serve any useful purpose? What extra information do they convey? If you ever think that a feature of a graph conveys no additional information, consider omitting it. Here is the figure before without colours, but going for white bars with grey outlines:
 
 ```{r hist with facet wrap and no colour}
 penguins %>%
   ggplot(aes(x=flipper_length_mm)) +
-  geom_histogram(position="identity",alpha = 0.4, binwidth = 4, fill="white",colour="grey50") +
+  # add fill and colour arguments here to give white bars woth grey (grey50) outlines
+  geom_histogram(position="identity",alpha = 0.4, binwidth = 4) +
   labs(x = "Flipper length (mm)",
        y = "Count",
-       fill= "Species", # specifies the legend title. See what happens if you omit this line.
-       title="Penguin flipper lengths") + # we wouldn't use this for a figure going in a report.
+       fill= "Species", 
+       title="Penguin flipper lengths") + 
   facet_wrap(~species) + #try adding the argument ncol = 1.
   theme_bw() +
-  theme(legend.position="none") # we don't need a legend!
+  theme(legend.position="none")
 ```
 
-Arguably, this is a better plot than the previous one because it excludes the potentially confusing redundancy of using different colours each species, when we already know which species is the subject of each plot.
+Arguably, this is a better plot than the previous one because it excludes the potentially confusing redundancy of using different colours for each species, when we already know which species is the subject of each plot.
 
-If you don't like white as the fill colour, try another one, for exampe this one that I found on Cynthia Brewer's very useful map colour site: https://colorbrewer2.org
+If you don't like white as the fill colour, try another one, for example this one "#a6bddb" that I found on Cynthia Brewer's very useful map colour site: https://colorbrewer2.org
 
 ```{r hist with facet wrap and one colour}
 penguins %>%
   ggplot(aes(x=flipper_length_mm)) +
-  geom_histogram(position="identity",alpha = 0.4, binwidth = 4, fill="#a6bddb",colour="grey50") +
+  # modify the fill argument to give your chosen colour
+  geom_histogram(position="identity",alpha = 0.4, binwidth = 4, fill=".....",colour="grey50") +
   labs(x = "Flipper length (mm)",
        y = "Count",
-       fill= "Species", # specifies the legend title. See what happens if you omit this line.
-       title="Penguin flipper lengths") + # we wouldn't use this for a figure going in a report.
-  facet_wrap(~species) + #try adding the argument ncol = 1.
+       fill= "Species", 
+       title="Penguin flipper lengths") + 
+  facet_wrap(~species) + 
   theme_bw() +
-  theme(legend.position="none") # we don't need a legend!
+  theme(legend.position="none") 
 ```
 
 Different fill colours *would* be useful if the different penguin species had distinctive dominant colours, but that isn't the case!
@@ -384,9 +383,10 @@ penguins %>%
   geom_density(alpha = 0.2, fill="#a6bddb",colour="grey50") +
   labs(x = "Flipper length (mm)",
        y = "Count",
-       fill= "Species", # specifies the legend title. See what happens if you omit this line.
-       title="Penguin flipper lengths") + # we wouldn't use this for a figure going in a report.
-  facet_wrap(~species) + #try adding the argument ncol = 1.
+       fill= "Species", 
+       title="Penguin flipper lengths") + 
+  # add a line that will split the plot into three separate plots, one for each species
+
   theme_bw() +
   theme(legend.position="none") # we don't need a legend!
 ```
@@ -419,12 +419,14 @@ Now let's use what we have done before to add code lines that
 penguins %>%
   ggplot(aes(x=species,y=flipper_length_mm,fill=species)) +
   geom_boxplot() +
-  labs(x = "Species",
-       y = "Flipper length (mm)",
-       title="Penguin flipper lengths") +
-  scale_fill_brewer(palette="Set2") +
-  theme_bw() +
-  theme(legend.position = "none") # no legend needed
+  # add arguments to give suitable axis labels and a plot title
+  labs() +
+  # include an argument to give the Set2 Brewer palette
+  scale_fill_brewer() +
+  # add a line to give the black and white theme
+
+  # add a line that removes the legend
+
 ```
 
 
@@ -438,25 +440,20 @@ penguins %>%
   geom_violin() 
 ```
 
-Now we write code to improve this, just as you did the box plot. The final code is the same as for that apart from one line!
+Now write code to improve this, just as you did the box plot. Hint: steal code from where you made the box plot.  The final code is the same as for that apart from one line!
 
 ```{r violin improved}
 penguins %>%
   ggplot(aes(x=species,y=flipper_length_mm,fill=species)) +
   geom_violin() +
-  labs(x = "Species",
-       y = "Flipper length (mm)",
-       title="Penguin flipper lengths") +
-  scale_fill_brewer(palette="Set2") +
-  theme_bw() +
-  theme(legend.position = "none") # no legend needed
+# steal all the lines you just used for the box plot to include labels, a title, nice colours, a theme and to remove the legend.
 ```
 
 #### Ridge plot
 
 This is a variant on the density plot, that is most useful when you have lots of categorical variables. We have only three here, the three penguin species, but let's try it anyway.
 
-For this, we need the `ggridges` package. This is one of many packages that extend the power of ggplot, and so work in much the same way:
+For this, we need the `ggridges` package. This is one of many packages that extend the power of ggplot, and so work in much the same way. We'll give you this code chunk for free!
 
 ```{r}
 # library
@@ -483,27 +480,20 @@ There are different ways to produce this commonly used way to summarise data. Fo
 
 Here, we will add error bars that are ± one standard deviation of the samples
 
-I usually first create a summary of the data, in which we calculate the means and appropriate error for each species for whichever variable I am interested in, then feed this summary table to `ggplot` and use `geom_col()` to plot the bars, with `geom_errorbar()` on top of that to plot the error bars.
-
-Let's do that first:
-
-```{r}
-flipper_summary <- penguins %>%
-  drop_na() %>%
-  # these two lines produce a summary table
-  group_by(species) %>%
-  summarise(fl.mean = mean(flipper_length_mm), fl.sd = sd(flipper_length_mm))
-flipper_summary
-```
-
+I usually first create a summary of the data, in which we calculate the means and standard error of the mean for each species for whichever variable I am interested in, then feed this summary table to `ggplot` and use `geom_col()` to plot the bars, with `geom_errorbar()` on top of that to plot the error bars.
 
 To calculate error bar lengths we use a formula $\text{SE} = \frac{\text{SD}}{\sqrt{n}}$ where $n$ is the number of observations, SD is the standard deviation of the sample and SE is the standard error of the means of the sample. We can use the summary functions `sd()` to calculate the standard deviation, and `n()` to calculate $n$.
 
 ```{r}
-flipper_summary %>%
+penguins %>%
+  drop_na() %>%
+  # these two lines produce a summary table
+  group_by(species) %>%
+  summarise(fl.mean = mean(flipper_length_mm), fl.se = sd(flipper_length_mm)/sqrt(n())) %>%
+  # which is then fed to ggplot....
   ggplot(aes(x = species, y = fl.mean)) +
   geom_col() +
-  geom_errorbar(aes(ymin=fl.mean-fl.sd, ymax = fl.mean + fl.sd),width=0.1) +
+  geom_errorbar(aes(ymin=fl.mean-fl.se, ymax = fl.mean + fl.se),width=0.2) +
   labs(x = "Species",
        y = "Flipper length (mm)") +
   theme_bw() 
@@ -513,15 +503,15 @@ Now let's alter this code so that each bar has a different fill colour, and  rem
 
 ```{r}
 flipper_summary %>%
-  # we add an argument to colour each bar according to species
-  ggplot(aes(x = species, y = fl.mean, fill = species)) +
+  # modify this line so that each bar gets a diffrent colour
+  ggplot(aes(x = species, y = fl.mean, fill = species)) + 
   geom_col() +
-  geom_errorbar(aes(ymin=fl.mean-fl.sd, ymax = fl.mean + fl.sd),width=0.1) +
+  geom_errorbar(aes(ymin=fl.mean-fl.se, ymax = fl.mean + fl.se),width=0.2) +
   labs(x = "Species",
        y = "Flipper length (mm)") +
   theme_bw() +
-  # include an arument to remove the legend
-  theme()
+  # add a theme line to remove the legend
+
 ```
 
 Now let us replace this colour scheme with nicer ones (not just nice, but also colour-blind friendly, perhaps) offered by the Brewer palettes. 
@@ -530,12 +520,13 @@ To do this we can add the line `scale_fill_brewer(palette = "Set2")`. Note: we u
 
 ```{r}
 flipper_summary %>%
-  ggplot(aes(x = species, y = fl.mean, fill = species)) +
+  ggplot(aes(x = species, y = fl.mean, fill = species)) + # we have altered this line
   geom_col() +
-  geom_errorbar(aes(ymin=fl.mean-fl.sd, ymax = fl.mean + fl.sd),width=0.1) +
+  geom_errorbar(aes(ymin=fl.mean-fl.se, ymax = fl.mean + fl.se),width=0.2) +
   labs(x = "Species",
        y = "Flipper length (mm)") +
-  scale_fill_brewer(palette="Set2") +
+  # add a line to make the plot use Brewer palette "Set2" for the bar fill colours
+  
   theme_bw() +
   theme(legend.position = "none")
 ```
@@ -547,10 +538,10 @@ If you agree that having different fill colours for the bars is actually confusi
 
 ```{r}
 flipper_summary %>%
-  ggplot(aes(x = species, y = fl.mean)) + 
+  ggplot(aes(x = species, y = fl.mean)) + # we have altered this line
   # add arguments here that give fill colour "#a6bddb" and outline colour "grey50".
-  geom_col(fill = "#a6bddb",colour = "grey50") +
-  geom_errorbar(aes(ymin=fl.mean-fl.sd, ymax = fl.mean + fl.sd),width=0.1) +
+  geom_col() +
+  geom_errorbar(aes(ymin=fl.mean-fl.se, ymax = fl.mean + fl.se),width=0.2) +
   labs(x = "Species",
        y = "Flipper length (mm)") +
   theme_bw() +

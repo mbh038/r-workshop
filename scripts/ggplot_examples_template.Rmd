@@ -26,17 +26,6 @@ Remember that the template is a markdown document, so you can add extra text bet
 # enter lines of code to install the package tidyverse, here, devtools and palmerpenguins
 ```
 
-### Get the template script
-
-This next chunk will download the template file that you need to fill in as you work through this worksheet, and put it in the scripts subfolder within your project folder. For it to work, you need to be 'working in your Project' - in which case the name of the project will appear in the top right of the main RStudio window, and if you have a subfolder within the project folder called 'scripts'. If any of that is not true, it needs to be sorted now!
-
-
-```{r}
-# file_url <- "https://raw.githubusercontent.com/mbh038/r-workshop/gh-pages/notebooks/ggplot_examples_template.Rmd"
-# file_dest <- here("scripts","ggplot_examples.rmd")
-# download.file(file_url,file_dest)
-```
-
 ### Load the Palmer penguin data
 
 For this exercie we use the Palmer penguins data set which comes with the package palmerpenguins
@@ -480,20 +469,26 @@ There are different ways to produce this commonly used way to summarise data. Fo
 
 Here, we will add error bars that are ± one standard deviation of the samples
 
-I usually first create a summary of the data, in which we calculate the means and standard error of the mean for each species for whichever variable I am interested in, then feed this summary table to `ggplot` and use `geom_col()` to plot the bars, with `geom_errorbar()` on top of that to plot the error bars.
+I usually first create a summary of the data, in which we calculate the means and appropriate error for each species for whichever variable I am interested in, then feed this summary table to `ggplot()` and use `geom_col()` to plot the bars, with `geom_errorbar()` on top of that to plot the error bars.
 
-To calculate error bar lengths we use a formula $\text{SE} = \frac{\text{SD}}{\sqrt{n}}$ where $n$ is the number of observations, SD is the standard deviation of the sample and SE is the standard error of the means of the sample. We can use the summary functions `sd()` to calculate the standard deviation, and `n()` to calculate $n$.
+Let's do that first:
 
 ```{r}
-penguins %>%
+flipper_summary <- penguins %>%
   drop_na() %>%
   # these two lines produce a summary table
   group_by(species) %>%
-  summarise(fl.mean = mean(flipper_length_mm), fl.se = sd(flipper_length_mm)/sqrt(n())) %>%
-  # which is then fed to ggplot....
+  summarise(fl.mean = mean(flipper_length_mm), fl.sd = sd(flipper_length_mm))
+flipper_summary
+```
+
+We can now feed this to `ggplot()`
+
+```{r}
+flipper_summary %>%
   ggplot(aes(x = species, y = fl.mean)) +
   geom_col() +
-  geom_errorbar(aes(ymin=fl.mean-fl.se, ymax = fl.mean + fl.se),width=0.2) +
+  geom_errorbar(aes(ymin=fl.mean-fl.sd, ymax = fl.mean + fl.sd),width=0.1) +
   labs(x = "Species",
        y = "Flipper length (mm)") +
   theme_bw() 
@@ -506,7 +501,7 @@ flipper_summary %>%
   # modify this line so that each bar gets a diffrent colour
   ggplot(aes(x = species, y = fl.mean, fill = species)) + 
   geom_col() +
-  geom_errorbar(aes(ymin=fl.mean-fl.se, ymax = fl.mean + fl.se),width=0.2) +
+  geom_errorbar(aes(ymin=fl.mean-fl.sd, ymax = fl.mean + fl.sd),width=0.1) +
   labs(x = "Species",
        y = "Flipper length (mm)") +
   theme_bw() +
@@ -522,7 +517,7 @@ To do this we can add the line `scale_fill_brewer(palette = "Set2")`. Note: we u
 flipper_summary %>%
   ggplot(aes(x = species, y = fl.mean, fill = species)) + # we have altered this line
   geom_col() +
-  geom_errorbar(aes(ymin=fl.mean-fl.se, ymax = fl.mean + fl.se),width=0.2) +
+  geom_errorbar(aes(ymin=fl.mean-fl.sd, ymax = fl.mean + fl.sd),width=0.1) +
   labs(x = "Species",
        y = "Flipper length (mm)") +
   # add a line to make the plot use Brewer palette "Set2" for the bar fill colours
@@ -541,7 +536,7 @@ flipper_summary %>%
   ggplot(aes(x = species, y = fl.mean)) + # we have altered this line
   # add arguments here that give fill colour "#a6bddb" and outline colour "grey50".
   geom_col() +
-  geom_errorbar(aes(ymin=fl.mean-fl.se, ymax = fl.mean + fl.se),width=0.2) +
+  geom_errorbar(aes(ymin=fl.mean-fl.sd, ymax = fl.mean + fl.sd),width=0.1) +
   labs(x = "Species",
        y = "Flipper length (mm)") +
   theme_bw() +
