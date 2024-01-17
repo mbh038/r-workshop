@@ -47,7 +47,7 @@ download.file(file_url,file_dest)
 
 ### Load the Palmer penguin data
 
-For this exercie we use the Palmer penguins data set which comes with the package palmerpenguins
+For this exercise we use the Palmer penguins data set which comes with the package palmerpenguins
 
 The `palmerpenguin` package contains two built-in data sets. One is called `penguins`:
 
@@ -351,7 +351,7 @@ penguins %>%
        y = "Count",
        fill= "Species", # specifies the legend title. See what happens if you omit this line.
        title="Penguin flipper lengths") + # we wouldn't use this for a figure going in a report.
-  facet_wrap(~species) + #try adding the argument ncol = 1.
+  facet_grid(island~species) + #try adding the argument ncol = 1.
   theme_bw() +
   theme(legend.position="none") # we don't need a legend!
 ```
