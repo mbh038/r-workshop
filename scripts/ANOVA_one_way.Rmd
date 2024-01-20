@@ -16,9 +16,9 @@ knitr::opts_chunk$set(message=FALSE,warning=FALSE)
 
 ### Load packages
 ```{r}
-library(tidyverse)
+library(tidyverse) # for data manipulation and plots, and more besides
 library(ggfortify) # this is useful for diagnostics
-library(palmerpenguins)
+library(palmerpenguins) # for the palmer penguin data
 ```
 
 
