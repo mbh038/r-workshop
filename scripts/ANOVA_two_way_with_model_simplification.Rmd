@@ -1,7 +1,7 @@
 ---
 title: 'ANOVA: Factorial experiments and model simplification'
-author: Michael Hunt
-date: 15-11-2022
+author: 'Michael Hunt'
+date: '15-11-2022'
 output:
   html_document:
     df_print: paged
@@ -13,7 +13,18 @@ knitr::opts_chunk$set(message=FALSE,warning=FALSE)
 
 This exercise sheet is heavily indebted to Michael Crawley's *Statistics: An introduction using R*, 2nd Ed, Wiley. Published in 2015 this emphasises statistics over R (in fact, much of the R he presents is written prior to the advent of the `tidyverse` dialect which we use here, and so may seem terse if that is what you are used to). It is very useful and is at a higher level than Beckerman, Childs and Petchey's *Getting Started in R: An introduction for biologists*, 2nd Ed. OUP published in 2017. Their book also includes a simpler version of the example explored here.
 
-## Factorial experiments and model simplification
+#### Files needed
+
+* To be put in the Project/scripts folder:
+
+  * `ANOVA_two_way_with_model_simplification.html` (this worksheet)
+  * `ANOVA_two_way_template.Rmd` (the script where you fill in the code chunks)
+  
+* To be put in Project/data folder
+
+  * `growth.csv`
+
+### Factorial experiments and model simplification
 
 The best model is the one that adequately explains the data with fewest parameters. This means with the smallest possible number of degrees of freedom.
 
@@ -23,15 +34,15 @@ As Einstein almost said, a model should be as simple as possible, but no simpler
 
 ### Factorial experiments
 
-A **factorial** experiment has two or more factors, each with two or more levels, plus replication for each combination of factor levels. This means that we can investigate statistical interactions in which the effect of one factor depends on the value of another factor.
+A **factorial** experiment has two or more factors, each with two or more levels, plus replication for each combination of factor levels. This means that we can investigate whether statistical interactions occur in which the effect of one factor depends on the value of another factor.
 
-We take an example from a farm-trial of animal diets. There are two factors: `diet` and `supplement`. `diet` is a factor with three levels: `barley`, `oats` and `wheat`, where `barley` is the diet that has always been used and the other two are potential alternatives. The purpose of the trial is to see if their use makes a difference to growth outcomes. `supplement` is a factor with four levels: `control`, `agrimore`, `supergrain` and `supersupp`, where `control` could mean the absence of any supplement or the supplement used up to now, whose effects we are hoping to improve upon through use of one of the others included in the trial. The response variable `gain` is weight gain after 6 weeks. There were 48 individual cows in total with 4 for each combination of `diet` and `supplement`. Having the same number of replcates for each cmbination of levels means that this is a *balanced* design.
+We take an example from a farm-trial of animal diets. There are two factors: `diet` and `supplement`. `diet` is a factor with three levels: `barley`, `oats` and `wheat`, where `barley` is the diet that has always been used and the other two are potential alternatives. The purpose of the trial is to see if their use makes a difference to growth outcomes. `supplement` is a factor with four levels: `control`, `agrimore`, `supergrain` and `supersupp`, where `control` could mean the absence of any supplement or the supplement used up to now, whose effects we are hoping to improve upon through use of one of the others included in the trial. The response variable `gain` is weight gain after 6 weeks. There were 48 individual cows in total with 4 for each combination of `diet` and `supplement`. Having the same number of replcates for each combination of levels means that this is a *balanced* design.
 
-In the following, we present the code you need to analyse this data together with some explanatory text. Read the text closely then run each code chunk as you get to it, in sequence. Alternatively, start a new R Notebook in the `data` folder of your R Project and copy and paste into it the code from here, chunk by chunk, with whatever text you want in between so that you can run the analysis yourself in your own script and be able to understand later what you did. Whichever way you choose, you are encouraged to view the code presented here as *one* way to do the analysis. Feel free to hack away at it and change things, to try different approaches and see what happens. That way you will learn.
+In the following, we present the code you need to analyse this data together with explanatory text. Read the text closely so that you understand what each chunk code is intended to do. In the accompanying template file, fill in the code as you go in the empty chunks, using this worksheet as a guide.  As you complete each line of code, run it using Ctrl-Enter or Cmd-Enter on a Mac. Alternatively, wait until you have completed the code for a chunk then run the whole chunk in one go by pressing the little green arrow at the top right of the chunk. Whichever way you choose, you are encouraged to view the code presented here as *one* way to do the analysis. Feel free to hack away at it and change things, to try different approaches and see what happens. That way you will learn. You may also wish to add your own text between the chunks.
 
 ### Open your Project
 
-You should be working a within folder that you have designated as what RStudio calls a 'Project'. If you are, the name of your Project will appear at the top right of the RStudio window. Inside your Project folder you should have a `scripts` folder for scripts like the one you are working from, and a `data` folder for all the data files. You will also see, at the top level of the Project, the `.RProj` file. You can see all this in the Files pane, bottom-right.
+You should be working within a folder that you have designated as what RStudio calls a 'Project'. If you are, the name of your Project will appear at the top right of the RStudio window. Inside your Project folder you should have a `scripts` folder for scripts like the one you are working from, and a `data` folder for all the data files. You will also see, at the top level of the Project, the `.RProj` file. You can see all this in the Files pane, bottom-right.
 
 ### Load packages
 
@@ -39,9 +50,9 @@ I normally load all the packages in the chunk below into every script. The most 
 
 ```{r load packages, message=FALSE,warning=FALSE}
 library(tidyverse)  # for data manipulation and plotting, an
-library(here)
-library(cowplot)
-library(ggfortify)
+library(here) # for finding our data easily
+library(cowplot) # gives a nice theme for plots
+library(ggfortify) # for idagnostic plots
 ```
 
 ### Read in the data
@@ -60,18 +71,18 @@ You see from the output of the  `glimpse()` function that `weights` has three co
 
 ### Make R recognise the categorical variables as factors, and order the levels.
 
-At the moment, the contents within the variables `supplement` and `diet` are not being recognised as levels of factors. R is just thinking of them as text (or `<chr>` in R-speak), as we can see from the output of the `glimpse()` function in the chunk above. Let us fix that, as it will be useful for them to be recognised for what they are so that we can order the levels in a way that makes sense for our context, our plots and our analysis.
+At the moment, the contents within the variables `supplement` and `diet` are not being recognised as levels of factors. R is just thinking of them as text (or `<chr>` in R-speak), as we can see from the output of the `glimpse()` function in the chunk above. Let us fix that, as it will be useful for them to be recognized for what they are so that we can order the levels in a way that makes sense for our context, our plots and our analysis.
 
-Sometimes levels of a factor have a natural order, such as *Low*, *Mid* and *High* as the levels of the factor *Tidal Zone* and sometimes they do not, for example *Apples*, *Oranges* and *Pears* as levels of the factor *Fruit*. Here in the case of both our factors, we only wish to impose order among the levels in so far as we would like what we regard as the control or reference level to be first. By default, R puts the levels of a factor in alphabetical order. This is the order in which the boxes of a box plot would be displayed, reading left to right. In an ANOVA setting it means that differences of outcome (in this case, weight gain of the cows) are later calculated for each combination of levels with respect to the outcome for the combination of levels that are alphabetically first, in this case `barley` for `diet` and `agrimore` for `supplement`. In both the box-plot and the ANOVA output case this default ordering is not necessarily what we want. Normally, we want what we regard as the control levels to be the reference level and in this case that means `barley` for `diet` and `control` for `supplement`.
+Sometimes levels of a factor have a natural order, such as *Low*, *Mid* and *High* as the levels of the factor *Tidal Zone* and sometimes they do not, for example *Apples*, *Oranges* and *Pears* as levels of the factor *Fruit*. Here, in the case of both our factors, we only wish to impose order among the levels in so far as we would like what we regard as the control or reference level to be first. By default, R puts the levels of a factor in alphabetical order. This is the order in which the boxes of a box plot would be displayed, reading left to right. In an ANOVA setting it means that differences of outcome (in this case, weight gain of the cows) are later calculated for each combination of levels with respect to the outcome for the combination of levels that are alphabetically first, in this case `barley` for `diet` and `agrimore` for `supplement`. In both the box-plot and the ANOVA output case this default ordering is not necessarily what we want. Normally, we want what we regard as the control levels to be the reference level and in this case that means `barley` for `diet` and `control` for `supplement`.
 
-To ensure that a variable is regarded as a factor, and thento get its levels in the order we would like, we use the `factor()` function.
+To ensure that a variable is regarded as a factor, and then to get its levels in the order we would like, we use the `factor()` function.
 
 In the following chunk, `factor()` is used to designate both the `supplement` and `diet` columns of the data set as factors, and the level order of each is specified, with `control` coming first for `supplement` and `barley` coming first for `diet`. 
 
 ```{r}
 weights <- weights %>%
-  mutate(supplement = factor(supplement, levels=c("control","agrimore", "supergain", "supersupp")),
-         diet=factor(diet, levels=c("barley","oats", "wheat")))
+  mutate(supplement = factor(supplement, levels = c("control","agrimore", "supergain", "supersupp")),
+         diet = factor(diet, levels = c("barley","oats", "wheat")))
 glimpse(weights)
 ```
 Do you see how the variable types of the `supplement` and `diet` columns have been changed to `<fct>`? It worked!
@@ -93,7 +104,7 @@ $$ \text{SE}=\frac{SD}{\sqrt{n}}$$
 # we use the group_by() and summarise() functions from dplyr (the package within tidyverse for data manipulation)
 growth_summary<-weights %>%
   group_by(diet,supplement) %>%
-  summarise(mean_gain=mean(gain),se_gain=sd(gain)/sqrt(n())) %>%
+  summarise(mean_gain = mean(gain),se_gain = sd(gain)/sqrt(n())) %>%
   ungroup()
 growth_summary
 ```
@@ -102,7 +113,7 @@ growth_summary
 library(kableExtra)
 growth_summary<-weights %>%
   group_by(diet,supplement) %>%
-  summarise(mean_gain=mean(gain),se_gain=sd(gain)/sqrt(n())) %>%
+  summarise(mean_gain = mean(gain),se_gain = sd(gain)/sqrt(n())) %>%
   ungroup()
 growth_summary %>%
   kbl() %>%
@@ -117,10 +128,10 @@ The next step, as so often before we launch into actual statistics, is to plot t
 
 ```{r}
 growth_summary %>%
-  ggplot(aes(x=supplement,y=mean_gain,colour=diet,group=diet)) +
+  ggplot(aes(x=supplement,y=mean_gain, colour = diet, group = diet)) +
   geom_point(size=2) +
   geom_line() +
-  geom_errorbar(aes(ymin=mean_gain-se_gain,ymax=mean_gain+se_gain),width=0.1) +
+  geom_errorbar(aes(ymin = mean_gain - se_gain, ymax = mean_gain + se_gain), width=0.1) +
   labs(x="Supplement",
        y="Mean weight gain") +
   scale_fill_brewer() +
@@ -130,19 +141,22 @@ growth_summary %>%
 
 Note that on this plot the error bars are standard errors of the mean. Any caption to a figure that contains error bars should explain what those error bars mean. In particular, it should say whether they are standard deviations of the sample, standard errors of the mean or confidence intervals. These are all different from each other. A good explanation of the difference is given by [Cummings et al][1]. (2007). 
 
-This interaction plot is useful in that we see that both diet and supplement have an effect on growth and that the effect of one is altered little by the value of the other. The lines are more or less parallel. This suggests that we have *main effects* of both diet and supplement, but little or no *interaction* between them.
+This interaction plot is useful in that we see that both diet and supplement have an effect on growth and that the effect of one is altered little by the value of the other, the result of which is that the lines are more or less parallel. This suggests that we have *main effects* of both diet and supplement, but little or no *interaction* between them.
 
 #### Questions
 
 What could the line plot look like if:
 
+-   There were no main effect of both diet and supplement, and no interaction
+
 -   There were a main effect of diet, no main effect of supplement and no interaction?
 
--   There were a main effect of diet, no main effect of supplement *and* interaction?
+-   There were no main effect of diet, a main effect of supplement and no interaction?
 
 -   There were main effects of both and an interaction between them?
 
 The plots tell you a great deal about what main effects and/or interactions there may be.
+
 
 ### ANOVA
 
@@ -170,26 +184,35 @@ First we construct the model using `lm()` and store the outputs of all the maths
 model0<-lm(gain ~ diet * supplement, data = weights)
 ```
 
-
 #### Do we reject the null hypothesis?
 
-Then we use `anova()` to see if there is evidence to reject the null
+To get an overall picture, we first use `anova()` to see if there is evidence to reject the null
 
 ```{r}
 anova(model0)
 ```
 
-The ANOVA table shows that there is no hint of any interaction between `diet` and `supplement` (*p* = 0.917). Clearly therefore, the effects of `diet` and `supplement` are merely additive (ie whichever of one you have it does not affect the impact on growth of whichever of the other you choose), and furthermore both are highly significant.
+The ANOVA table shows that there a main effect of both `diet` and `supplement` (*p*<0.001 in both cases), but that there is no hint of an interaction between `diet` and `supplement` (*p* = 0.917). Does that tally with what you see in the interaction plot? Clearly therefore, the effects of `diet` and `supplement` are merely additive (ie whichever level of one you have it does not affect the impact on growth of whichever level of the other you choose).
 
-The ANOVA table does not show us effect sizes or allow us to work out which if any of the levels of the two factors are significantly different. For this, `summary` is more useful:
+The ANOVA table does not show us effect sizes or allow us to work out which if any of the levels of the two factors are significantly different. For this, `summary()` is more useful:
 
 ```{r}
 summary(model0)
 ```
 
-This is a complex model as there are 12 estimated parameters: 6 main effects and 6 interactions. Notice that the 'controls' for diet and supplement (`barley` and `control`) do not appear in the table. The `intercept` term gives us the outcome for the combination of the two control levels, `barley` as diet and `control` as supplement. The other effect values are given as differences from this reference level for different combinations of the levels of each factor. See if you can tally the effect values in the summary table with the mean values given in the table above for each combination of diet and supplement.
+This is a complex model as there are 12 estimated parameters: 6 main effects and 6 interactions. Notice that although the 'controls' for diet and supplement (`barley` and `control`) do not appear to be in the table, they are there really, in the first row. 
 
-Aid to interpreting the first few rows:
+The value 23.30 kg in the first row of the Estimate column on the left, labelled 'Intercept()' gives us the actual weight gain outcome for the combination of the two control levels, `barley` as diet and `control` as supplement. Check that this value tallies with what is shown in summary tables above, and in the interaction plot. 
+
+The weight gain values for all the other combinations of the levels of each factor are given as differences from this reference level. 
+
+So for example in row two, where diet is changed from barley to oats but supplement is still control, the value in the table is -2.8. This means that the weight gain when the diet is changed to oats but the supplement left as the control is 2.80 kg less than the reference value, and so must be 23.30-2.80 = 20.50 kg. This agrees with the value in the summary table of mean values that was calculated above, and tallies with the interaction plot. 
+
+In row seven we see that the effect of the interaction between the diet `oats` and the supplement `agrimore` is - 0.247. This means that on going from the reference levels of barley and control, for which the gain is 23.30, the change in gain is not just the sum of the two main effects (-2.80 for switch of diet to oats and +3.05 for switch of supplement to agrimore, but is modified by their interaction, of size - 0.247. Hence the mean gain for a diet of oats *and* a supplement of agrimore is the intercept value plus the sum of the two main effects, plus the interaction term: 23.297 - 2.803 + 3.052 - 0.247 = 23.299)
+
+See if you can tally the other effect values in the summary table with the mean values given in table above and in the interaction plot for other combinations of diet and supplement.
+
+Here is a table to help you interpret the output of the `summary()` function.
 
 ```{r, echo = FALSE}
 library(tidytidbits)
@@ -212,7 +235,12 @@ summary.table<-broom::tidy(summary(model0)) %>%
   mutate(estimate=round(estimate,2),
          absolute_value = round(absolute_value,2),
          p_value=as_formatted_p_value(p.value,prefix="",alpha=0.05)) %>%
-  select(term, meaning,estimate, absolute_value, p_value)
+  mutate(significance = case_when(
+    p.value <= 0.001 ~ "***",
+    p.value > 0.001 & p.value <= 0.01 ~ "**",
+    p.value > 0.01 & p.value <= 0.05 ~ '  *.  ',
+    p.value > 0.05 ~ "")) %>%
+  select(term, meaning,type_of_effect,estimate, absolute_value, p_value, significance)
 summary.table %>%
   kbl() %>%
   kable_styling(full_width=FALSE)
@@ -220,17 +248,16 @@ summary.table %>%
 
 
 
-This table re-emphasises that none of the interaction terms are significant. It also suggests that a minimum adequate model will contain 5 parameters: an intercept, a difference due to `oats`, a difference due to `wheat`, a difference due to `agrimore` and a difference due to `suppersupp`.
+The output of the `summary()` function re-emphasises that none of the interaction terms are significant. It also suggests that a minimum adequate model will contain 5 parameters: an intercept, which just means that there is non-zero growth when the diet and supplement are the reference values, a difference from that growth due to changing the diet to `oats`, a difference due to changing it to`wheat`, a difference due to changing the supplement to `agrimore` while keeping barley as the diet, and a difference due to changing the supplement instead to  `suppersupp`..
 
 #### Model Simplification
 
 Given the results of the full interaction model, we begin model simplification by leaving out the interaction terms, to leave us with an additive model:
 
 ```{r}
-model_1<-lm(gain~diet+supplement,data=weights)
+model_1<-lm(gain ~ diet + supplement, data = weights)
 summary(model_1)
 ```
-
 #### Check the validity of the linear model
 
 We ought to pause here for a moment and just check that we are OK to go ahead and analyse our data using a general linear model (of which ANOVA is an example, linear regression and t-tests being others). We will use `autoplot()` from the `ggfortify` package, which gives us the standard four diagnostic plots.
@@ -243,12 +270,32 @@ Well, that all looks fine. In particular, from the top-left figure we see that t
 
 Back to interpreting the output of the ANOVA:
 
-It is clear that we need to retain all three levels of diet since the effect values of each differ from each other by an amount that is several times the standand errors, so that *t* >> 1. It is not clear that we need all the levels of supplement, however. `supersupp` is not obviously different from `agrimore` (difference = -0.727 with standard error = 0.509), yet both are clearly different from `control`. However `supergrain` is not obviously different from `control` (difference = -0.68, error = 0.509). Hence we are tempted to try a new model with just two levels of the factor supplement which we might sensibly call "best", by which we mean `agrimore` or `supersupp`, and "worst" by which we mean `control` or `supergrain`. We'll name this new facotr `supp2`.
+It is clear that we need to retain all three levels of diet since the effect values of each differ from each other by an amount that is several times the standand errors, so that *t* >> 1. It is not clear that we need all the levels of supplement, however. `supersupp` is not obviously different from `agrimore` (difference = -0.727 with standard error = 0.509), yet both are clearly different from `control`. However `supergrain` is not obviously different from `control` (difference = -0.68, error = 0.509). Hence we are tempted to try a new model with just two levels of the factor supplement which we might sensibly call "best", by which we mean `agrimore` or `supersupp`, and "worst" by which we mean `control` or `supergrain`. We'll name this new factor `supp2`.
 
 ```{r}
 weights <- weights %>%
-  mutate(supp2=ifelse(supplement %in% c("agrimore","supersupp"),"best","worst"))
+  mutate(supp2 = ifelse(supplement %in% c("agrimore","supersupp"),"best","worst"))
 ```
+
+If we calculate the means and standard errors for weigh gain under each diet for each of the two new classifications of supplement, and then plot them, we get this new interaction plot:
+
+```{r}
+weights %>%
+  group_by(diet,supp2) %>%
+  summarise(mean_gain = mean(gain), se_gain = sd(gain)/sqrt(n())) %>%
+  ungroup() %>%
+
+  ggplot(aes(x = supp2,y = mean_gain,colour = diet,group=diet)) +
+  geom_point(size=2) +
+  geom_line() +
+  geom_errorbar(aes(ymin = mean_gain-se_gain, ymax = mean_gain+se_gain), width=0.1) +
+  labs(x="Supplement",
+       y="Mean weight gain") +
+  scale_fill_brewer() +
+  theme_cowplot()
+```
+
+From this we can see that diet clearly makes a difference, since the three lines are separated by a distance much larger than the standard errors, the better supplement clearly makes a difference since there is a consistent drop on going from 'best' to 'worst', again by an amount that is much larger than the error bars, and there is clearly no interaction, since the lines are parallel within the wiggle room allowed by the error bars, which means in that the effect of diet does not depend on supplement, and the effect of supplement does not depend on diet.
 
 Now we will fit the simpler model and compare the two additive models:
 
@@ -264,6 +311,15 @@ The simpler model has saved two degrees of freedom and is not significantly diff
 ```{r}
 summary(model_2)
 ```
+
+In this table,
+
+* line one `(Intercept)` tells us that the mean weight gain when on the barley diet and best supplement is 25.76 kg
+* line two `dietoats` tells us that there is a significant drop in weight gain of 3.1 kg when diet is changed to oats.
+* line three `dietwheat` tells us that there is a significant drop in weight gain of 5.99 kg when diet is changed to wheat.
+* line four `supp2worst` tells us that there is a significant drop in wight gain of 2.68 kg when supplement is changed to worst.
+
+In all cases, p< 0.001
 
 We have now reduced our initial 12 parameter model to a four parameter model that is much more tractable and easier to communicate. Our advice would be that for maximum weight gain a diet of `barley` with a supplement of `agrimore` or `suppersupp` would be best.
 
