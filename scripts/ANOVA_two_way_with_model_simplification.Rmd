@@ -5,6 +5,8 @@ date: '15-11-2022'
 output:
   html_document:
     df_print: paged
+    toc: true
+    toc_float: true
 ---
 
 ```{r set-up, include = FALSE}
@@ -13,7 +15,20 @@ knitr::opts_chunk$set(message=FALSE,warning=FALSE)
 
 This exercise sheet is heavily indebted to Michael Crawley's *Statistics: An introduction using R*, 2nd Ed, Wiley. Published in 2015 this emphasises statistics over R (in fact, much of the R he presents is written prior to the advent of the `tidyverse` dialect which we use here, and so may seem terse if that is what you are used to). It is very useful and is at a higher level than Beckerman, Childs and Petchey's *Getting Started in R: An introduction for biologists*, 2nd Ed. OUP published in 2017. Their book also includes a simpler version of the example explored here.
 
-#### Files needed
+
+### Factorial experiments and model simplification
+
+The best model is the one that adequately explains the data with fewest parameters. This means with the smallest possible number of degrees of freedom.
+
+If we have a very large number of parameters, a model can fit any data set but be of limited use in generalising beyond it (we will have overfitted the data). If we have too few we will not explain much of the variance of the data. A balance must be struck. Hence we want the *minimal* *adequate* model.
+
+As Einstein almost said, a model should be as simple as possible, but no simpler.
+
+A **factorial** experiment has two or more factors, each with two or more levels, plus replication for each combination of factor levels. This means that we can investigate whether statistical interactions occur in which the effect of one factor depends on the value of another factor.
+
+We take an example from a farm-trial of animal diets. There are two factors: `diet` and `supplement`. `diet` is a factor with three levels: `barley`, `oats` and `wheat`, where `barley` is the diet that has always been used and the other two are potential alternatives. The purpose of the trial is to see if their use makes a difference to growth outcomes. `supplement` is a factor with four levels: `control`, `agrimore`, `supergain` and `supersupp`, where `control` could mean the absence of any supplement or the supplement used up to now, whose effects we are hoping to improve upon through use of one of the others included in the trial. The response variable `gain` is weight gain after 6 weeks. There were 48 individual cows in total with 4 for each combination of `diet` and `supplement`. Having the same number of replcates for each combination of levels means that this is a *balanced* design.
+
+### Files needed
 
 * To be put in the Project/scripts folder:
 
@@ -24,21 +39,7 @@ This exercise sheet is heavily indebted to Michael Crawley's *Statistics: An int
 
   * `growth.csv`
 
-### Factorial experiments and model simplification
-
-The best model is the one that adequately explains the data with fewest parameters. This means with the smallest possible number of degrees of freedom.
-
-If we have a very large number of parameters, a model can fit any data set but be of limited use in generalising beyond it (we will have overfitted the data). If we have too few we will not explain much of the variance of the data. A balance must be struck. Hence we want the *minimal* *adequate* model.
-
-As Einstein almost said, a model should be as simple as possible, but no simpler.
-
-### Factorial experiments
-
-A **factorial** experiment has two or more factors, each with two or more levels, plus replication for each combination of factor levels. This means that we can investigate whether statistical interactions occur in which the effect of one factor depends on the value of another factor.
-
-We take an example from a farm-trial of animal diets. There are two factors: `diet` and `supplement`. `diet` is a factor with three levels: `barley`, `oats` and `wheat`, where `barley` is the diet that has always been used and the other two are potential alternatives. The purpose of the trial is to see if their use makes a difference to growth outcomes. `supplement` is a factor with four levels: `control`, `agrimore`, `supergrain` and `supersupp`, where `control` could mean the absence of any supplement or the supplement used up to now, whose effects we are hoping to improve upon through use of one of the others included in the trial. The response variable `gain` is weight gain after 6 weeks. There were 48 individual cows in total with 4 for each combination of `diet` and `supplement`. Having the same number of replcates for each combination of levels means that this is a *balanced* design.
-
-In the following, we present the code you need to analyse this data together with explanatory text. Read the text closely so that you understand what each chunk code is intended to do. In the accompanying template file, fill in the code as you go in the empty chunks, using this worksheet as a guide.  As you complete each line of code, run it using Ctrl-Enter or Cmd-Enter on a Mac. Alternatively, wait until you have completed the code for a chunk then run the whole chunk in one go by pressing the little green arrow at the top right of the chunk. Whichever way you choose, you are encouraged to view the code presented here as *one* way to do the analysis. Feel free to hack away at it and change things, to try different approaches and see what happens. That way you will learn. You may also wish to add your own text between the chunks.
+In the following, we present the code you need to analyse this data together with explanatory text. Read the text closely so that you understand what each chunk of code is intended to do. In the accompanying template file, fill in the code as you go in the empty chunks, using this worksheet as a guide.  As you complete each line of code, run it using Ctrl-Enter or Cmd-Enter on a Mac. Alternatively, wait until you have completed the code for a chunk then run the whole chunk in one go by pressing the little green arrow at the top right of the chunk. Whichever way you choose, you are encouraged to view the code presented here as *one* way to do the analysis. Feel free to hack away at it and change things, to try different approaches and see what happens. That way you will learn. You may also wish to add your own text between the chunks.
 
 ### Open your Project
 
@@ -49,10 +50,10 @@ You should be working within a folder that you have designated as what RStudio c
 I normally load all the packages in the chunk below into every script. The most important is the `tidyverse` package which is a goody bag containing several other packages. Loading this saves you from having to load each of those individually. The most often used among these is `readr` for reading and writing data from/to files, `dplyr` for data manipulation, and `ggplot2` for plotting. Others will be used from time to time, and we don't really need to be aware of that when it happens or to worry about it, so long as `tidyverse` has been loaded.
 
 ```{r load packages, message=FALSE,warning=FALSE}
-library(tidyverse)  # for data manipulation and plotting, an
+library(tidyverse)  # for data manipulation and plotting, and much else besides
 library(here) # for finding our data easily
 library(cowplot) # gives a nice theme for plots
-library(ggfortify) # for idagnostic plots
+library(ggfortify) # for diagnostic plots
 ```
 
 ### Read in the data
@@ -79,7 +80,7 @@ To ensure that a variable is regarded as a factor, and then to get its levels in
 
 In the following chunk, `factor()` is used to designate both the `supplement` and `diet` columns of the data set as factors, and the level order of each is specified, with `control` coming first for `supplement` and `barley` coming first for `diet`. 
 
-```{r}
+```{r convert to factors}
 weights <- weights %>%
   mutate(supplement = factor(supplement, levels = c("control","agrimore", "supergain", "supersupp")),
          diet = factor(diet, levels = c("barley","oats", "wheat")))
@@ -100,7 +101,7 @@ There isn't a function in base R with which we can calculate standard error of t
 
 $$ \text{SE}=\frac{SD}{\sqrt{n}}$$
 
-```{r, eval= FALSE}
+```{r make data summary table one, eval= FALSE}
 # we use the group_by() and summarise() functions from dplyr (the package within tidyverse for data manipulation)
 growth_summary<-weights %>%
   group_by(diet,supplement) %>%
@@ -126,7 +127,7 @@ Note the ordering of the diet and supplement levels in their respective columns:
 
 The next step, as so often before we launch into actual statistics, is to plot the data in a way that sheds light on the question we have. Here, we can use the use the means and standard errors of the mean that we have just calculated to produce a useful kind of line plot that in this context is often referred to as an interaction plot:
 
-```{r}
+```{r interaction plot one}
 growth_summary %>%
   ggplot(aes(x=supplement,y=mean_gain, colour = diet, group = diet)) +
   geom_point(size=2) +
@@ -180,7 +181,7 @@ which can be written more simply using the asterisk notation as:
 #### Construct the model
 First we construct the model using `lm()` and store the outputs of all the maths that ``lm()` does in an object called `model0`:
 
-```{r}
+```{r make interactive model}
 model0<-lm(gain ~ diet * supplement, data = weights)
 ```
 
@@ -188,7 +189,7 @@ model0<-lm(gain ~ diet * supplement, data = weights)
 
 To get an overall picture, we first use `anova()` to see if there is evidence to reject the null
 
-```{r}
+```{r anova of interactive model}
 anova(model0)
 ```
 
@@ -196,7 +197,7 @@ The ANOVA table shows that there a main effect of both `diet` and `supplement` (
 
 The ANOVA table does not show us effect sizes or allow us to work out which if any of the levels of the two factors are significantly different. For this, `summary()` is more useful:
 
-```{r}
+```{r summary of interactive model}
 summary(model0)
 ```
 
@@ -214,7 +215,7 @@ See if you can tally the other effect values in the summary table with the mean 
 
 Here is a table to help you interpret the output of the `summary()` function.
 
-```{r, echo = FALSE}
+```{r additional table, echo = FALSE}
 library(tidytidbits)
 library(kableExtra)
 summary.table<-broom::tidy(summary(model0)) %>%
@@ -250,19 +251,19 @@ summary.table %>%
 
 The output of the `summary()` function re-emphasises that none of the interaction terms are significant. It also suggests that a minimum adequate model will contain 5 parameters: an intercept, which just means that there is non-zero growth when the diet and supplement are the reference values, a difference from that growth due to changing the diet to `oats`, a difference due to changing it to`wheat`, a difference due to changing the supplement to `agrimore` while keeping barley as the diet, and a difference due to changing the supplement instead to  `suppersupp`..
 
-#### Model Simplification
+### Model Simplification
 
 Given the results of the full interaction model, we begin model simplification by leaving out the interaction terms, to leave us with an additive model:
 
-```{r}
+```{r additive model one}
 model_1<-lm(gain ~ diet + supplement, data = weights)
 summary(model_1)
 ```
-#### Check the validity of the linear model
+### Check the validity of the linear model
 
 We ought to pause here for a moment and just check that we are OK to go ahead and analyse our data using a general linear model (of which ANOVA is an example, linear regression and t-tests being others). We will use `autoplot()` from the `ggfortify` package, which gives us the standard four diagnostic plots.
 
-```{r}
+```{r diagnostic plots}
 autoplot(model_1) + theme_cowplot() # autoplot() is from the ggfortify package.
 ```
 
@@ -272,14 +273,14 @@ Back to interpreting the output of the ANOVA:
 
 It is clear that we need to retain all three levels of diet since the effect values of each differ from each other by an amount that is several times the standand errors, so that *t* >> 1. It is not clear that we need all the levels of supplement, however. `supersupp` is not obviously different from `agrimore` (difference = -0.727 with standard error = 0.509), yet both are clearly different from `control`. However `supergrain` is not obviously different from `control` (difference = -0.68, error = 0.509). Hence we are tempted to try a new model with just two levels of the factor supplement which we might sensibly call "best", by which we mean `agrimore` or `supersupp`, and "worst" by which we mean `control` or `supergrain`. We'll name this new factor `supp2`.
 
-```{r}
+```{r condense supplements to two}
 weights <- weights %>%
   mutate(supp2 = ifelse(supplement %in% c("agrimore","supersupp"),"best","worst"))
 ```
 
-If we calculate the means and standard errors for weigh gain under each diet for each of the two new classifications of supplement, and then plot them, we get this new interaction plot:
+If we calculate the means and standard errors for weight gain under each diet for each of the two new classifications of supplement, and then plot them, we get this new interaction plot:
 
-```{r}
+```{r simplified additive model plot}
 weights %>%
   group_by(diet,supp2) %>%
   summarise(mean_gain = mean(gain), se_gain = sd(gain)/sqrt(n())) %>%
@@ -295,12 +296,18 @@ weights %>%
   theme_cowplot()
 ```
 
-From this we can see that diet clearly makes a difference, since the three lines are separated by a distance much larger than the standard errors, the better supplement clearly makes a difference since there is a consistent drop on going from 'best' to 'worst', again by an amount that is much larger than the error bars, and there is clearly no interaction, since the lines are parallel within the wiggle room allowed by the error bars, which means in that the effect of diet does not depend on supplement, and the effect of supplement does not depend on diet.
+From this we can see that diet clearly makes a difference to weight gain, since the three lines are separated by a distance much larger than the standard errors, the best supplement clearly makes a difference since there is a consistent drop on going from 'best' to 'worst', again by an amount that is much larger than the error bars, and there is clearly no interaction between diet and supplement, since the lines are parallel within the wiggle room allowed by the error bars, which means that the effect of diet does not depend on supplement, and the effect of supplement does not depend on diet.
 
-Now we will fit the simpler model and compare the two additive models:
+Now we will make the simpler model, calling it model_2 (for comparison with the first additive model, model_1)
 
-```{r}
+```{r simplest additive model}
+# additive model whee the supplements have been condensed from four to two: best and worst
 model_2<-lm(gain ~ diet + supp2, data = weights)
+```
+
+and them compare the two additive models:
+
+```{r anova compare additive models}
 anova(model_1,model_2)
 ```
 
@@ -308,7 +315,7 @@ When we use `anova()` in this way it is testing the explanatory power of the sec
 
 The simpler model has saved two degrees of freedom and is not significantly different in explanatory power than the more complex model (*p* = 0.158). Hence this is a better candidate as a minimal adequate model. All the parameters are significantly different from zero and from each other.
 
-```{r}
+```{r summary of simplest model}
 summary(model_2)
 ```
 
@@ -319,7 +326,7 @@ In this table,
 * line three `dietwheat` tells us that there is a significant drop in weight gain of 5.99 kg when diet is changed to wheat.
 * line four `supp2worst` tells us that there is a significant drop in wight gain of 2.68 kg when supplement is changed to worst.
 
-In all cases, p< 0.001
+In all cases, p< 0.001, as indicated not only by the number in the Pr(>|t|) column, but also by the '***' in the right-most column of the table.
 
 We have now reduced our initial 12 parameter model to a four parameter model that is much more tractable and easier to communicate. Our advice would be that for maximum weight gain a diet of `barley` with a supplement of `agrimore` or `suppersupp` would be best.
 
