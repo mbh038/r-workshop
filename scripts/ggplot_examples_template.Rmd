@@ -23,12 +23,12 @@ Remember that the template is a markdown document, so you can add extra text bet
 ```{r}
 # install.packages("name of package") # run this line once, if you need to, if either package needs to be installed
 
-# enter three ines of code to install the packages tidyverse, here and palmerpenguins
+# enter three lines of code to install the packages tidyverse, here and palmerpenguin
 ```
 
 ### Load the Palmer penguin data
 
-For this exercise we use the Palmer penguins data set which comes with the package palmerpenguins
+For this exercise we use the Palmer penguins data set which comes with the package `palmerpenguin`
 
 The `palmerpenguin` package contains two built-in data sets. One is called `penguins`:
 

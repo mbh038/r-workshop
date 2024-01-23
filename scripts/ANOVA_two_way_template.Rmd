@@ -152,9 +152,10 @@ which can be written more simply using the asterisk notation as:
 
 #### Construct the model
 
+Replace the `NULL` in this line of code to run an interactive model for the dependence of gain on diet and supplement
+
 ```{r make interactive model}
-# complete this line of code to run an interactive model for the dependence of gain on diet and supplement
-model0<-
+model0<-NULL
 ```
 
 #### Do we reject the null hypothesis?
@@ -191,13 +192,13 @@ The output of the `summary()` function re-emphasises that none of the interactio
 
 #### Model Simplification
 
-Given the results of the full interaction model, we begin model simplification by leaving out the interaction terms, to leave us with an additive model:
+Given the results of the full interaction model, we begin model simplification by leaving out the interaction terms, to leave us with an additive model. Replace the `NULL` in the code chunk below using `lm()` to create a liner additive model, with `diet` and `supplement` as predictors and `gain` as response variable. Then enter code to give a summary table of the output of this model
 
 ```{r additive model one}
-# complete the code using lm() to create. liner additive model, using diet and supplement as predciators and gain as response variable
-model_1<-
+# 
+model_1<-NULL
   
-# enter code to generate a summary table of the effects within the
+# enter code to generate a summary table of the effects within model_1
 
 ```
 
@@ -261,12 +262,12 @@ From this, does it look as though:
 * Supplement (best/worst) makes a difference to weight? gain (Y/N)
 * There is evidence for an interaction? (Y/N)
 
-Now we will make the simpler model
+Now we will make the simpler model. # Replace the `NULL` with code to fit an additive model for `gain` with `diet` and `supp2` as the explanatory variables
 
 ```{r simplest additive model}
 # additive model where the supplements have been condensed from four to two: best and worst
-# complete the  code to fit an additive model for gain with diet and supp2 as the explanatory variables
-model_2 <- 
+model_2 <- NULL
+
 ```
 
 and then compare the two additive models:
@@ -287,7 +288,7 @@ When we use `anova()` in this way it is testing the explanatory power of the sec
 Now we ask for the summary table of model_2:
 
 
-```{r summary of simplest model}
+```{r}
 # enter code to get the summary table for model_2
 
 ```
