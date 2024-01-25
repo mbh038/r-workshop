@@ -1,0 +1,98 @@
+---
+title: 'The GLM: Generalised Linear Model'
+output:
+  html_document:
+    df_print: paged
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(here)
+library(cowplot)
+options(kableExtra.auto_format = FALSE)
+library(kableExtra)
+```
+
+
+
+In many settings we have a response variable such as a weight, length or concentration that is a continuous real number.
+
+For many common analyses of those variables, such as t-test, regression, ANOVA, or in fact any manifestation of the linear model, the data needs to have the following attributes:
+
+* random sampling
+* constant variance
+* normally distributed errors
+* independent errors
+* additive effects
+
+If one or more of these assumptions is wrong, the analyses become unreliable in that the claims that they make will be based on assumptions that are false.
+
+Consider the variance of some commonly encountered types of data:
+
+**Count data**
+
+These are whole numbers that can never be negative. That straight away gives a problem with the assumptons of the linear model if the counts are typically low. To have 'normally distributed errors' would require that some of the counts be negative, which is nonsense. 
+
+Regardless of that, it is usually the case with count data that the higher the counts, the higher the variance of the counts: think say of a situation where you were recording the numbers of individuals of some species per unit time or area. If the mean number were 5 then you might find counts that varied, say, between 3 and 7, but if the mean number were 500 then would not expect the individual counts to be constrained between 498 and 502. You would expect a greater variance than when the mean was only 5. This is common for count data but it breaks a key assumption of the linear model.
+
+Count data also often has the 'zero inflation' problem whereby the number of zeros recorded is high.
+
+**Proportion data**
+
+Count data can be expressed in the form of proportion data when you know, not only how often something *did* happen, but also how often it **did not** happen. For example you might be studying the behaviour of civets in a zoo in time blocks of 20 minutes. For every minute within each block you record whether the civets appeared agitated. At the end of each block you will know the proportion *p* of one minute slots within which they were agitated and the proportion *1-p* when they were not.
+
+This type of data has low variance when proportions tend to be very low, around zero, or very high, around one. In between, peaking when the proportion is around 0.5 (50:50) the variance is at its greatest.
+
+```{r}
+base<-ggplot () +
+  xlim(0,1) +
+  ylim(0,1) +
+  theme_cowplot() +
+  theme(axis.text=element_blank(),
+        axis.ticks=element_blank(),
+        axis.title=element_text(size = 11),
+        plot.title=element_text(size = 12))
+
+p1<-base + geom_function(fun=function(x) 0.5,colour="blue") + labs(x = "mean", y = "variance", title = "linear model")
+p2<-base + geom_function(fun=function(x) x, colour="blue") + labs(x = "mean", y = "variance", title = "count data")
+p3<-base + geom_function(fun=function(x) 3*x*(1-x), colour="blue") + labs(x = "mean", y = "variance", title = "proportion data")
+p4<-base + geom_function(fun=function(x) x^2, colour="blue") +labs(x = "mean", y = "variance", title = "age-at-death data")
+
+
+plot_grid(p1,p2,p3,p4,nrow=2)
+```
+
+
+
+A common approach to try to solve at least part of this is to 'transform' the response data such that its distribution more resembles that of a 'normal' distribution. This usually means operating on it with functions such as square root or log that have the effect of pulling in the long tails of highly skewed distributions. This approch has its limitations.
+
+A more powerful and versatile approach is to use generalised linear models, commonly referred to as GLMs.
+
+
+
+### Deviance: a general measure of variability
+
+$$
+\text{deviance} = -2\times\text{log likelihood}
+$$
+```{r}
+library(knitr)
+df <- data.frame(Model = c("linear", "log linear","logistic","gamma"), 
+                 Deviance = c("$\\sum \\left(y-\\hat{y}\\right)^2$",
+                              "$2\\sum y\\log{\\left(\\dfrac{y}{\\hat{y}}\\right)}$",
+                              "$2\\sum y\\log{\\left(\\dfrac{y}{\\hat{y}}\\right)} +(n-y)\\log{\\left(\\dfrac{n-y}{n-\\hat{y}}\\right)}$",
+                              "$2\\sum {\\dfrac{(y-\\hat{y})}{y} - \\log{\\left(\\dfrac{y}{\\hat{y}}\\right)} }$"), 
+                 Error = c("Gaussian", "Poission","binomial","gamma"),
+                 Link = c("identity","log","logit","reciprocal"))
+
+df %>%
+  kable(col.names = c("Model", "Deviance", "Error","Link"), escape = F, caption = "") %>%
+  kable_styling(latex_options = "hold_position")
+```
+
