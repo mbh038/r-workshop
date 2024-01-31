@@ -328,6 +328,11 @@ In this table,
 
 In all cases, p< 0.001, as indicated not only by the number in the Pr(>|t|) column, but also by the '***' in the right-most column of the table.
 
-We have now reduced our initial 12 parameter model to a four parameter model that is much more tractable and easier to communicate. Our advice would be that for maximum weight gain a diet of `barley` with a supplement of `agrimore` or `suppersupp` would be best.
+### Reporting the results
+
+We have now reduced our initial 12 parameter model to a four parameter model that is much more tractable and easier to communicate. Our advice would be that for maximum weight gain a diet of `barley` with a supplement of `agrimore` or `supersupp` would be best. 
+
+If we were reporting this as a statistical test, we might say something like: A diet of barley  with a supplement of agrimore or supersupp was to offer significant improvements over alternatives. There was no evidence of any interaction between diet and supplement. (ANOVA 2-way, F~3,44~ = 76.76, p < 0.001)
+
 
 [1]: Cumming, G., Fidler, F., & Vaux, D. L. (2007). Error bars in experimental biology. Journal of Cell Biology, 177(1), 7--11. <https://doi.org/10.1083/jcb.200611141>
