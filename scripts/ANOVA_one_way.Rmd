@@ -83,9 +83,9 @@ There is just one **factor** here, species, and it has more than two **levels** 
 #### Null hypothesis
 Pretty much all of the commonly used statistics tests are asking the question: what is the probability that you would have got this data, or more extreme data, if the null hypothesis were true? Their job is to calculate that probability, which is called a p-value. There is a lot more besides, but what this means is that in carrying out any of these tests we at least need to have a hypothesis in mind and its corresponding null hypothesis. The null, remember, is typically the 'nothing going on', there is no effect, no difference scenario.
 
-So in this case, the null hypothesis is that there is no difference in body mass between the females of the different penguin species. 
+So in this case, a suitable null hypothesis would be that there is no difference in body mass between the females of the different penguin species. 
 
-To see if there is evidence from the data to reject this null, we will follow a sequene of steps that will be common to many analyses:
+To see if there is evidence from the data to reject this null, we will follow a sequence of steps that will be common to many analyses:
 
 * get the data
 * clean/prepare the data
@@ -96,13 +96,13 @@ To see if there is evidence from the data to reject this null, we will follow a 
 * inspect the model output
 * reject or fail to reject the null hypothesis
 * if we reject the null, carry out post-hoc tests
-* (maybe) simplfy the model and redo the analysis
+* (maybe) simplify the model and redo the analysis
 
 
 
 For the penguin data, getting it was easy as it came with the `palmerpenguins` package.
 
-To prepare the data, we start with the full data set and pick out the females, using the `filter()` function, and again make sure there are no lines with missing values, using `drop_na()`. We save this cleaned data set in an obect called `females`.
+To prepare the data, we start with the full data set and narrow it down to just the females, using the `filter()` function, and again make sure there are no lines with missing values, using `drop_na()`. We save this cleaned data set in an object called `females`.
 
 ```{r}
 females <- penguins %>%

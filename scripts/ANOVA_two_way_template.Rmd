@@ -44,7 +44,10 @@ You should be working within a folder that you have designated as what RStudio c
 
 ```{r load packages, message=FALSE,warning=FALSE}
 #Enter code to load the packages tidyverse, here, cowplot and ggfortify. If need be, install them first.
-
+library(tidyverse)  # for data manipulation and plotting, and much else besides
+library(here) # for finding our data easily
+library(cowplot) # gives a nice theme for plots
+library(ggfortify) # for diagnostic plots
 ```
 
 ### Read in the data
@@ -302,6 +305,8 @@ Use this table to fill in the gaps below:
 * line four (sup2worst) tells us that there is a significant drop in wight gain of ...... kg when supplement is changed to worst, regardless of diet.
 * In all cases (choose the best description), p>0.05, p<0.05, p<0.01, p< 0.001
 
+
+#### Reporting the results
 
 We have now reduced our initial 12 parameter model to a four parameter model that is much more tractable and easier to communicate. Our advice would be that for maximum weight gain a diet of `barley` with a supplement of `agrimore` or `supersupp` would be best. 
 

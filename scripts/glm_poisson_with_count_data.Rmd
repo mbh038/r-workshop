@@ -56,7 +56,7 @@ A few things stand out from this plot:
 ### The wrong way to analyse the data - do a linear model
 
 We should have an inkling that this is the wrong way since the variation of offspring with body weight is clearly not linear!
-FOr insight, let's do it anyway using lm(), and look at the diagnostic plots we get when we give the resulting model `soay.linear` to `autoplot()`
+For insight, let's do it anyway using `lm()`, and look at the diagnostic plots we get when we give the resulting model `soay.linear` to `autoplot()`
 
 ```{r wrong analysis}
 soay.linear<-lm(fitness~body.size,data=soay)

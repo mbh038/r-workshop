@@ -47,7 +47,7 @@ Count data also often has the 'zero inflation' problem whereby the number of zer
 
 Count data can be expressed in the form of proportion data when you know, not only how often something *did* happen, but also how often it **did not** happen. For example you might be studying the behaviour of civets in a zoo in time blocks of 20 minutes. For every minute within each block you record whether the civets appeared agitated. At the end of each block you will know the proportion *p* of one minute slots within which they were agitated and the proportion *1-p* when they were not.
 
-This type of data has low variance when proportions tend to be very low, around zero, or very high, around one. In between, peaking when the proportion is around 0.5 (50:50) the variance is at its greatest.
+This type of data has low variance when proportions tend to be very low, around zero, or very high, around one. In between, it peaks when the proportion is around 0.5 (50:50) the variance is at its greatest.
 
 ```{r}
 base<-ggplot () +
@@ -70,7 +70,7 @@ plot_grid(p1,p2,p3,p4,nrow=2)
 
 
 
-A common approach to try to solve at least part of this is to 'transform' the response data such that its distribution more resembles that of a 'normal' distribution. This usually means operating on it with functions such as square root or log that have the effect of pulling in the long tails of highly skewed distributions. This approch has its limitations.
+A common approach to try to solve at least part of this is to 'transform' the response data such that its distribution more resembles that of a 'normal' distribution. This usually means operating on it with functions such as square root or log that have the effect of pulling in the long tails of highly skewed distributions. This approach has its limitations.
 
 A more powerful and versatile approach is to use generalised linear models, commonly referred to as GLMs.
 
