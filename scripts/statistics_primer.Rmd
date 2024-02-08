@@ -1033,7 +1033,7 @@ The procedure can be broken down into these steps:
 7.  Calculate the *p*-value for this *t*-statistic.
 8.  Based on the *p*-value, reject or fail to reject the null hypothesis.
 
-### One sample *t*-test
+### Comparing one mean with a threshold - one sample *t*-test
 
 Let us return to our class of students. Figure \@ref(fig:test-score-change) shows a histogram of the changes in their test scores following their course of study. We shall call this change DIFF:
 
@@ -1073,7 +1073,7 @@ If we were to do this test in R, this is the output we would get:
 t.test(df$DIFF)
 ```
 
-### Comparing two means
+### Comparing two means - two-sample test
 
 #### A two-sample test for a difference
 
@@ -1190,7 +1190,7 @@ $$
 \end{align*}
 $$
 
-To find out whether or not we can reject the null hypothesis, we can use the fact that the difference between the means $\mu_A-\mu_B$ is itself a random variable that follows a *t*-distribution and which, under the null hypothesis has a mean of zero. What we need to do is calculate the **t*-*statistic* in this case, which is the difference between the sample means divided by the standard error of that difference. 
+To find out whether or not we can reject the null hypothesis, we can use the fact that the difference between the means $\mu_A-\mu_B$ is itself a random variable that follows a *t*-distribution and which under the null hypothesis has a mean of zero. What we need to do is calculate the *t*-*statistic* in this case, which is the difference between the sample means divided by the standard error of that difference^*^. 
 
 *This turns out to be the square root of the sum of the squared standard errors of the individual means, a result that comes from the fact that the variance of the difference between two independent random variables is the sum of the variances of each of the variables, and a standard error is the square root of a variance. Handy to know, but you don't have to. In practice, most people will simply use the R function `t.test()` without worrying about the details, and so can you, if you want to.*
 
@@ -1201,7 +1201,7 @@ $$
 $$
 Hence the test statistic $t$ in this case is $\frac{0.109}{0.0576} = 1.90$
 
-The number of degrees of freedom in this case is $n_\text{A}+n_\text{B}-2=50+50-2=98$. A *t*-distribution with 98 degrees of freedom is indistinguishable from a normal distribution and you may recall from above that the threshold $t$ value  in a two-sided test for a *p*-value of 0.05 or less is 1.96. Our value here is less than that and hence we conclude that there is no evidence from the data at the 5% signficance level that males and females have different body masses.
+The number of degrees of freedom in this case is $n_\text{A}+n_\text{B}-2=50+50-2=98$. A *t*-distribution with 98 degrees of freedom is indistinguishable from a normal distribution and you may recall from above that the threshold $t$ (or $z$, it makes no difference with this many degrees of freedom) value  in a two-sided test for a *p*-value of 0.05 or less is 1.96. Our value here is less than that and hence we conclude that there is no evidence from the data at the 5% signficance level that males and females have different body masses.
 
 If we do this test in R, this is the output we get:
 
@@ -1211,7 +1211,7 @@ females_log_mass<-squirrels %>% filter(sex=="FEMALE") %>% select(log_mass) %>% p
 t.test(males_log_mass,females_log_mass,var.equal=TRUE)
 ```
 
-Note that we are given the *t*-statistic, the number of degrees of freedom and the *p*-value, on the basis of which we decide whether or not to reject the null hypothesis which is that the samples are drawn from populations with the same mean value. Note too that we are given a 95% confidence interval. This is the range of values that would capture the true value of the difference between the means 95% of the time, if we repeated the trial many times over. If this range encompasses zero, then we have no grounds, at the 95% confidence level, to think that the difference between the means is anything other than zero. Whenever this confidence interval *does* encompass zero, as it does here, the *p*-value *will* also be greater than 0.05, as it is here.
+Note that in this output from R we are given the *t*-statistic, the number of degrees of freedom and the *p*-value, on the basis of which we decide whether or not to reject the null hypothesis which is that the samples are drawn from populations with the same mean value. Note too that we are given a 95% confidence interval. This is the range of values that would capture the true value of the difference between the means of our samples 95% of the time, if we repeated the trial many times over. If this range encompasses zero, then we have no grounds, at the 95% confidence level, to think that the difference between the means among the populations is anything other than zero. Whenever this confidence interval *does* encompass zero, as it does here, the *p*-value *will* also be greater than 0.05, as it is here.
 
 #### Erroneous use of a *t*-test
 
