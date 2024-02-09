@@ -30,7 +30,7 @@ So, you typically use this test when you would like to use the paired t-test, bu
 
 #### Null Hypotheses
 
-In both the t-test and the Wilcoxon signed rank tests, the null hypothesis is the usual 'nothing going on', 'there is no difference' scenario, but there is a subtle difference between them that reflects the different information that they use. In the Wilcoxon signed rank test the null is that the median difference between pairs of observations is zero. This is different from the null hypothesis of the paired t–test, which is that the mean difference between pairs is zero. 
+In both the t-test and the Wilcoxon signed rank tests, the null hypothesis is the usual 'nothing going on', 'there is no difference' scenario, but there is a subtle difference between them that reflects the different information that they use. In the Wilcoxon signed rank test the null is that the difference between the *medians* of pairs of observations is zero. This is different from the null hypothesis of the paired t–test, which is that the difference between the *means* of pairs is zero. 
 
 
 #### Test output
@@ -81,7 +81,7 @@ head(poplars_tidy,8) %>%
 
 ```
 
-Now we can plot the data as a box plot, with one box for August and one for November ie one for each level of the factor month. Had we not first tidied the data, we could not have done this.
+Now we can plot the data as a box plot, with one box for August and one for November ie one for each level of the factor `month`. Had we not first tidied the data, we could not have done this.
 
 ```{r}
 poplars_tidy %>%
