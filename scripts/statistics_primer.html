@@ -1731,7 +1731,7 @@ Figure 1: Scores in Maths and English tests. Both sets of scores have the same m
 \text{deviation} = \text{datapoint} - \text{mean}
 \]</span></p>
 <p>If we sum the deviations of the scores from each test from their respective means, we would find that the absolute value of these deviations tend to be bigger for the maths test than for the English test. For both tests, however, the sum of the deviations would be zero, because of the definition of the mean as the central point, but if the deviations are squared and summed, we then get a measure of the variability of each data set around its mean.</p>
-<table class="table" style="margin-left: auto; margin-right: auto;">
+<table class="table" style="color: black; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="1">
@@ -2064,8 +2064,8 @@ Figure 14: Changes in exam scores following a course of study. Do these provide 
 </p>
 </div>
 <p>We see that some students <em>did</em> score worse in the test following the course than in the test preceding it, but a majority have improved their score. It seems from this chart that the course of study has helped the students, on the whole, but to check that this improvement is significant we carry out a test.</p>
-<p>The test we will use is called a “one sample” t-test. One sample, because we have just one sample of data, in this cases the differences in the students scores, and we compare these with a null, or reference value, which in this case is zero. In other words, the test will tell us whether there is evidence from the data to reject the null value, which is that the course made no difference to the students’ scores.</p>
-<p>The mean value <span class="math inline">\(\bar{y}\)</span> of DIFF is 0.862 and the standard deviation <em>s</em> of DIFF is 0.838. The number of students is <em>n</em> is 30, so the degrees of freedom <em>df</em> is 29. The standard error in the mean is <span class="math inline">\(s/\sqrt{n} = 0.153\)</span>. Hence the <em>t</em>-statistic, the number of standard errors of the mean from the null prediction of 0 (in this case) is 0.862 / 0.153 = 5.64.</p>
+<p>The test we will use is called a “one sample” t-test. One sample, because we have just one sample of data, in this case the differences in the students scores, and we compare these with a null, or reference value, which in this case is zero. In other words, the test will tell us whether there is evidence from the data to reject the null value, which is that the course made no difference to the students’ scores.</p>
+<p>The mean value <span class="math inline">\(\bar{y}\)</span> of DIFF is 0.862 and the standard deviation <em>s</em> of DIFF is 0.838. The number of students is <em>n</em> is 30, so the degrees of freedom <em>df</em> is 29. The standard error in the mean is <span class="math inline">\(\frac{s}{\sqrt{n}} = 0.153\)</span>. Hence the <em>t</em>-statistic, the number of standard errors of the mean from the null prediction of 0 (in this case) is 0.862 / 0.153 = 5.64.</p>
 <p>Look at the plot of a <em>t</em>-distribution for 30 degrees of the freedom (that for 29 degrees of freedom will be very similar to that) in Figure <a href="#fig:t-dists">9</a> above. What proportion of the area under the curve, do you think, is more than 5.64 standard errors away from 0? Most of it, some of it, or practically none of it?</p>
 <p>You can see that this distance is so far away from zero that the area under the curve that is that far or further from zero is effectively zero. We interpret this as meaning there is almost zero probability that we would have got this data if the null hypothesis were true. This probability is what we call a <em>p</em>-value. In particular, the <em>p</em>-value for this one sample <em>t</em>-test is well below 0.05, in fact <em>p</em> &lt; 0.001 so we can confidently reject the null hypothesis and conclude that in general, students’ score did improve following their course of study. (We infer the direction of change from the fact that the mean difference is positive, and also from the range of values contained within the confidence interval.)</p>
 <p>If we were to do this test in R, this is the output we would get:</p>
@@ -2105,7 +2105,7 @@ Figure 16: Histograms and qq-plots for the same data, but after it has been log 
 </div>
 <p>That’s much better.</p>
 <p>Here is a summary of the log(mass) values for each sample:</p>
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<table class="table" style="color: black; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -2144,21 +2144,21 @@ MALE
 </tr>
 </tbody>
 </table>
-<p>Our null hypothesis <span class="math inline">\(H_0\)</span> is that the two samples are drawn from populations with the same mean mass, and the alternate hypothesis <span class="math inline">\(H_1\)</span> is that the populations from which they are drawn do not have the same mwan mass:</p>
+<p>Our null hypothesis <span class="math inline">\(H_0\)</span> is that the two samples are drawn from populations with the same mean mass, and the alternate hypothesis <span class="math inline">\(H_1\)</span> is that the populations from which they are drawn do not have the same mean mass:</p>
 <p><span class="math display">\[
 \begin{align*}
 \text{H}_0&amp;:\quad\mu_\text{A}=\mu_\text{B}\quad\text{or}\quad\mu_\text{A}-\mu_\text{B}=0\\
 \text{H}_\text{1}&amp;:\quad\mu_\text{A}\neq\mu_\text{B}\quad\text{or}\quad\mu_\text{A}-\mu_\text{B}\neq 0
 \end{align*}
 \]</span></p>
-<p>To find out whether or not we can reject the null hypothesis, we can use the fact that the difference between the means <span class="math inline">\(\mu_A-\mu_B\)</span> is itself a random variable that follows a <em>t</em>-distribution and which under the null hypothesis has a mean of zero. What we need to do is calculate the **t<em>-</em>statistic* in this case, which is the difference between the sample means divided by the standard error of that difference.</p>
+<p>To find out whether or not we can reject the null hypothesis, we can use the fact that the difference between the means <span class="math inline">\(\mu_A-\mu_B\)</span> is itself a random variable that follows a <em>t</em>-distribution and which under the null hypothesis has a mean of zero. What we need to do is calculate the <em>t</em>-<em>statistic</em> in this case, which is the difference between the sample means divided by the standard error of that difference^*^.</p>
 <p><em>This turns out to be the square root of the sum of the squared standard errors of the individual means, a result that comes from the fact that the variance of the difference between two independent random variables is the sum of the variances of each of the variables, and a standard error is the square root of a variance. Handy to know, but you don’t have to. In practice, most people will simply use the R function <code>t.test()</code> without worrying about the details, and so can you, if you want to.</em></p>
 <p>With these data we find that the absolute difference between the sample means is <span class="math inline">\(|-0.688 - -0.579| = 0.109\)</span> and that the standard error of the difference between the means is</p>
 <p><span class="math display">\[
 \text{SE} = \sqrt{\frac{0.245^2}{50} + \frac{0.325^2}{50}} = 0.0576
 \]</span>
 Hence the test statistic <span class="math inline">\(t\)</span> in this case is <span class="math inline">\(\frac{0.109}{0.0576} = 1.90\)</span></p>
-<p>The number of degrees of freedom in this case is <span class="math inline">\(n_\text{A}+n_\text{B}-2=50+50-2=98\)</span>. A <em>t</em>-distribution with 98 degrees of freedom is indistinguishable from a normal distribution and you may recall from above that the threshold <span class="math inline">\(t\)</span> value in a two-sided test for a <em>p</em>-value of 0.05 or less is 1.96. Our value here is less than that and hence we conclude that there is no evidence from the data at the 5% signficance level that males and females have different body masses.</p>
+<p>The number of degrees of freedom in this case is <span class="math inline">\(n_\text{A}+n_\text{B}-2=50+50-2=98\)</span>. A <em>t</em>-distribution with 98 degrees of freedom is indistinguishable from a normal distribution and you may recall from above that the threshold <span class="math inline">\(t\)</span> (or <span class="math inline">\(z\)</span>, it makes no difference with this many degrees of freedom) value in a two-sided test for a <em>p</em>-value of 0.05 or less is 1.96. Our value here is less than that and hence we conclude that there is no evidence from the data at the 5% signficance level that males and females have different body masses.</p>
 <p>If we do this test in R, this is the output we get:</p>
 <pre><code>## 
 ##  Two Sample t-test
@@ -2171,7 +2171,7 @@ Hence the test statistic <span class="math inline">\(t\)</span> in this case is 
 ## sample estimates:
 ##  mean of x  mean of y 
 ## -0.5785825 -0.6878061</code></pre>
-<p>Note that we are given the <em>t</em>-statistic, the number of degrees of freedom and the <em>p</em>-value, on the basis of which we decide whether or not to reject the null hypothesis which is that the samples are drawn from populations with the same mean value. Note too that we are given a 95% confidence interval. This is the range of values that would capture the true value of the difference between the means 95% of the time, if we repeated the trial many times over. If this range encompasses zero, then we have no grounds, at the 95% confidence level, to think that the difference between the means is anything other than zero. Whenever this confidence interval <em>does</em> encompass zero, as it does here, the <em>p</em>-value <em>will</em> also be greater than 0.05, as it is here.</p>
+<p>Note that in this output from R we are given the <em>t</em>-statistic, the number of degrees of freedom and the <em>p</em>-value, on the basis of which we decide whether or not to reject the null hypothesis which is that the samples are drawn from populations with the same mean value. Note too that we are given a 95% confidence interval. This is the range of values that would capture the true value of the difference between the means of our samples 95% of the time, if we repeated the trial many times over. If this range encompasses zero, then we have no grounds, at the 95% confidence level, to think that the difference between the means among the populations is anything other than zero. Whenever this confidence interval <em>does</em> encompass zero, as it does here, the <em>p</em>-value <em>will</em> also be greater than 0.05, as it is here.</p>
 </div>
 <div id="erroneous-use-of-a-t-test" class="section level4">
 <h4>Erroneous use of a <em>t</em>-test</h4>

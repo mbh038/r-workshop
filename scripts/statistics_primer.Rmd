@@ -1059,9 +1059,9 @@ df %>%
 
 We see that some students *did* score worse in the test following the course than in the test preceding it, but a majority have improved their score. It seems from this chart that the course of study has helped the students, on the whole, but to check that this improvement is significant we carry out a test.
 
-The test we will use is called a "one sample" t-test. One sample, because we have just one sample of data, in this cases the differences in the students scores, and we compare these with a null, or reference value, which in this case is zero. In other words, the test will tell us whether there is evidence from the data to reject the null value, which is that the course made no difference to the students' scores.
+The test we will use is called a "one sample" t-test. One sample, because we have just one sample of data, in this case the differences in the students scores, and we compare these with a null, or reference value, which in this case is zero. In other words, the test will tell us whether there is evidence from the data to reject the null value, which is that the course made no difference to the students' scores.
 
-The mean value $\bar{y}$ of DIFF is 0.862 and the standard deviation *s* of DIFF is 0.838. The number of students is *n* is 30, so the degrees of freedom *df* is 29. The standard error in the mean is $s/\sqrt{n} = 0.153$. Hence the *t*-statistic, the number of standard errors of the mean from the null prediction of 0 (in this case) is 0.862 / 0.153 = 5.64.
+The mean value $\bar{y}$ of DIFF is 0.862 and the standard deviation *s* of DIFF is 0.838. The number of students is *n* is 30, so the degrees of freedom *df* is 29. The standard error in the mean is $\frac{s}{\sqrt{n}} = 0.153$. Hence the *t*-statistic, the number of standard errors of the mean from the null prediction of 0 (in this case) is 0.862 / 0.153 = 5.64.
 
 Look at the plot of a *t*-distribution for 30 degrees of the freedom (that for 29 degrees of freedom will be very similar to that) in Figure \@ref(fig:t-dists) above. What proportion of the area under the curve, do you think, is more than 5.64 standard errors away from 0? Most of it, some of it, or practically none of it?
 
@@ -1181,7 +1181,7 @@ squirrels %>%
 ```
 
 
-Our null hypothesis $H_0$ is that the two samples are drawn from populations with the same mean mass, and the alternate hypothesis $H_1$ is that the populations from which they are drawn do not have the same mwan mass:
+Our null hypothesis $H_0$ is that the two samples are drawn from populations with the same mean mass, and the alternate hypothesis $H_1$ is that the populations from which they are drawn do not have the same mean mass:
 
 $$
 \begin{align*}
@@ -1222,7 +1222,7 @@ males_mass<-squirrels %>% filter(sex=="MALE") %>% select(mass) %>% pull()
 females_mass<-squirrels %>% filter(sex=="FEMALE") %>% select(mass) %>% pull()
 t.test(males_mass,females_mass,var.equal=TRUE)
 ```
-This gives a *t*-statistic of 2.17 and *p*-value of 0.03, on the basis of which we would erroneously reject the null hypothesis that males and female squirrels on aveage have the same body mass. We would be wrong to think that this output gave us grounds to do that, since the data do not meet the criteria required for a *t*-test, and hence we should not believe the output if we use one. 
+This gives a *t*-statistic of 2.17 and *p*-value of 0.03, on the basis of which we would erroneously reject the null hypothesis that males and female squirrels on average have the same body mass. We would be wrong to think that this output gave us grounds to do that, since the data do not meet the criteria required for a *t*-test, and hence we should not believe the output if we use one. 
 
 ### Alternatives to the *t*-test
 
