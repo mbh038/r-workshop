@@ -1248,6 +1248,8 @@ A second alternative is to use one of a powerful set of tests known as **General
 ### Why would we want a scheme where we try to reject or hold on to a null hypothesis if we never believed this in the first place?
 ```
 
+
+
 ## Size effects vs hypothesis testing.
 
 ```{block, type='warning-box'}

@@ -1,0 +1,215 @@
+---
+title: "Quantile-Quantile plots"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float: true
+---
+
+Michael Hunt  
+Cornwall College Newquay  
+09-02-2021  
+
+Adapted from an exercise by Jon Yearsley (School of Biology and Environmental Science, UCD)
+
+```{r,echo=FALSE,message=FALSE,include=FALSE}
+library(tidyverse)
+library(RColorBrewer)
+#library(gridExtra)
+library(cowplot)
+```
+
+```{r,include=FALSE}
+# we use the fabulous openintro here only for its colour scheme
+library(openintro)
+data(COL)
+fill_colour1<-COL['blue','f1']
+fill_colour2<-COL['red','f6']
+fill_colour3<-COL['blue','f3']
+fill_colour4<-COL['red','f1']
+fill_colour5<-COL['red','f3']
+line_colour<-COL['blue','full']
+func_colour<-"darkblue"
+point_colour<-COL['blue','full']
+error_colour<-COL['red','full']
+```
+
+### Introduction
+
+Q-Q plots can play a useful role when trying to decide whether a dataset is normally distributed, and if it is not, then how it differs from normality.
+
+
+We will investigate the types of quantile-quantile plots you get from different types of distributions.
+
+We will look at data distributed according to
+
+* A normal distribution  
+* A right-skewed distribution  
+* A left-skewed distribution 
+* An under-dispersed distribution
+* An over-dispersed distribution  
+
+### What is a Q-Q plot?
+
+Quantiles partition a dataset into equal subsets. For example, if we wished to partition a standard normal (mean = 0, standard deviation = 1) population into 4 equal subsets, the 3 quantiles (ie the three values of x) that would do this are -0.675, 0 and 0.675. In this way, 25% of the population would have a value greater than 0.675, 25% between 0 and 0.675, 25% between -0.675 and 0 and the final 25% would have a value less than -0.675. When we draw the distribution, the areas under the curve between these quantiles will be equal:
+
+```{r,echo=FALSE}
+tibble(x=seq(-4,4,0.01),y=dnorm(x)) %>%
+  ggplot(aes(x=x,y=y)) +
+  geom_function(fun=dnorm,args=list(mean=0,sd=1),colour=func_colour) +
+  stat_function(fun = dnorm, 
+                xlim = c(-4,-0.675),
+                geom = "area",
+                fill=fill_colour1) +
+ # geom_area(mapping = aes(x = ifelse(x>-4 & x< -0.675 , x, 0),y=y), fill = "red")+
+  stat_function(fun = dnorm, 
+                xlim = c(-0.675,0),
+                geom = "area",
+                fill=fill_colour3) +
+  stat_function(fun = dnorm, 
+                xlim = c(0,0.675),
+                geom = "area",
+                fill=fill_colour1) +
+  stat_function(fun = dnorm, 
+                xlim = c(0.675,4),
+                geom = "area",
+                fill=fill_colour3) + 
+  theme_cowplot()
+```
+
+
+
+
+```{r,echo=FALSE}
+#  create a histogram
+histogram<-function(distribution){
+p1<-ggplot(distribution,aes(x=y)) +
+  geom_histogram(bins=20,fill="darkred")+
+  labs(x='Variable',
+       y='Count',
+       title='Histogram') +
+  theme_classic() +
+  theme(text = element_text(size=14))+
+  theme(plot.title = element_text(size=14))
+p1
+}
+```
+
+```{r,echo=FALSE}
+# create a q-q plot
+qq_plot<-function(distribution){
+p2 <-  ggplot(distribution,aes(sample=y)) +
+  stat_qq(colour="blue") +
+  stat_qq_line() +
+  labs(x='Theoretical Quantiles',
+       y='Sample Quantiles',
+       title='Q-Q plot') +
+  theme_classic() +
+  theme(text = element_text(size=14))+
+  theme(plot.title = element_text(size=14))
+p2
+}
+```
+
+```{r, echo=FALSE}
+box_plot<-function(distribution){
+p3<-ggplot(distribution,aes(x="",y=y)) +
+  geom_boxplot(fill="grey70")+
+  labs(x="",
+       y='Variable',
+       title='Box Plot') +
+  theme_classic() +
+  theme(text = element_text(size=14))+
+  theme(plot.title = element_text(size=14))
+p3
+}
+```
+
+### Normally distributed data.
+
+Below we show an example of 150 observations that are drawn from a normal distribution. The normal distribution is symmetric, so has no skew. Its mean is equal to its median. 
+
+On a Q-Q plot normally distributed data lie roughly on a straight line, perhaps looking a bit ragged at each end. The box plot is symmetric with few or no outliers.
+
+```{r normal, fig.align = 'center',echo=FALSE,message=FALSE}
+nd<-tibble(y=rnorm(150)) 
+p1<-histogram(nd)
+p2<-qq_plot(nd)
+p3<-box_plot(nd)
+plot_grid(p1, p3, p2, labels = "",nrow=1)
+```
+
+
+### Right-skewed data.
+
+Right skewed distributions are non-symmetric and have a long tail heading towards extreme values on the right-hand side of the distribution. The mean is more positive than the median. 
+
+In the example we show an exponential distribution.
+
+In the Q-Q plot, such distributions give a distinctive convex curvature. The box-plot may show outliers out towards large values.
+
+```{r right-skew, fig.align = 'center',echo=FALSE,message=FALSE}
+rs<-tibble(y=rexp(150)) 
+p1<-histogram(rs)
+p2<-qq_plot(rs)
+p3<-box_plot(rs)
+plot_grid(p1, p3, p2, labels = "",nrow=1)
+```
+
+### Left-skewed data.
+
+Left skewed distributions are non-symmetric and have a long tail heading towards extreme values on the left-hand side of the distribution. The mean is more negative than the median. The box plot may show outliers down towards small values.
+
+In the example we show a negative exponential distribution.
+
+In the Q-Q plot, such distributions give a distinctive concave curvature.
+
+```{r left-skew, fig.align = 'center',echo=FALSE,message=FALSE}
+ls<-tibble(y=-rexp(150)) 
+p1<-histogram(ls)
+p2<-qq_plot(ls)
+p3<-box_plot(ls)
+plot_grid(p1, p3, p2, labels = "",nrow=1)
+```
+
+### Under-dispersed data
+
+Under-dispersed data are data whose distribution is more concentrated around a central value than is the case for normally distributed data. There are fewer outliers and the tails of the distribution are lighter. As an example here we show 150 points drawn from a uniform distribution.
+
+Note the distinctive curvature of the Q-Q plot. The 'box' of the boxplot is bigger than for a normal distribution, since the interquartile range covers a larger range of values.
+
+```{r under dispersed, fig.align = 'center',echo=FALSE,message=FALSE}
+ud<-tibble(y=runif(150,0,20)) 
+p1<-histogram(ud)
+p2<-qq_plot(ud)
+p3<-box_plot(ud)
+plot_grid(p1, p3, p2, labels = "", nrow=1)
+```
+
+### Over-dispersed data
+
+Over-dispersed data are data whose distribution is more widely spread around a central value than is the case for normally distributed data. There are more outliers and the tails of the distribution are fatter. As an example here we show 150 points drawn from a laplace distribution.
+
+Note the distinctive curvature of the Q-Q plot - like the previous one but curving the other way. The 'box' of the boxplot is smaller than for a normal distribution, since the interquartile range covers a smaller range of values.
+
+```{r over-dispersed, fig.align = 'center',echo=FALSE,message=FALSE}
+library(extraDistr)
+od<-tibble(y=rlaplace(150)) 
+p1<-histogram(od)
+p2<-qq_plot(od)
+p3<-box_plot(od)
+plot_grid(p1, p3, p2, labels = "", nrow=1)
+```
+
+### Caution
+
+With _small_ data sets, the scatter in the data can make it difficult to tell from the histogram or the Q-Q plot whether the dataset is normally distributed. In that case you need to combine use of the plots with a normality test, such as Kolmogorov-Smirnov or Shapiro-Wilk. The null hypothesis of these is that the data ARE normally distributed, so the smaller the p-value when they are applied to a dataset, the less likely it is that that data have been drawn from a normal distribution.
+
+With _large_ data sets,the Kolmogorov-Smirnov and Shapiro-Wilk tests become very sensitive to even small deviations from normality and might give a p-value that would lead you to suppose that a dataset was not normally distributed. Since no data set is ever truly normal, all we really need to know is whether the data are close enough to normal that the various tests (eg _t_-test, ANOVA, correlation, least square regression) that require it are going to work well enough. For these large data sets, histograms and Q-Q plots can be very useful indicators of approximate normality.
+
+### Who cares about normality anyway? The central limit theorem.
+
+Lastly, for large enough data sets, we don't actually need the data to be normally distributed for the tests that require normality to work! This is because what they require is not that the dataset itself be normal, but that the distribution of the means of many such data sets, the so-called sampling distribution, be normal. A very important mathematical result known as the __Central Limit Theorem__ guarantees that this will be the case _whatever_ the distribution of each of the data sets, as long as these datasets are large enough!
+
+How large is large enough? There's the rub! A common rule of thumb is that if the dataset has size _N_>30 or so, then it is safe to use tests that require normality. Indeed, one does find that sampling distributions for data drawn from uniform or mildly skewed distributions such as the exponential distribution are roughly normal when _N_ exceeds 30 or so, but for more skewed datasets, a larger dataset can be needed - it depends on how far from normality the distribution is. The further from normal it is the larger the dataset needs to be before the Central Limit Theorem applies to a good approximation. For a highly skewed dataset, for example one distributed according to something like a log-normal distribution, it can require _N_>200 or so, or even more before it is OK to use _t_-tests and the like.

@@ -1,0 +1,315 @@
+---
+title: 'ANOVA: Factorial experiments and model simplification'
+author: "your name"
+date: "the date"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r set-up, include = FALSE}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE)
+```
+
+This exercise sheet is heavily indebted to Michael Crawley's *Statistics: An introduction using R*, 2nd Ed, Wiley. Published in 2015 this emphasises statistics over R (in fact, much of the R he presents is written prior to the advent of the `tidyverse` dialect which we use here, and so may seem terse if that is what you are used to). It is very useful and is at a higher level than Beckerman, Childs and Petchey's *Getting Started in R: An introduction for biologists*, 2nd Ed. OUP published in 2017. Their book also includes a simpler version of the example explored here.
+
+### Instructions
+
+You will need the following files (your lecturee will tell you where to find them - probably Moodle)
+
+* To be put in the Project/scripts folder:
+
+  * `ANOVA_two_way_with_model_simplification.html` (this contains all code you will need. Keep it open while you work)
+  * `ANOVA_two_way_template.Rmd` (this script. Work through it and fill in the code chunks as you go)
+  
+* To be put in Project/data folder
+
+  * `growth.csv`
+
+
+#### Open your Project
+
+You should be working within a folder that you have designated as what RStudio calls a 'Project'. If you are, the name of your Project will appear at the top right of the RStudio window. Inside your Project folder you should have a `scripts` folder for scripts like this worksheet and the template file, and a `data` folder for all the data files, including the one used here, `growth.csv`.. You will also see, at the top level of the Project, the `.RProj` file. You can see all this in the Files pane, bottom-right.
+
+#### What to do
+
+* Open the instruction sheet `ANOVA_two_way_with_model_simplification.html` in a browser and leave it open to refer to while you work. All the code you need is in there. 
+
+* Go through this template worksheet, read any instructions and fill in missing code in the code chunks as you go. Make sure any code is placed *inside* the chunk. It is a good idea to try out each line of code as you write it by typing either Ctrl-Enter (Windows) or Cmd-Enter (Mac). Alternatively, when you have completed the code for a chunk, run the whole chunk by clicking on the little green arrow in the top-right of the chunk.
+
+* Answer any questions that you come across.
+
+### Load packages
+
+```{r load packages, message=FALSE,warning=FALSE}
+#Enter code to load the packages tidyverse, here, cowplot and ggfortify. If need be, install them first.
+library(tidyverse)  # for data manipulation and plotting, and much else besides
+library(here) # for finding our data easily
+library(cowplot) # gives a nice theme for plots
+library(ggfortify) # for diagnostic plots
+```
+
+### Read in the data
+
+The `growth.csv` data file needs to be in the `data` folder within the Project folder.
+
+In this chunk we read the `growth.csv` data into an R object to which we give the name `weights`.
+
+```{r}
+# enter code to read the data in the growth.csv file into a data frame object called weights.
+
+# enter code to show he structure of the weights 
+
+```
+* How many  columns and how many rows does `weights` have?
+* What type of data is in each column?
+
+
+
+### Make R recognise the categorical variables as factors, and order the levels.
+
+
+In the following chunk, use `factor()` to designate both the `supplement` and `diet` columns of the data set as factors, and specify the level order of each, with `control` coming first for `supplement` and `barley` coming first for `diet`. 
+
+```{r convert to factors}
+# enter code to designate the supplement and diet columns of weights as factors. Order the levels as required. Save the reuslt under the same name
+weights <- weights %>%
+  mutate(supplement = factor(supplement, levels=c("control","agrimore", "supergain", "supersupp")),
+         diet=factor(diet, levels=c("barley","oats", "wheat")))
+
+# enter code to check the structure of the new version of weights
+glimpse(weights)
+```
+
+What are the data types now of the supplement and diet columns?
+
+### Summarise the data
+
+We wish to calculate the mean and standard error of the mean for each of the twelve combinations of diet and supplement. 
+
+There isn't a function in base R with which we can calculate standard error of the mean directly, but we can do so knowing the standard deviation of the sample $\text{SD}$ (using `sd()`) and the sample size $n$ (using `n()`) using this formula:
+
+$$ \text{SE}=\frac{SD}{\sqrt{n}}$$
+
+```{r make data summary table one}
+# we use the group_by() and summarise() functions from dplyr (the package within tidyverse for data manipulation) to
+# calculate the mean and standard error of the mean of each combination of diet and supplement
+# save the result to an object. called growth_summary
+
+
+# type the name growth_summary so that it isdisplayed here
+
+```
+
+### Plot the data
+
+The next step, as so often before we launch into actual statistics, is to plot the data in a way that sheds light on the question we have. Here, we can use the use the means and standard errors of the mean that we have just calculated to produce a useful kind of line plot that in this context is often referred to as an interaction plot:
+
+```{r interaction plot one}
+# No need to add anything here! Just run the chunk
+growth_summary %>%
+  ggplot(aes(x=supplement,y=mean_gain,colour=diet,group=diet)) +
+  geom_point(size=2) +
+  geom_line() +
+  geom_errorbar(aes(ymin=mean_gain-se_gain,ymax=mean_gain+se_gain),width=0.1) +
+  labs(x="Supplement",
+       y="Mean weight gain") +
+  scale_fill_brewer() +
+  theme_cowplot()
+```
+
+#### Questions
+
+What could the line plot look like if:
+
+-   There were no main effect of both diet and supplement, and no interaction
+
+-   There were a main effect of diet, no main effect of supplement and no interaction?
+
+-   There were no main effect of diet, a main effect of supplement and no interaction?
+
+-   There were main effects of both and an interaction between them?
+
+The plots tell you a great deal about what main effects and/or interactions there may be.
+
+
+### ANOVA
+
+Now for the actual statistical test. We will conduct a two-way ANOVA, which will look to see if there is evidence that either diet or supplement or both affect growth rate (the so-called main effects), and if the effect of one depends on the nature of the other (the so-called interaction). THe null hypothesis is that neither has any main effect and that there is no interaction.
+
+Now we can use either of the functions `aov()` or `lm()` to fit a factorial ANOVA (the choice affects only whether we get an ANOVA table or a list of parameter estimates as the default output from `summary()`.). Here, we will use `lm()`.
+
+We estimate parameters for the main effects of each level of diet and each level of supplement, plus terms for the interaction between diet and supplement.
+
+The interaction degrees of freedom are the product of those for diet and supplement ie (3-1) x (4-1) = 6.
+
+The model is:
+
+`gain ~ diet + supplement + diet:supplement`
+
+which can be written more simply using the asterisk notation as:
+
+`gain ~ diet * supplement`
+
+
+#### Construct the model
+
+Replace the `NULL` in this line of code to run an interactive model for the dependence of gain on diet and supplement
+
+```{r make interactive model}
+model0<-NULL
+```
+
+#### Do we reject the null hypothesis?
+
+To get an overall picture, we first use `anova()` to see if there is evidence to reject the null
+
+```{r anova of interactive model}
+# use anova() to find out if model0 provides evidence to reject the null hypothesis (no effect of anything on gain)
+
+```
+
+Does the output of this show evidence for:
+
+* A significant main effect of diet? (Y/N)
+* A significant main effect of supplement? (Y/N)
+* A significant interaction between diet and supplement (Y/N)
+
+The ANOVA table does not show us effect sizes or allow us to work out which if any of the levels of the two factors are significantly different. For this, `summary()` is more useful:
+
+```{r summary of interactive model}
+# enter code that uses the function summary() to shows effect sizes for model0
+
+```
+
+
+* Which combination of factor levels does the first row (Intercept) relate to?
+* In which row does the Estimate value give the actual mean gain?
+* Which rows relate to main effects? 
+* Which rows relate to interactions?
+
+
+
+The output of the `summary()` function re-emphasises that none of the interaction terms are significant. It also suggests that a minimum adequate model will contain 5 parameters: an intercept, which just means that there is non-zero growth when the diet and supplement are the reference values, a difference from that growth due to changing the diet to `oats`, a difference due to changing it to`wheat`, a difference due to changing the supplement to `agrimore` while keeping barley as the diet, and a difference due to changing the supplement instead to  `suppersupp`. 
+
+#### Model Simplification
+
+Given the results of the full interaction model, we begin model simplification by leaving out the interaction terms, to leave us with an additive model. Replace the `NULL` in the code chunk below using `lm()` to create a liner additive model, with `diet` and `supplement` as predictors and `gain` as response variable. Then enter code to give a summary table of the output of this model
+
+```{r additive model one}
+# 
+model_1<-NULL
+  
+# enter code to generate a summary table of the effects within model_1
+
+```
+
+
+
+All the rows of this table describe main effects, of making one change, to either diet or supplement.
+
+* Is there any significant difference made to gain if supplement is changed from control to supergain, and diet is left as barley?
+* Which diet seems worst?
+
+#### Check the validity of the linear model
+
+Here we check the validity of the linear model by graphical means.
+
+```{r diagnostic plots}
+# enter code to produce four diagnostic plots
+
+```
+
+There are two main rules for the validity of a linear model that are investigated in the top two plots. 
+
+Which plot should we look at to see if there is
+
+* Constant variance of residuals within groups around their respective group means?
+* Normal distribution of residuals within each group?
+
+
+Back to interpreting the output of the ANOVA:
+
+It is clear that we need to retain all three levels of diet since the effect values of each differ from each other by an amount that is several times the standand errors, so that *t* >> 1. It is not clear that we need all the levels of supplement, however. `supersupp` is not obviously different from `agrimore` (difference = -0.727 with standard error = 0.509), yet both are clearly different from `control`. However `supergrain` is not obviously different from `control` (difference = -0.68, error = 0.509). Hence we are tempted to try a new model with just two levels of the factor supplement which we might sensibly call "best", by which we mean `agrimore` or `supersupp`, and "worst" by which we mean `control` or `supergrain`. We'll name this new factor `supp2`.
+
+The code to do this will use the `mutate()` function and the `ifelse()` function
+
+```{r condense supplements to two}
+# enter code to implement these changes
+
+```
+
+If we calculate the means and standard errors for weight gain under each diet for each of the two new classifications of supplement, and then plot them, we get this new 'interaction' plot:
+
+```{r simplified additive model plot}
+# nothing to add here! Just run the chunk
+weights %>%
+  group_by(diet,supp2) %>%
+  summarise(mean_gain=mean(gain),se_gain=sd(gain)/sqrt(n())) %>%
+  ungroup() %>%
+
+  ggplot(aes(x=supp2,y=mean_gain,colour=diet,group=diet)) +
+  geom_point(size=2) +
+  geom_line() +
+  geom_errorbar(aes(ymin=mean_gain-se_gain,ymax=mean_gain+se_gain),width=0.1) +
+  labs(x="Supplement",
+       y="Mean weight gain") +
+  scale_fill_brewer() +
+  theme_cowplot()
+```
+
+From this, does it look as though:
+
+* Diet makes a difference to weight gain? (Y/N)
+* Supplement (best/worst) makes a difference to weight? gain (Y/N)
+* There is evidence for an interaction? (Y/N)
+
+Now we will make the simpler model. # Replace the `NULL` with code to fit an additive model for `gain` with `diet` and `supp2` as the explanatory variables
+
+```{r simplest additive model}
+# additive model where the supplements have been condensed from four to two: best and worst
+model_2 <- NULL
+
+```
+
+and then compare the two additive models:
+
+```{r anova compare additive models}
+# enter code to compare the explanatory power of model_1 and model_2
+
+```
+
+
+When we use `anova()` in this way it is testing the explanatory power of the second model against that of the first ie how much of the variance in the data does each explain. Its null hypothesis is that both models explain just as much of the variance as the other.
+
+* Is the p-value that you get greater than 0.05?
+* Do we reject or fail to reject the null hypothesis
+* Are we justified in retaining the simpler model
+
+
+Now we ask for the summary table of model_2:
+
+
+```{r}
+# enter code to get the summary table for model_2
+
+```
+
+
+Use this table to fill in the gaps below:
+
+* line one (Intercept) tells us that the mean weight gain when on the barley diet and best supplement is 25.76 kg
+* line two (dietoats) tells us that there is a significant drop in weight gain of ..... kg when diet is changed to oats, regardless of supplement.
+* line three (dietwheat) tells us that there is a significant drop in weight gain of ..... kg when diet is changed to wheat, regardless of supplement.
+* line four (sup2worst) tells us that there is a significant drop in wight gain of ...... kg when supplement is changed to worst, regardless of diet.
+* In all cases (choose the best description), p>0.05, p<0.05, p<0.01, p< 0.001
+
+
+#### Reporting the results
+
+We have now reduced our initial 12 parameter model to a four parameter model that is much more tractable and easier to communicate. Our advice would be that for maximum weight gain a diet of `barley` with a supplement of `agrimore` or `supersupp` would be best. 
+
+If we were reporting this as a statistical test, we might say something like: A diet of barley  with a supplement of agrimore or supersupp was to offer significant improvements over alternatives. There was no evidence of any interaction between diet and supplement. (ANOVA 2-way, F~3,44~ = 76.76, p < 0.001)
+
+[1]: Cumming, G., Fidler, F., & Vaux, D. L. (2007). Error bars in experimental biology. Journal of Cell Biology, 177(1), 7--11. <https://doi.org/10.1083/jcb.200611141>

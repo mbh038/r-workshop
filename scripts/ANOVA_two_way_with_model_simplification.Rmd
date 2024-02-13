@@ -161,7 +161,7 @@ The plots tell you a great deal about what main effects and/or interactions ther
 
 ### ANOVA
 
-Now for the actual statistical test. We will conduct a two-way ANOVA, which will look to see if there is evidence that either diet or supplement or both affect growth rate (the so-called main effects), and if the effect of one depends on the nature of the other (the so-called interaction). THe null hypothesis is that neither has any main effect and that there is no interaction.
+Now for the actual statistical test. We will conduct a two-way ANOVA, which will look to see if there is evidence that either diet or supplement or both affect growth rate (the so-called main effects), and if the effect of one depends on the nature of the other (the so-called interaction). The null hypothesis is that neither has any main effect and that there is no interaction.
 
 Now we can use either of the functions `aov()` or `lm()` to fit a factorial ANOVA (the choice affects only whether we get an ANOVA table or a list of parameter estimates as the default output from `summary()`.). Here, we will use `lm()`.
 

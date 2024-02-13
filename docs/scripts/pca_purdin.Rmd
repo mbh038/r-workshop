@@ -1,0 +1,194 @@
+---
+title: "Principal Components Analysis"
+output:
+  html_document:
+    df_print: paged
+---
+
+### Motivation
+
+
+
+For this exercise we rely heavily on
+
+Holland, S. M. (2019). *Principal Components Analysis (PCA)*. http://strata.uga.edu/8370/handouts/pcaTutorial.pdf
+
+
+See also
+
+Shlens, J. (2014). *A Tutorial on Principal Component Analysis*. https://doi.org/10.1.1.115.3503
+
+
+
+
+```{r,include=FALSE}
+knitr::opts_chunk$set(message=FALSE,warnings=FALSE)
+```
+
+Before we do anything else, let's load the packages we are going to use, just like we always do:
+```{r}
+library(tidyverse)
+library(here)
+library(ggfortify)
+library(cowplot)
+```
+
+This data set has geochemical analyses of 200 limestone samples, including the major elements Al, Ca, Fe, K, Mg, Mn, and Si, stable isotope ratios of carbon and oxygen (d13C and d18O). It also records the stratigraphic position of the samples.
+
+This data set is available from Steven Holland's website, and our filepath to it is just the url of the file:
+
+```{r}
+filepath<-"http://strata.uga.edu/8370/data/NashvilleCarbonates.csv"
+purdin<-read_csv(filepath, show_col_types = FALSE)
+glimpse(purdin)
+#view(purdin)
+```
+
+As we are most interested in how the geo-chemical composition varies, we will pull those variables (columns 2--10) off into a separate data frame for our analysis
+
+```{r}
+geochem <- purdin %>%
+  select(d13C:Si) # means select all columns from d1C to Si, inclusive.
+glimpse(geochem)
+```
+
+Thinking ahead to how we want to do an exploratory plot of these measurements, and possibly summaries, grouping by variable, we realise that this will be difficult unless we 'tidy' the data. At the moment it is not tidy, but we can make it so by using the `pivot_longer()` function:
+
+```{r}
+geochem_tidy<-geochem %>%
+  pivot_longer(1:8,names_to="Variable",values_to="Value")
+glimpse(geochem_tidy)
+```
+
+Do yu see what that has done?
+
+Now we have tidied the data, we can easily look at it for each level:
+
+```{r}
+geochem_tidy %>%
+  ggplot(aes(x=Value)) +
+  geom_histogram() +
+  facet_wrap(~Variable,scales="free") +
+  theme_cowplot()
+```
+
+Note the very different scales for each of these variables, in both the x and y directions.
+
+Several of the major elements among these (Al, Fe, Mg, Mn, Si) seem to be right-skewed, while the two isotopic ratio variables (d18O and d13C) are left skewed to a lesser degree.
+
+For PCA to work, the data need to be normally distributed, just like in all the variations of the linear model (regression, t-test, ANOVA, Pearson correlation). To make this more approximately the case for this data set, we can transform them using a log10 transformation.
+
+```{r}
+geochem_trans <- geochem %>% mutate(across(c("Al","Si"),log10))
+```
+
+Other restrictions on the data apply to the use of PCA just as in linear model analyses. In particular, outliers should be removed since they will have a disproportionate influence on the outcome.
+
+Now we create a PCA model from the transformed data. We scale the data so that all variables are given equal weight.
+
+```{r}
+pca <- prcomp(geochem, scale.=TRUE)
+```
+
+From this, we get these outputs:
+
+```{r}
+
+# The variance vector shows how much of the variance in the data is explained by each PC.
+variance <- (pca$sdev)^2
+vpc <-variance/sum(variance) * 100
+cpc <- cumsum(vpc)
+
+scree<-tibble(PC=seq(1:length(pca$sdev)),vpc=vpc,cpc=cpc)
+
+# loadings show how much each variables contributes to each PC
+loadings <- pca$rotation
+rownames(loadings) <- colnames(geochem)
+
+# These show the values each data point has for each of the principal components
+scores <- pca$x
+```
+
+### Scree Plot
+
+A scree plot help us see how the variance in the data is distributed among the principal components. We see that each successive PC explains less variance than the one before. We can use this plot to help us decide how many PCs we need to retain. The horizontal line in the plot shows the total variance divided by the number of PCs. Hence we could decide to retain only those PCs that explain more variance than this, since only they explain more than one variable's worth of data.
+
+```{r}
+### Basic scree plot
+scree %>%
+  ggplot(aes(x=PC,y=vpc)) +
+  geom_point() +
+  geom_line() +
+  geom_hline(yintercept=mean(scree$vpc),linetype="dashed",colour="red") +
+  labs(x="Principal component",
+       y="% variance explained") +
+  theme_cowplot()
+```
+
+
+```{r}
+scree
+```
+
+
+In this data set we see that there is a big drop off in variance explained on going from the second to the third PC but that the third nevertheless just about accounts for more than one variables worth of variance and so may be worth retaining.
+
+### Loadings
+
+Let's look at the loadings of the first three PCs.
+
+From this we can see which variables have high loadings, positive or negative, on each principal component, and so contribute most to it. This helps us work out what each principal component represents. A positive loading means that the variable correlate positively with the principal component, whereas a negative loading means that it correlates negatively.
+
+```{r}
+round(loadings, 2)[ , 1:3] # this means give me all the row,and columns 1 to 3, rounded to 2 decimal places.
+```
+
+Here we see that Al, Fe and Si all have strong negative loading on axis 1, meaning that high values of PC1 correspond to low values of the variables. On axis 2 we see that d180 has a strong positive loading while Mn has a strong negative loading. Thus, large values of PC2 correspond to large values of d180 and to low values of Mn.
+
+### Biplot
+
+Scores and loadings are often shown together on what is known as a biplot. The `autoplot()` function from the package `ggfortify` provides a good way to do this, offering you lots of control over the details.
+
+```{r}
+coord.system <- coord_fixed(ratio=1, xlim=c(-0.3,0.3),ylim=c(-0.3,0.3))
+autoplot(pca, data = geochem,
+         alpha=0.5,
+         loadings = TRUE,
+         loadings.label = TRUE,
+         ) + 
+  coord.system +
+  theme_cowplot()
+
+```
+
+A biplot shows you which samples are similar to one another, and how the variables control that similarity. Samples that are plotted close together on the biplot are most similar, those that are far apart are least similar.
+
+From the distribution of the data in the biplot we can identify underlying patterns. In this biplot we see a dense cluster of data in the upper-right, and a separate, more diffuse cluster towards the lower left.
+
+It turns out too that the rock samples come from one of two layers, the Carters and the Hermitage formations, depending on whether they are above or below a major non-conformity in sediment deposition that occurs at a stratigraphic position of 34.2 m. We can colour the points in the biplot accordingly
+
+```{r}
+geochem<-geochem %>%
+  mutate(formation=ifelse(purdin$StratPosition<34.2,"Carters","Hermitage"))
+```
+
+```{r}
+coord.system <- coord_fixed(ratio=1, xlim=c(-0.3,0.3),ylim=c(-0.3,0.3))
+autoplot(pca, data = geochem,colour='formation',
+         loadings = TRUE, loadings.colour = 'blue',
+         loadings.label = TRUE, loadings.label.size = 3) + coord.system + theme_cowplot()
+```
+
+### What to Report
+
+When reporting a principal components analysis, always include at least these items:
+
+-   A description of any data culling or data transformations that were used prior to ordination. State these in the order that they were performed.
+
+-   Whether the PCA were scaled (scale.=TRUE) or not (scale.=FALSE).
+
+-   A scree plot that shows the explained variance of each of the principal components and that illustrates the criteria used for selecting the number of principal components to be studied.
+
+-   A table of loadings of all variables for each of the principal components that was studied. The table should highlight (e.g., with boldface) those loadings that are considered the most important for each principal component.
+
+-   One or more plots of sample scores that emphasizes the interpretation of the principal components, such as color-coding samples by an external variable. It is often useful to show the vectors corresponding to the loadings on these plots

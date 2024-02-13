@@ -5,6 +5,10 @@ output:
     df_print: paged
 ---
 
+### Motivation
+
+
+
 For this exercise we rely heavily on
 
 Holland, S. M. (2019). *Principal Components Analysis (PCA)*. http://strata.uga.edu/8370/handouts/pcaTutorial.pdf
@@ -35,7 +39,7 @@ This data set is available from Steven Holland's website, and our filepath to it
 
 ```{r}
 filepath<-"http://strata.uga.edu/8370/data/NashvilleCarbonates.csv"
-purdin<-read_csv(filepath)
+purdin<-read_csv(filepath, show_col_types = FALSE)
 glimpse(purdin)
 #view(purdin)
 ```
@@ -44,7 +48,7 @@ As we are most interested in how the geo-chemical composition varies, we will pu
 
 ```{r}
 geochem <- purdin %>%
-  select(3:10)
+  select(d13C:Si) # means select all columns from d1C to Si, inclusive.
 glimpse(geochem)
 ```
 

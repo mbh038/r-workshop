@@ -1,0 +1,150 @@
+---
+title: "Generalised linear models"
+author: "Michael Hunt"
+date: "23-01-2024"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r set up, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+
+This exercise is taken from Chapter 7 of Beckerman, Childs and Petchey: Getting Started with R
+
+We study variation of number of offspring of Soay sheep with mother's body weight. These are count data. They are not normally distributed since they are discrete and bounded by zero - a ewe cannot have a negative number of births. Moreover, the variance of the data set is not constant - the spread of values tends to increase the more offspring a ewe has. This is common (but not universal) with count data.
+
+
+
+### Load packages
+```{r load packages}
+library(tidyverse)
+library(ggfortify) 
+library(here)
+library(cowplot)
+```
+
+### Load sheep data
+```{r load data}
+filepath <- here("data","soay_sheep_fitness.csv")
+soay<-read_csv(filepath)
+
+# check its structure
+glimpse(soay)
+```
+
+
+### Make the first plot to explore the data
+```{r first plot}
+ggplot(soay,aes(x=body.size,y=fitness))+
+  geom_point()+
+  geom_smooth(method='lm',se=FALSE, linewidth = 0.5)+
+  xlab('Body mass (kg)')+
+  ylab('Lifetime fitness')+
+  theme_cowplot()
+```
+
+A few things stand out from this plot:
+
+* There is a clear trend: as the ewe's body mass increases, so does the number of offspring tend to increase. That makes sense: a heavier ewe would have more resources to support one lamb after another.
+* The trend is *not* linear. There is a clear upwards curve.
+* The spread of values increases as the mother's body mass increases. This is common with count data.
+* There are no negative response values - while a eewe could have no lambs, it definitely cannot have a negative numer of lambs.
+
+### The wrong way to analyse the data - do a linear model
+
+We should have an inkling that this is the wrong way since the variation of offspring with body weight is clearly not linear!
+For insight, let's do it anyway using `lm()`, and look at the diagnostic plots we get when we give the resulting model `soay.linear` to `autoplot()`
+
+```{r wrong analysis}
+soay.linear<-lm(fitness~body.size,data=soay)
+autoplot(soay.linear,smooth.colour=NA) + theme_cowplot()
+```
+
+
+### The right way - using a GLM
+```{r right analysis with GLM}
+soay.glm<-glm(fitness~body.size,data=soay,family=poisson(link=log))
+autoplot(soay.glm,smooth.colour=NA) + theme_cowplot()
+```
+
+
+### Interpret the GLM
+```{r interpret model}
+# use anova() and summary() to interpret the model
+anova(soay.glm) # sequential sums of squares table
+summary(soay.glm) # coefficients table
+```
+
+### Remake the figure and add fitted line
+
+#### Find min and max of the x data
+```{r min and max}
+min.size<-min(soay$body.size)
+max.size<-max(soay$body.size)
+```
+
+#### Make the new.x values.
+We use the 'body.size' variable name to name the column just as it is in the orginal data
+```{r}
+new.x<-expand.grid(body.size=seq(min.size,max.size,length.out=1000))
+```
+
+#### Generate fits and standard errors
+```{r}
+new.y<-predict(soay.glm,newdata=new.x,se.fit=TRUE)
+new.y<-data.frame(new.y)
+head(new.y)
+```
+
+#### Housekeeping to bring new.x and new.y together
+```{r}
+addThese<-data.frame(new.x,new.y)
+addThese<-rename(addThese,fitness=fit)
+head(addThese)
+```
+
+#### Calculate confidence intervals and include them in addThese
+```{r}
+addThese<-mutate(addThese,
+                 lwr=fitness-1.96*se.fit,
+                 upr=fitness+1.96*se.fit)
+```
+
+#### Plot the final figure
+```{r}
+ggplot(soay,aes(x=body.size,y=fitness)) +
+  # first show the raw data
+  geom_point(size=3,alpha=0.5)+
+  # now add the fit and confidence intervals
+  # we don't need to specify body.size and fitness as they are inherited from above
+  geom_smooth(data=addThese,aes(ymin=lwr,ymax=upr),stat='identity')+
+  theme_cowplot()
+```
+
+This did not work! We need to account for the link function. For a poisson model, this is the log(). Hence, the predictions are the log of the expected fitness. Here is the fix:
+
+#### Start again with addThese:
+```{r}
+addThese<-data.frame(new.x,new.y)
+# then:
+addThese<-mutate(addThese,
+                 fitness=exp(fit),
+                 lwr=exp(fit-1.96*se.fit),
+                 upr=exp(fit+1.96*se.fit))
+head(addThese)
+```
+
+#### Redo the final plot
+```{r}
+ggplot(soay,aes(x=body.size,y=fitness)) +
+  # first show the raw data
+  geom_point(size=3,alpha=0.5)+
+  # now add the fit and confidence intervals
+  # we don't need to specify body.size and fitness as they are inherited from above
+  geom_smooth()+
+  geom_smooth(data = addThese,aes(ymin = lwr,ymax = upr), stat = 'identity')+
+  theme_cowplot()
+```
