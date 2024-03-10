@@ -1,0 +1,132 @@
+---
+title: "Types of test"
+author: "Michael Hunt"
+date: "06/03/2024"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r set up,echo=FALSE}
+knitr::opts_chunk$set(fig.width=8, fig.height=5.7,fig.align = "center")
+```
+
+
+```{r,echo=FALSE,message=FALSE}
+library(tidyverse)
+library(here)
+```
+
+
+
+So you have a hypothesis and now you also have some data.
+
+You will have looked at your data and plotted it in some suitable way.
+
+This will already, very likely,  have given you an idea as to whether you are going to be able to reject your null hypothesis.
+
+What type of test should you carry out to determine whether to reject the null hypothesis?
+
+That depends on what type of data you have  and how many you have collected.
+
+We can use a simplified scheme for determining which test we need to use 
+
+The one below is taken from Barnard et al (2007), "Asking Questions in Biology". The book contains both this and a more detailed version.
+
+```{r , echo=FALSE}
+knitr::include_graphics(here::here("figures","test_finder_and_help1.png"))
+knitr::include_graphics(here::here("figures","test_finder_and_help2.png"))
+knitr::include_graphics(here::here("figures","test_finder_and_help3.png"))
+knitr::include_graphics(here::here("figures","test_finder_and_help4.png"))
+```
+
+----
+
+### Some examples
+
+#### Example One  
+You have carried out a survey that asked people their  preference from among a range of environments. From a range of habitats, they had to select their favourite.
+
+Suppose the results were:
+
+* Woodlands: 7
+* Beaches: 4
+* Mountains: 11
+* Deserts: 8
+* Oceans: 14
+
+__What kind of data are these: categorical, ordinal, constant interval or count?__
+
+1. _What might be a suitable null hypothesis in this case?_
+
+2. Are we looking for a trend or a difference?
+
+3. _How many factors are there?_
+
+4. How many levels of each factor are there?
+
+5. _Are data for each level replicated?_
+
+6. Are data in the form of counts?
+
+7. _Suggest an appropriate test to help you decide whether to reject or to fail to reject the null hypothesis._
+
+
+---- 
+
+#### Example Two  
+You have gathered soil samples from ten different farms. Five of these farms are managed organically, with use of cover crops, while five use conventional intensive farming techniques. You are interested to find out if more carbon is sequestered in the soils of the organic farms, so for each of your ten samples you measure the soil organic carbon using a loss-on-ignition technique.
+
+__What kind of data are the explanatory variables: categorical, ordinal, constant interval or ratio?__. 
+__What kind of data is the response variable: categorical, ordinal, constant interval, ratio or count?__
+
+1. _What might be a suitable null hypothesis in this case?_
+
+2. Are we looking for a trend or a difference?
+
+3. _How many groupings (factors) are there?_
+
+4. How many levels of each factor are there?
+
+5. _Are data for each level replicated?_
+
+6. Are the data in one level independent of those in other levels?
+
+7. Are the data likely to be __normally distributed__ within their respective groupings of factor and level?
+
+8. _Suggest an appropriate test to help you decide whether to reject or to fail to reject the null hypothesis._
+
+----
+
+#### Example Three  
+
+You are investigating the factors that affect the flight initiation distance (FID) of birds in West Africa, that is, the closest distance that a perceived danger can approach before they fly away. This is part of a wider investigation of escape behaviour in response to perceived predators. After extensive observations, you gather data for FIDs of 4 bird species in response to disturbances from humans and dogs. For each combination of species and disturbance, you have ten FID measurements.
+
+
+__What kind of data are the explanatory variables: categorical, ordinal, constant interval or ratio?__. 
+__What kind of data is the response variable: categorical, ordinal, constant interval, ratio or count?__
+
+1. What might be a suitable null hypothesis in this case?
+
+2. Are we looking for a trend or a difference?
+
+3. _How many factors are there mong he explanatory variables?_
+
+4. How many treatments are there for each factor?
+
+5. _Are data for each treatment replicated?_
+
+6. Are the data in one treatment independent of those in other treatments?
+
+7. Are the data likely to be __normally distributed__ within their respective groupings of factor and level?
+
+8. _Suggest an appropriate test to help you decide whether to reject or to fail to reject the null hypothesis._
+
+
+
+
+
+
+
+

@@ -22,7 +22,7 @@ Shlens, J. (2014). *A Tutorial on Principal Component Analysis*. https://doi.org
 
 
 ```{r,include=FALSE}
-knitr::opts_chunk$set(message=FALSE,warnings=FALSE)
+knitr::opts_chunk$set(message=FALSE,warnings=FALSE,echo=FALSE)
 ```
 
 Before we do anything else, let's load the packages we are going to use, just like we always do:
@@ -33,7 +33,7 @@ library(ggfortify)
 library(cowplot)
 ```
 
-This data set has geochemical analyses of 200 limestone samples, including the major elements Al, Ca, Fe, K, Mg, Mn, and Si, stable isotope ratios of carbon and oxygen (d13C and d18O). It also records the stratigraphic position of the samples.
+This data set has geochemical analyses of 200 limestone samples, including the major elements Al, Ca, Fe, K, Mg, Mn, and Si, stable isotope ratios of carbon and oxygen (d13C and d18O). It also records the stratigraphic position of the samples (ie, the depth beneath the surface).
 
 This data set is available from Steven Holland's website, and our filepath to it is just the url of the file:
 
@@ -44,7 +44,7 @@ glimpse(purdin)
 #view(purdin)
 ```
 
-As we are most interested in how the geo-chemical composition varies, we will pull those variables (columns 2--10) off into a separate data frame for our analysis
+As we are most interested in how the geo-chemical composition varies, we will pull those variables (columns 2--10) off into a separate data frame called `geochem` for our analysis
 
 ```{r}
 geochem <- purdin %>%
@@ -52,7 +52,7 @@ geochem <- purdin %>%
 glimpse(geochem)
 ```
 
-Thinking ahead to how we want to do an exploratory plot of these measurements, and possibly summaries, grouping by variable, we realise that this will be difficult unless we 'tidy' the data. At the moment it is not tidy, but we can make it so by using the `pivot_longer()` function:
+Thinking ahead to how we want to do an exploratory plot of these measurements, and possibly summaries, grouping by variable, we realise that this will be difficult unless we 'tidy' the data. What we mean by this is that we could think of this data set as having one 'factor' = geochemical variable, within which there are many levels = d13C, d18O, Al, Ca etc. If the data were tidy, then there would be just one column for the neamse of all these levels, and oanother column for their values. At the moment the data set is not tidy as the levels of the variable are spread across several columns, but we can make it so by using the `pivot_longer()` function:
 
 ```{r}
 geochem_tidy<-geochem %>%
@@ -60,7 +60,7 @@ geochem_tidy<-geochem %>%
 glimpse(geochem_tidy)
 ```
 
-Do yu see what that has done?
+Do you see what that has done? We started with a short, fat data set and have ended up with a long, thin one.
 
 Now we have tidied the data, we can easily look at it for each level:
 
@@ -84,7 +84,7 @@ geochem_trans <- geochem %>% mutate(across(c("Al","Si"),log10))
 
 Other restrictions on the data apply to the use of PCA just as in linear model analyses. In particular, outliers should be removed since they will have a disproportionate influence on the outcome.
 
-Now we create a PCA model from the transformed data. We scale the data so that all variables are given equal weight.
+Now we create a PCA model from the transformed data. We scale the data so that all variables are given equal weight. If we did not do this, then the variables for which values are very large (Ca, in this case) would dominate the analysis.
 
 ```{r}
 pca <- prcomp(geochem, scale.=TRUE)

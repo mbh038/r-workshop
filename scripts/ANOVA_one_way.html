@@ -1634,9 +1634,9 @@ response variable such as body mass and you want to know if there is a
 difference in the response variable between the categories.</p>
 <div id="load-packages" class="section level3">
 <h3>Load packages</h3>
-<pre class="r"><code>library(tidyverse)
+<pre class="r"><code>library(tidyverse) # for data manipulation and plots, and more besides
 library(ggfortify) # this is useful for diagnostics
-library(palmerpenguins)</code></pre>
+library(palmerpenguins) # for the palmer penguin data</code></pre>
 <p>The <code>palmerpenguins</code> package comes with two in-built data
 sets on penguins. The simplest of them is called <code>penguins</code>
 and is the one we will use in this exercise:</p>
@@ -1733,10 +1733,12 @@ more besides, but what this means is that in carrying out any of these
 tests we at least need to have a hypothesis in mind and its
 corresponding null hypothesis. The null, remember, is typically the
 ‘nothing going on’, there is no effect, no difference scenario.</p>
-<p>So in this case, the null hypothesis is that there is no difference
-in body mass between the females of the different penguin species.</p>
+<p>So in this case, a suitable null hypothesis would be that there is no
+difference in body mass between the females of the different penguin
+species.</p>
 <p>To see if there is evidence from the data to reject this null, we
-will follow a sequene of steps that will be common to many analyses:</p>
+will follow a sequence of steps that will be common to many
+analyses:</p>
 <ul>
 <li>get the data</li>
 <li>clean/prepare the data</li>
@@ -1748,14 +1750,15 @@ a one-way ANOVA</li>
 <li>inspect the model output</li>
 <li>reject or fail to reject the null hypothesis</li>
 <li>if we reject the null, carry out post-hoc tests</li>
-<li>(maybe) simplfy the model and redo the analysis</li>
+<li>(maybe) simplify the model and redo the analysis</li>
 </ul>
 <p>For the penguin data, getting it was easy as it came with the
 <code>palmerpenguins</code> package.</p>
-<p>To prepare the data, we start with the full data set and pick out the
-females, using the <code>filter()</code> function, and again make sure
-there are no lines with missing values, using <code>drop_na()</code>. We
-save this cleaned data set in an obect called <code>females</code>.</p>
+<p>To prepare the data, we start with the full data set and narrow it
+down to just the females, using the <code>filter()</code> function, and
+again make sure there are no lines with missing values, using
+<code>drop_na()</code>. We save this cleaned data set in an object
+called <code>females</code>.</p>
 <pre class="r"><code>females &lt;- penguins %&gt;%
   filter(sex == &quot;female&quot;) %&gt;%
   drop_na()</code></pre>

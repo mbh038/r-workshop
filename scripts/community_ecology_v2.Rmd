@@ -310,37 +310,22 @@ Since we have 20 sites, so that each site has to be compared with 19 others, and
 
 
 ```{r}
-dune.dist<-vegdist(dune,method="jaccard",binary=FALSE)
+dune.dist<-round(vegdist(dune,method="jaccard",binary=FALSE),2)
 dune.dist
 ```
-One way to visualise this is to use a heat map, in which the darker colours indicate greater 'dissimilarity'.
 
+### Visualising similarity
+
+#### Heatmaps
+
+One way to visualise this dissimilarity matric is to use a heat map, in which the darker colours indicate greater 'dissimilarity'.
 
 ```{r}
 heatmap(as.matrix(dune.dist))
 ```
 
 
-The `varespec` data set, in contrast, contains estimated percentage cover values of 44 species at 24 sites, the sites arranged by row.
-
-```{r}
-data(varespec)
-vare.dist<-vegdist(varespec,binary=FALSE)
-```
-
-#### Standardising the data
-
-If the data need to be standardised in some way before calculating the dissimilarity index, this can be done using the `decostand()` function.
-
-For example
-
-```{r}
-vare.dist <- vegdist(decostand(varespec, "norm"), "euclidean")
-```
-
-This particular standardization has `normalised` the data by making the sums of squares of the cover values in each row add up to 1. It results in a distance measure which varies between 0 and $\sqrt{2}$
-
-### Visualising similarity
+#### Dendrograms
 
 As we have seen, the function `vegdist()` produces a matrix of distance values between every pair of sites. We used a heat map to give a visual indication of the overall pattern of dissimilarity between the sites. A dendrogram is another useful way to visualize this to help us identify where the greatest similarities and differences lie.
 
@@ -357,12 +342,8 @@ The dendrograms are a useful, but for most real data, approximate summary of the
 Note also that dendrograms become very hard to interpret when the number of data points (in this case sites) becomes very large. This is less often an issue in the field of ecology where we are typically dealing within a samll number of sites, as here, but in other settings such as molecular biology of the gene where the data may consist of thousands of DNA sequences, they become impossible to decipher, and also very expensive computationally.
 
 
-```{r}
-vare.hc<-hclust(vare.dist)
-plot(vare.hc)
-```
 
-### Summary code
+**Exercise**
 
 For the dune data, find the species richness and Simpson diversity index for each site, then create a dendrogram that illustrates which sites are most similar/dissimilar to each other
 
@@ -381,3 +362,25 @@ dune.hc<-hclust(dune.dist)
 plot(dune.hc)
 
 ```
+
+#### Ordination plot of disimilarites
+
+Another commonly used technique for spotting patterns of (dis)similarity between sites based on their flora or on environmental variables is to use some form of 'ordination'. Roughly speaking, these are plots that show in two dimensions patterns that exist among multidimensional data. In the dune case, the multiple dimensions are the many species. What patterns exist among them? Which seem to like similar conditions and tend to appear at the same sites, and vice versa. Also, which sites are similar to each other, in respect of what grows there, and which are different? These are the questions that ordination plots are intended to shed light on. For data based on the presence/absence/abundance of species, Non-Metric Multidimensional Scaling (NMDS) is a widely used type of ordination technique.
+
+
+Here, we will entirely skate over the details, but will carry out the analysis using the `vegan` function `metaMDS()` hen plot the result.
+
+```{r}
+ord <- metaMDS(dune)
+```
+
+```{r}
+plot(ord, type = "t")
+points(ord, display = "sites", cex = 0.2, pch=21, col="red", bg="yellow")
+#text(ord, display = "spec", cex=0.7, col="blue")
+```
+The plot shows in two dimensions the sites, here numbered 1-18, and in red, the species. Sites that appear close together on this plot are more similar than sites that are far apart. Species that are close together on the plot tend to occur together, while species that are far apart do so less often.
+
+Check that this plot accords with the dendrogram above.
+
+Improvements to this plot can be made using `ggplot` - plenty of blogs exist that tell you how to do this.

@@ -328,9 +328,7 @@ $$
 You may have noticed that the $X^2 = 20.189$ value calculated above is slightly larger than the value calculated by the `chisq.test()` function, which found $X^2 = 19.096$. This is because the function uses Yates continuity correction. This was suggested by Yates in 1934 to correct for the fact that the $X^2$ statistic we calculate is actually discrete (becuase we have categorical data) whereas the chi-square distribution is continuous. This means that the value we calculate tends to be too big so that our *p*-values are too small. The problem is most apparent where we have small numbers and one degree of freedom, which is what you have in a $2 \times 2$ contigency table such s in the example above. Yates' fix is quite simple: just amend the $X^2$ statistic to the following:
 
 $$
-
 X^2=\sum_{i=1}^4\frac{(\lvert O_i-E_i \rvert - 0.5)^2}{E_i}
-
 $$
 
 where the vertical lines mean 'take the absolute value of', so that |85-103.33| = |-18.33| = 18.33
@@ -366,7 +364,7 @@ ggplot(data.frame(x = c(0,20)), aes(x = x)) +
 ```
 
 
-Why does the test statistic have this distribution?
+#### Why does the test statistic have this distribution?
 
 To answer this, let us recognise that in our observed contingency table, where we have *N* observations altogether, we can think of their being a probability $P_i$ that any individual observation will end up in cell *i*, with the actual observed frequency in that cell, $O_i$ being the product of this probability and the total number of observations: $O_i = P_i\times N$. If we repeated the study again and again we would get slightly different numbers in each cell each time. The distribution of the numbers in a particular cell would follow similar rules as that of the number of heads we might get each time if we tossed a coin *N* times, then did the same again and again. This distribution is called a *binomial distribution*.
 
