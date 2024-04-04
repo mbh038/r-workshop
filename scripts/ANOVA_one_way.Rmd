@@ -51,7 +51,7 @@ penguins_clean %>%
   ungroup()
 ```
 
-Looking at this table, does it look as though females and males have different weights? If so, which is heavier? Is this true for all species? Do the different species weight the same?
+Looking at this table, does it look as though females and males have different weights? If so, which is heavier? Is this true for all species? Do the different species weigh the same?
 
 
 ### Plot the data

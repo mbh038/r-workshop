@@ -1,0 +1,103 @@
+---
+title: "Error bars"
+author: "Michael Hunt"
+date: "30-03-2024"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(here)
+library(readxl)
+library(cowplot)
+library(ggfortify)
+library(ggtext)
+library(glue)
+```
+
+### What are error bars for?
+
+Error bars perform two main functions. One of these is a descriptive function, to give readers an idea of the spread of values within a data set, and this of the population from which the data have been drawn. The other is inferential, to enable readers to make inferences from a data set, for example to enable them to determine whether two data sets are plausibly drawn from the same population. These two functions are quite different.
+
+### Descriptive error bars
+We could indicate the spread of values of a data set using the *range* or the *standard deviation*. Range error bars go from the highest to the lowest value in the data set, while standard deviation $SD$ is calculated using the formula
+
+$$
+SD=\sqrt{\frac{\sum_{i=1}^n\left(y_i-\bar{y}\right)^2}{n-1}}
+$$
+where the sum $\sum$ is of the squared differences between the sample values $y_i$ and the sample mean $\bar{y}$, over all $n$ data points in the sample. $SD$ can be thought of, roughly speaking, as the average deviation of data points in a sample from the mean of the sample.
+
+For a sample of data points that are approximately normally distributed around their mean, about two thirds of the data set will lie within one standard deviation either side of the mean while about 95% of the data set will lie within about two standard deviations of the mean. Thus, only about 5% of all such data are more than two SDs away from the mean, so if a new data point *is* more than 2 SD from the mean, you can regard it as unusual.
+
+The standard deviation of a sample will in general be approximately equal to the population standard deviation $\sigma$and so can be used as an estimate for it. It gives an idea of the spread of values within the population, and also of the likely spread of values in any other sample taken from that population. If we take sample after sample from the population we would get a different sample standard deviation every time. There would be no systematic reduction in standard deviation for larger sample sizes. Instead, these values would dot around the true value for the population, but with less and less fluctuation for larger sample sizes: the larger the sample size, the closer the sample standard deviation is likely to be to the population standard deviation.
+
+However, the SD of the experimental results will approximate to $\sigma$, whether *n* is large or small. Like M, SD does not change systematically as *n* changes, and we can use SD as our best estimate of the unknown $\sigma$, whatever the value of *n*.
+
+```{r}
+population<-rnorm(10000,mean=40,sd=12)
+
+set.seed=5678
+#empirical=T forces mean and sd to be exact
+s3 <- MASS::mvrnorm(n=3, mu=40, Sigma=12^2, empirical=T)
+s10 <- MASS::mvrnorm(n=10, mu=40, Sigma=12^2, empirical=T)
+s30 <- MASS::mvrnorm(n=30, mu=40, Sigma=12^2, empirical=T)
+
+df<-tibble(s=c(rep("s3",3),rep("s10",10),rep("s30",30)),
+           values=c(s3,s10,s30)) %>%
+  mutate(s=factor(s,levels=c("s3","s10","s30")))
+
+tb1<-data.frame(x = 2.5,
+                y= 40,
+                label="Range")
+
+df %>%
+  # group_by(s) %>%
+  summarise(n=n(), mean.s = mean(values), sd.s = sd(values), min.s=min(values), max.s = max(values), .by=s) %>%
+  mutate(label_text = glue("*n* = {n}")) %>%
+  ggplot(aes(x = s,y = mean.s)) +
+  # geom_col(fill="gray90",colour="gray50",width=0.5)+
+  geom_point(data=df,aes(x=s,y=values),position=position_nudge(-0.3),alpha=0.5) + 
+  geom_hline(yintercept=40, linetype="dashed", linewidth=0.5, colour="gray80") +
+  geom_point(size=3,position=position_nudge(-0.3)) +
+  geom_point(size=3,position=position_nudge(0.08),colour="blue") +
+  geom_errorbar(aes(ymin = mean.s-sd.s, ymax = mean.s + sd.s), width=0.1,position=position_nudge(0.08),colour="blue") +
+  geom_errorbar(aes(ymin = min.s, ymax = max.s), width=0.1, position=position_nudge(-0.08),colour="red") +
+  geom_richtext(aes(label=label_text),nudge_y=40, fill = NA, label.colour = NA) +
+  annotate(geom="text",x=3.27, y=47,label="Standard\ndeviation",colour="blue") +
+  annotate(geom="text",x=3.06, y=68,label="Range",colour="red") + 
+  annotate(geom="text",x=3.27, y=47,label="Standard\ndeviation",colour="blue") +
+  annotate(geom="text",x=3.36, y=38,label="Sample~mean~bar(y)",size=3,colour="grey50",parse=TRUE) +
+  labs(x = "",
+       y = "Dependent variable") +
+  scale_y_continuous(limits=c(0,85),expand=c(0,0)) +
+  coord_cartesian(clip = "off") +
+  # facet_wrap(~s) +
+  theme_cowplot() +
+  theme(axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
+  theme(axis.text.y = element_markdown())
+```
+
+The figure above shows means with error bars for three cases of sample size: *n* = 3, *n* = 10, and *n* = 30. The small black dots are data points and the large black dots represent the sample means. The red bars against each sample show range, while the blue bars show standard deviation (SD). The mean $\bar{y}$ and SD have been made to be the same for every case here, but notice how much the range increases with $n$. Note also that although the range error bars encompass all of the experimental results, they do not necessarily cover all the results that could possibly occur. SD error bars include about two thirds of the sample, and 2 x SD error bars would encompass roughly 95% of the sample.
+ 
+### Inferential Error Bars
+
+Often in biology and ecology one wants to know if two or more samples of data provide convincing evidence that the populations from which they have been drawn are different. One wants to *infer* from what we know to be the case for the samples, (that they have this or that sample means and standard deviations), to a statement about their respective populations. To indicate this in a figure, we can use either of two other types of error bar: the *standard error of the mean* or the *confidence interval*. 
+
+If we know these then we know, roughly speaking, the range of values within which the means of the whole populations from which we drew our samples might plausibly lie, and thus whether we can reasonably reject the claim that there is no difference between these, so that the samples have effectively been drawn from the same population.
+
+Supposing, in a hypthetical world, you could take sample after sample from a population, each sample presumed to be independent of all the others, and all of size *n* replicates. Each would most likely have a different mean from all the others, but the collection of sample means would be normally distributed around the true population mean. The 'standard error of the mean' is the standard deviation of *this* distribution, which is often referred to as the sampling distribution. This is the typical or roughly speaking the average deviation between a randomly chosen sample mean and the true, population mean. It is given by 
+
+$$SE = \frac{SD}{\sqrt{n}} $$
+
+where $SD$ is the standard deviation of an individual sample and $n$ is the sample size. Thus, unlike the standard deviation of a sample, the standard error of the mean of the samples *does* get systematically smaller as the sample size *n* increases. This is another way of saying that the larger a sample is the closer its mean is likely to be to the population mean. Another thing to notice is that the SE is proportional to the SD, which is to say that sample means are more likely to be a close approximation to the population mean if the spread of values within the population, and thus the sample, is small. Smaller SD means smaller SE. Who knew?
+
+
+
+
+

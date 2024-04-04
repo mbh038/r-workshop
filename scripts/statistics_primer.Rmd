@@ -424,7 +424,7 @@ grid.arrange(p1,p2,p3,nrow=1)
   
 ```
 
-So much for an ideal normal distribution. A real data set drawn from a population that is approximately normally distributed would have some scatter, the more so the smaller the size of the sample. For such a sample we would find that *approximately* two thirds of the data set is within one standard deviation of the mean, 95% is within *approximately* two standard deviations and pretty much all of it is within three standard deviations.
+So much for an ideal normal distribution. A real data set drawn from a population that is approximately normally distributed would have some scatter, the more so the smaller the size of the sample. For such a sample we would find that *approximately* two thirds of the data set is within one standard deviation of the mean, *approximately* 95% of it is within two standard deviations and pretty much all of it is within three standard deviations.
 
 #### Accuracy of the estimate
 
@@ -434,9 +434,11 @@ The bigger the variance $\sigma^2$ of the population, the more we would expect o
 
 If we take these observations together, what we find is that the variance of the distribution of our estimates is $\sigma^2/n$, and so the standard deviation of our estimate is the square root of this ie $\frac{\sigma}{\sqrt{n}}$. This is sometimes called the **standard error of the mean**. This gives us an idea of how precise our sample mean is as an estimate of the true mean. 
 
-In most figures that you come across in published papers where error bars are used, these error bars will be ± one standard error of the mean. You may also come across error bars that are ± one standard deviation of the sample and yet others that sho the (typically) 95% confidence interval for an estimate.
+In most figures that you come across in published papers where error bars are used, these error bars will be ± one standard error of the mean. You may also come across error bars that are ± one standard deviation of the sample and yet others that show the (typically) 95% confidence interval for an estimate.
 
-Whether you show ± one stardard deviation or ± one standard error of the mean depends on the story you are trying to tell. If you want to be descriptive and give the reader an idea as the variability of a population, you would use error bars that are ± one standard deviation, but if you want the reader to be able to infer how close one population is to another then you are more likely to want to use error bars that are ± one standard error of the mean.
+Whether you show ± one standard deviation or ± one standard error of the mean depends on the story you are trying to tell. If you want to be descriptive and give the reader an idea as to the variability of a population, you would use error bars that are ± one standard deviation, but if you want the reader to be able to infer how close one population is to another then you are more likely to want to use error bars that are ± one standard error of the mean.
+
+
 
 #### Example
 
@@ -564,7 +566,7 @@ ybars<-samples %>%
   theme(axis.line.y = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank()
-        )+
+        ) +
   theme(strip.background = element_blank())
 ```
 
@@ -648,7 +650,7 @@ Let us explore confidence intervals in more detail...
 
 We know that our estimate $\bar{y}$ of the population mean $\mu$ comes from the distribution of all possible $\bar{y}$ that are distributed around $\mu$ with a variance of $\frac{\sigma^2}{n}$, and thus a standard deviation of $\frac{\sigma}{\sqrt{n}}$. Let us now find the **confidence interval** from our data. This is the range of possible values for the true population mean (which we don't know, remember) that cannot be rejected at the 5% significance level.
 
-Parameters that have been estimated with great confidence will have a narrow confidence interval associated with them, while parameters about which we have less information will have a wide confidence interval.
+Parameters that have been estimated with great precision will have a narrow confidence interval associated with them, while parameters about which we have less information will have a wide confidence interval.
 
 From the properties of the standard normal distribution, we know that 95% of all such $\bar{y}$ will lie within 1.96 standard deviations of $\mu$, where the relevant standard deviation is that of the sampling distribution - the distribution of $\bar{y}$. That means that 5% will not!
 

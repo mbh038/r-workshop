@@ -31,6 +31,8 @@ library(gridExtra)
 
 library(UsingR) # for Pearson's father-son data
 data(PearsonLee) # for Pearson's mother-daughter data
+data(iris)
+
 
 #set.seed=232342
 ```
@@ -77,6 +79,16 @@ theme_no_axes <- function () {
     axis.text=element_blank(),
     axis.title=element_blank(),
     axis.line=element_blank()
+        )
+}
+
+theme_bare_axes <- function () { 
+    theme_cowplot() %+replace% 
+  theme(
+    axis.ticks=element_blank(),
+    axis.text=element_blank(),
+    axis.title=element_blank(),
+    # axis.line=element_blank()
         )
 }
 ```
@@ -181,7 +193,8 @@ ymax<-mean_eruptions+5*sd_eruptions
 # the path is not closed; close it
 # ellpath <- rbind(ellpath, ellpath[1,])
 
-ellipse_plot<-ggplot(data=big_faithful,aes(x = waiting, y = eruptions)) +
+ellipse_plot<- big_faithful %>%
+  ggplot(aes(x = waiting, y = eruptions)) +
   geom_point(colour="white") +
   stat_ellipse(colour="red") +
   # geom_path(aes(x = x, y = y), as.data.frame(ellpath), color = "red") +
@@ -555,13 +568,13 @@ iris %>%
   
 ```
 
-The table gives the estimated value for the Pearson correlation coefficient in each case, the lower and upper bound of the confidence interval fir that coefficient and the *p*-value.
+The table gives the estimated value for the Pearson correlation coefficient in each case, the lower and upper bound of the confidence interval for that coefficient and the *p*-value.
 
 Do these output provide evidence for a correlation between petal length and petal width in each case?
 
 ### The correlation coefficient measures the degree of linear association.
 
-Sometimes the Pearson correlation coefficient *r* is a poor measure of the degree of association within a data set. Outliers and nonlinearity are two problem cases.
+Sometimes the Pearson correlation coefficient *r* is a poor measure of the degree of association within a data set. Outliers and non-linearity are two problem cases.
 
 Consider first a data set where there is a very strong association between variables, but where the data sset contains an outlier, and then a data set where there is a strong but non-linear association between variables. Here we mean by 'strong' that knowing the value of one variable gives you a very good idea of the value of the other.
 
@@ -599,7 +612,7 @@ grid.arrange(p1,p2,nrow=1)
 The outlier in the left-hand figure above brings the correlation coefficient down to `r round(cor.test(x1,y1)$estimate,3)`, which is close to zero. The correlation coefficient in the right-hand figure is similarly small at `r round(cor.test(x2,y2)$estimate,3)`, despite that there is a strong association between the *x* and *y* data. The reason is that the association is non linear.
 
 ### When is it appropriate to calculate a correlation coefficient?
-So, we note that the correlation coefficient is a measure of *linear* association, not of association in general. At least, this is true if you are calculating the Pearson correlation coefficient. If your data are not suitable for that and you decide to calculate the Spearman's Rank correlation coefficient, then the condition is relaxed somewhat: there no longer needs to be a linear relationship between the two variables, but there must be a *monotonic* one. That means that, as one variable increases, the other should either increase or remain constant, or decrease or remain constant - that is, there should be no peaks or troughs in the data.
+So, we note that the correlation coefficient is a measure of *linear* association, not of association in general. At least, this is true if you are calculating the Pearson correlation coefficient. If your data are not suitable for that and you decide to calculate the Spearman's Rank correlation coefficient, then the condition is relaxed somewhat: there might be but there no longer *needs* to be a linear relationship between the two variables, but there must be a *monotonic* one. That means that, as one variable increases, the other should either increase or remain constant, or decrease or remain constant - that is, there should be no peaks or troughs in the data.
 
 
 
@@ -637,7 +650,49 @@ knitr::include_graphics(myimages)
 
 In the Figure above, note that the *r*-values for **C** and **E** are close to zero, and the *p*-values are greater than 0.1, meaning that at this significance level there is no evidence from these data that there is *any* linear association between soil pH and the relative abundances of *Alphaproteobacteria* or *Beta/Gammaproteobacteria*. From the plots, it looks in **C** as if there no assocation at all, whereas in **E** it looks as though there might be, but if so then not a linear association, for which the correlation coefficient r would be a poor measure.
 
-## Exercise
+## Exercise 1
+
+```{r}
+cor_plot <-function(plot_data){
+plot_data %>%
+ggplot(aes(x=x,y=y)) +
+  geom_point(alpha=0.5) +
+  xlim(0,max(max(x,y))) +
+  # ylim(0,NA) +
+  # coord_fixed() +
+  theme_cowplot() +
+  theme_bare_axes()
+}
+```
+
+
+```{r}
+x<-seq(0,10,0.1)
+d1 <- data.frame(x = x, y = 2 + 1 * x  + rnorm(sd=1,n=length(x)))
+d2 <- data.frame(x = x, y = -1 * x  + rnorm(sd=1.3,n=length(x)))
+d3 <- data.frame(x = x, y = (x-5)^2 + + rnorm(sd=1,n=length(x)))
+d4 <- data.frame(x = x, y = -0.5*(x-5)^2 + + rnorm(sd=1,n=length(x)))
+d5 <- data.frame(x = x, y = 0.5*(x-5)^3 + + rnorm(sd=5,n=length(x)))
+d6 <- data.frame(x = x, y = -0.5*(x-5)^3 + + rnorm(sd=5,n=length(x)))
+p1 <- cor_plot(d1)
+p2 <- cor_plot(d2)
+p3 <- cor_plot(d3)
+p4 <- cor_plot(d4)
+p5 <- cor_plot(d5)
+p6 <- cor_plot(d6)
+
+plot_grid(p1,p6,p4,p3,p2,p5,nrow=2,labels="AUTO",hjust=-4, label_colour= "darkred")
+```
+Plots A to F above show scatter plots of different data sets _Y_ against _X_. 
+
+* Which of them show linear behaviour?
+* Which of them show monotonic behaviour?
+* For which of them might it be appropriate to calculate the following correlation coefficients between _X_ and _Y_?
+  * Pearson *r*
+  * Spearman rank *r*~sp~
+
+
+## Exercise 2
 
 Open a new R notebook
 
