@@ -83,6 +83,9 @@ library(tidyverse)
 library(here)
 library(ggfortify)
 library(cowplot)
+library(mbhR)
+# if that last line doesn't work, uncomment the next line by deleting the # and run it to install the mbhR package. 
+# remotes::install_github(“mbh038/mbhR”)
 ```
 
 
@@ -105,7 +108,7 @@ You might also wish to inspect the data using `summary()`. If so, include a code
 ### Step One: Summarise the data
 With numerical data spread across more than one level of a categorical variable, we often want summary information such as mean values and standard erros of the mean for each level. We can do this by using the `group_by()` and then `summarise()` combination. This first group the data however you want to, then calculates whatever summary you have requested for each group.
 
-Here e will calculate the number of replicates, the mean and the standard error of the mean for both levels of `garden.location` ie east and west, then store the result in a data frame calle `ozone.summary`
+Here we will calculate the number of replicates, the mean and the standard error of the mean for both levels of `garden.location` ie east and west, then store the result in a data frame calle `ozone.summary`
 
 ```{r} 
 ozone.summary<-ozone %>%
@@ -116,9 +119,9 @@ summarise(n = n(),
 ozone.summary
 ```
 
-From these data, does it look as though there is evidence for a difference between ozone levels in the East and the West? Clearly, the ten gardens in the east had a higher mean ozone concentration than the ten in the west. But is this a fluke? How precisely do we think these sample means reflect the truth about the east and the west of the city? That is what the standard error column tells us. You can think of the standard error as being an estimate of how far from the true ozone concentrations for the whole of the east and the whole of the west our sample means, drawn from just ten locatons in each part of the city, are likely to be. 
+From these data, does it look as though there is evidence for a difference between ozone levels in the East and the West? Clearly, the ten gardens in the east had a higher mean ozone concentration than the ten in the west. But is this a fluke? How precisely do we think these sample means reflect the truth about the east and the west of the city? That is what the standard error column tells us. You can think of the standard error as being an estimate of how far from the true ozone concentrations for the whole of the east and the whole of the west our sample means, drawn from just ten locations in each part of the city, are likely to be. 
 
-Bottom line: the difference between the sample means is about six times the size of the standard errors of each. It really does look as thought east of the city has a higher ozone cncentration than the west.
+Bottom line: the difference between the sample means is about six times the size of the standard errors of each. It really does look as thought east of the city has a higher ozone concentration than the west.
 
 ### Step Two: Plot the data
 
@@ -170,7 +173,7 @@ ozone.summary %>%
 
 Do the data look as though they support the null hypothesis or not?
 
-In addition, do the data look as though each group is drawn from a normally distributed population? One of the types of graphs gives you no indication of that while the other two do. Which is the odd one out? Even when looking at the other two figures, when there are so few data, it's kind of hard to tell, no?
+In addition, do the data look as though each group is drawn from a normally distributed population? One of the types of graphs gives you no indication of that while the other two do. Which is the odd one out? Even when looking at the other two figures, when there are so few data it's kind of hard to tell, no?
 
 Let's now do some stats.
 
@@ -242,6 +245,11 @@ ozone %>%
 ```
 
 Nothing outrageously non-linear there, so that also suggests we can safely use the *t*-test.
+
+#### The 'thinking about the data' normality test
+As you might have guessed, this isn't a test as such, but a suggestion that you think about what kind of data you have: is it likely to be normally distributed within its subgroups or not? If the data are numerical values of some physical quantity that is the result of many independent processes, and if the data are not bounded on either side (say by 0 and 100 as for exam scores) then it is quite likely that that they are. If they are count data, or ordinal data, then it is quite likely that they are not.
+
+This way of thinking may be all you an do when data sets are very small and any of the more robust tests for normality presented here leave you not much the wiser.
 
 #### Now for the actual two-sample *t*-test
 
