@@ -1,0 +1,130 @@
+---
+title: "Example Analyses"
+author: "Michael Hunt"
+date: "16/05/2024"
+output:
+  html_document:
+    df_print: paged
+---
+
+This notebook uses the penguin data set from the palmerpenguins package to illustrate the use of correlation, linear regression and t-test / Wilcox tests in R.
+
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+library(cowplot)
+library(rstatix)
+```
+
+```{r}
+glimpse(penguins)
+```
+
+```{r}
+penguin_adelie <- penguins |> 
+  filter(species == "penguin_adelie")
+glimpse(penguin_adelie)
+```
+
+### Correlation
+
+```{r}
+penguin_adelie |> 
+  ggplot(aes(x=bill_length_mm, bill_depth_mm)) +
+  geom_point() +
+  labs( x = "Bill length (mm)",
+        y = "Bill depth (mm)") +
+  theme_cowplot()
+```
+
+```{r}
+bill_length<-penguin_adelie$bill_length_mm
+bill_depth<-penguin_adelie$bill_depth_mm
+
+cor.test(bill_length, bill_depth, method = "pearson")
+```
+
+
+### Simple linear regression
+```{r}
+bill.model<-lm(bill_depth ~ bill_length, data = penguin_adelie)
+anova(bill.model)
+summary(bill.model)
+```
+
+```{r}
+penguin_adelie |> 
+  ggplot(aes(x=bill_length_mm, bill_depth_mm)) +
+  geom_point() +
+  geom_smooth(method="lm", linewidth = 0.5) +
+  labs( x = "Bill length (mm)",
+        y = "Bill depth (mm)") +
+  theme_cowplot() +
+  theme(panel.grid = element_line(color = "#8ccde3",
+                                  linetype = 2,
+                                  linewidth=0.5))
+```
+
+```{r}
+penguin_adelie |> 
+  ggplot(aes(x=bill_length_mm, bill_depth_mm)) +
+  geom_point() +
+  geom_smooth(method="lm", linewidth = 0.5) +
+  labs( x = "Bill length (mm)",
+        y = "Bill depth (mm)") +
+  xlim(0,46) +
+  ylim(0,24) +
+  theme_cowplot() +
+  theme(panel.grid = element_line(color = "#8ccde3",
+                                  linetype = 2,
+                                  linewidth=0.5))
+```
+
+
+### t-test / Wilcox tests for difference
+
+```{r}
+penguins |>
+  ggplot(aes(x=species,y=body_mass_g)) +
+  geom_boxplot() +
+  labs(x= " Species",
+       y = "Body mass (g)") +
+  theme_cowplot()
+```
+
+```{r}
+penguins |>
+  ggplot(aes(x=body_mass_g)) +
+  geom_histogram() +
+  labs(x= " Body mass (g)",
+       y = "Count") +
+  facet_wrap(~ species, ncol = 1) +
+  theme_cowplot()
+```
+  
+  
+
+#### test for normality
+```{r}
+penguins |>
+  group_by(species) |>
+  shapiro_test(body_mass_g)
+```
+
+#### t_test / Wilcox test
+```{r}
+penguin_adelie_bodymass <- penguins |> filter(species == "penguin_adelie") |> select(body_mass_g) |> pull()
+chinstrap_bodymass <- penguins |> filter(species == "Chinstrap") |> select(body_mass_g) |> pull()
+gentoo_bodymass <- penguins |> filter(species == "Gentoo") |> select(body_mass_g) |> pull()
+```
+
+Do penguin_adelie penguin body masses differ from those of Chinstrap penguins?
+```{r}
+t.test(penguin_adelie_bodymass,chinstrap_bodymass)
+wilcox.test(penguin_adelie_bodymass,chinstrap_bodymass)
+```
+
+Do Chinstrap penguin body masses differ from those of Gentoo penguins?
+```{r}
+t.test(chinstrap_bodymass,gentoo_bodymass)
+```

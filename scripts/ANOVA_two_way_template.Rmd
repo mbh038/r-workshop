@@ -74,7 +74,7 @@ In the following chunk, use `factor()` to designate both the `supplement` and `d
 
 ```{r convert to factors}
 # enter code to designate the supplement and diet columns of weights as factors. Order the levels as required. Save the reuslt under the same name
-weights <- weights %>%
+weights <- weights |>
   mutate(supplement = factor(supplement, levels=c("control","agrimore", "supergain", "supersupp")),
          diet=factor(diet, levels=c("barley","oats", "wheat")))
 
@@ -108,7 +108,7 @@ The next step, as so often before we launch into actual statistics, is to plot t
 
 ```{r interaction plot one}
 # No need to add anything here! Just run the chunk
-growth_summary %>%
+growth_summary |>
   ggplot(aes(x=supplement,y=mean_gain,colour=diet,group=diet)) +
   geom_point(size=2) +
   geom_line() +
@@ -244,10 +244,10 @@ If we calculate the means and standard errors for weight gain under each diet fo
 
 ```{r simplified additive model plot}
 # nothing to add here! Just run the chunk
-weights %>%
-  group_by(diet,supp2) %>%
-  summarise(mean_gain=mean(gain),se_gain=sd(gain)/sqrt(n())) %>%
-  ungroup() %>%
+weights |>
+  group_by(diet,supp2) |>
+  summarise(mean_gain=mean(gain),se_gain=sd(gain)/sqrt(n())) |>
+  ungroup() |>
 
   ggplot(aes(x=supp2,y=mean_gain,colour=diet,group=diet)) +
   geom_point(size=2) +

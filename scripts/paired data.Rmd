@@ -61,7 +61,7 @@ poplars <- read_csv(filepath,show_col_types = FALSE)
 
 ```{r}
 # table of the data
-poplars %>%
+poplars |>
   gt()
 ```
 
@@ -74,9 +74,9 @@ Before we do any test on some data to find evidence for a difference or a trend,
 In this case there is work to do before we can plot the data. The problem is that the data is 'untidy'. The two levels of the factor `month` are spread across two columns, August and November. For plotting purposes it will be useful to 'tidy' the data so that there is only one column containing both levels of `month` and another containing the aluminium concentrations. The function `pivot_longer()` can do this for us:
 
 ```{r}
-poplars_tidy <- poplars %>%
+poplars_tidy <- poplars |>
   pivot_longer (August:November,names_to="month",values_to="Al_conc")
-head(poplars_tidy,8) %>%
+head(poplars_tidy,8) |>
   gt()
 
 ```
@@ -84,7 +84,7 @@ head(poplars_tidy,8) %>%
 Now we can plot the data as a box plot, with one box for August and one for November ie one for each level of the factor `month`. Had we not first tidied the data, we could not have done this.
 
 ```{r}
-poplars_tidy %>%
+poplars_tidy |>
   # group = ID makes the lines join elements of each pair
   ggplot(aes(x = month, y = Al_conc, fill = month, colour = month)) + 
   # alpa (= opacity) < 1 in case any points are on top of each other

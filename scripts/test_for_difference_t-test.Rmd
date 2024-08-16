@@ -227,11 +227,11 @@ For both groups the *p*-value is more than 0.05, so at the 5% significance level
 
 #### Graphical methods - the quantile-quantile or QQ plot.
 
-Confession: I don't normally bother with numerical tests for normality such as Shapiro-Wilk. I usually use a grpahical method instead.
+Confession: I don't normally bother with numerical tests for normality such as Shapiro-Wilk. I usually use a graphical method instead.
 
 For an overview of how normally distributed and non-normally distributed data looks when plotted in histograms, box plots and quantile-quntile plots, see [this review](https://rpubs.com/mbh038/725314)
 
-We have already seen two ways of plotting the data that might help suggest whether it is plausible that the data are drawn from normally distributed populations. Histograms and box plots both indicate how data is distributed, and for normally distributed data both would be symmetrical. Well, they would be, more or less, if the data set was large enough but for small data sets it can be quite hard to tell from either type of plot whether the data are drawn from a normally distrivuted population.
+We have already seen two ways of plotting the data that might help suggest whether it is plausible that the data are drawn from normally distributed populations. Histograms and box plots both indicate how data is distributed, and for normally distributed data both would be symmetrical. Well, they would be, more or less, if the data set was large enough but for small data sets it can be quite hard to tell from either type of plot whether the data are drawn from a normally distributed population.
 
 A better type of plot for making this judgement call is the quantile-quantile or 'QQ' plot which basically compares the distribution of your data to that of a normal distribution. If your data are approximately normally distributed then a qq plot will give a straight(-ish) line. Even with small data sets, this is usually easy to spot.
 
@@ -249,7 +249,7 @@ Nothing outrageously non-linear there, so that also suggests we can safely use t
 #### The 'thinking about the data' normality test
 As you might have guessed, this isn't a test as such, but a suggestion that you think about what kind of data you have: is it likely to be normally distributed within its subgroups or not? If the data are numerical values of some physical quantity that is the result of many independent processes, and if the data are not bounded on either side (say by 0 and 100 as for exam scores) then it is quite likely that that they are. If they are count data, or ordinal data, then it is quite likely that they are not.
 
-This way of thinking may be all you an do when data sets are very small and any of the more robust tests for normality presented here leave you not much the wiser.
+This way of thinking may be all you can do when data sets are very small and any of the more robust tests for normality presented here leave you not much the wiser.
 
 #### Now for the actual two-sample *t*-test
 
@@ -260,6 +260,10 @@ We can use the `t.test()` function for this. This needs to be given a formula an
 ```{r,eval=TRUE}
 t.test(ozone~garden.location,data=ozone)
 ```
+```{r}
+ozone %>% t_test(ozone~garden.location)
+```
+
 
 Note the `~` tilda symbol. This means 'is a function of'. So this line means: do a *t*-test to see if there is a significant difference between the ozone levels in the two garden locations.
 

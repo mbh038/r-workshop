@@ -81,7 +81,7 @@ To ensure that a variable is regarded as a factor, and then to get its levels in
 In the following chunk, `factor()` is used to designate both the `supplement` and `diet` columns of the data set as factors, and the level order of each is specified, with `control` coming first for `supplement` and `barley` coming first for `diet`. 
 
 ```{r convert to factors}
-weights <- weights %>%
+weights <- weights |>
   mutate(supplement = factor(supplement, levels = c("control","agrimore", "supergain", "supersupp")),
          diet = factor(diet, levels = c("barley","oats", "wheat")))
 glimpse(weights)
@@ -103,21 +103,21 @@ $$ \text{SE}=\frac{SD}{\sqrt{n}}$$
 
 ```{r make data summary table one, eval= FALSE}
 # we use the group_by() and summarise() functions from dplyr (the package within tidyverse for data manipulation)
-growth_summary<-weights %>%
-  group_by(diet,supplement) %>%
-  summarise(mean_gain = mean(gain),se_gain = sd(gain)/sqrt(n())) %>%
+growth_summary<-weights |>
+  group_by(diet,supplement) |>
+  summarise(mean_gain = mean(gain),se_gain = sd(gain)/sqrt(n())) |>
   ungroup()
 growth_summary
 ```
 
 ```{r, echo = FALSE}
 library(kableExtra)
-growth_summary<-weights %>%
-  group_by(diet,supplement) %>%
-  summarise(mean_gain = mean(gain),se_gain = sd(gain)/sqrt(n())) %>%
+growth_summary<-weights |>
+  group_by(diet,supplement) |>
+  summarise(mean_gain = mean(gain),se_gain = sd(gain)/sqrt(n())) |>
   ungroup()
-growth_summary %>%
-  kbl() %>%
+growth_summary |>
+  kbl() |>
   kable_styling(full_width=FALSE)
 ```
 
@@ -128,7 +128,7 @@ Note the ordering of the diet and supplement levels in their respective columns:
 The next step, as so often before we launch into actual statistics, is to plot the data in a way that sheds light on the question we have. Here, we can use the use the means and standard errors of the mean that we have just calculated to produce a useful kind of line plot that in this context is often referred to as an interaction plot:
 
 ```{r interaction plot one}
-growth_summary %>%
+growth_summary |>
   ggplot(aes(x=supplement,y=mean_gain, colour = diet, group = diet)) +
   geom_point(size=2) +
   geom_line() +
@@ -218,9 +218,9 @@ Here is a table to help you interpret the output of the `summary()` function.
 ```{r additional table, echo = FALSE}
 library(tidytidbits)
 library(kableExtra)
-summary.table<-broom::tidy(summary(model0)) %>%
-  mutate(absolute_value=ifelse(term=="(Intercept)",estimate, estimate+ estimate[1])) %>%
-  mutate(type_of_effect=c(rep("Main effect",6),rep("Interaction",6))) %>%
+summary.table<-broom::tidy(summary(model0)) |>
+  mutate(absolute_value=ifelse(term=="(Intercept)",estimate, estimate+ estimate[1])) |>
+  mutate(type_of_effect=c(rep("Main effect",6),rep("Interaction",6))) |>
   mutate (meaning = c("barley + control",
                       "oats + control",
                       "wheat + control",
@@ -232,18 +232,18 @@ summary.table<-broom::tidy(summary(model0)) %>%
                       "oats + supergain",
                       "wheat + supergain",
                       "oats + supersupp",
-                      "wheat + supersupp")) %>%
+                      "wheat + supersupp")) |>
   mutate(estimate=round(estimate,2),
          absolute_value = round(absolute_value,2),
-         p_value=as_formatted_p_value(p.value,prefix="",alpha=0.05)) %>%
+         p_value=as_formatted_p_value(p.value,prefix="",alpha=0.05)) |>
   mutate(significance = case_when(
     p.value <= 0.001 ~ "***",
     p.value > 0.001 & p.value <= 0.01 ~ "**",
     p.value > 0.01 & p.value <= 0.05 ~ '  *.  ',
-    p.value > 0.05 ~ "")) %>%
+    p.value > 0.05 ~ "")) |>
   select(term, meaning,type_of_effect,estimate, absolute_value, p_value, significance)
-summary.table %>%
-  kbl() %>%
+summary.table |>
+  kbl() |>
   kable_styling(full_width=FALSE)
 ```
 
@@ -274,17 +274,17 @@ Back to interpreting the output of the ANOVA:
 It is clear that we need to retain all three levels of diet since the effect values of each differ from each other by an amount that is several times the standand errors, so that *t* >> 1. It is not clear that we need all the levels of supplement, however. `supersupp` is not obviously different from `agrimore` (difference = -0.727 with standard error = 0.509), yet both are clearly different from `control`. However `supergrain` is not obviously different from `control` (difference = -0.68, error = 0.509). Hence we are tempted to try a new model with just two levels of the factor supplement which we might sensibly call "best", by which we mean `agrimore` or `supersupp`, and "worst" by which we mean `control` or `supergrain`. We'll name this new factor `supp2`.
 
 ```{r condense supplements to two}
-weights <- weights %>%
+weights <- weights |>
   mutate(supp2 = ifelse(supplement %in% c("agrimore","supersupp"),"best","worst"))
 ```
 
 If we calculate the means and standard errors for weight gain under each diet for each of the two new classifications of supplement, and then plot them, we get this new interaction plot:
 
 ```{r simplified additive model plot}
-weights %>%
-  group_by(diet,supp2) %>%
-  summarise(mean_gain = mean(gain), se_gain = sd(gain)/sqrt(n())) %>%
-  ungroup() %>%
+weights |>
+  group_by(diet,supp2) |>
+  summarise(mean_gain = mean(gain), se_gain = sd(gain)/sqrt(n())) |>
+  ungroup() |>
 
   ggplot(aes(x = supp2,y = mean_gain,colour = diet,group=diet)) +
   geom_point(size=2) +

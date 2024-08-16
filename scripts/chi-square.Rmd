@@ -166,12 +166,13 @@ lady.mat
 
 ```{r}
 # Calculate the totals of each colour in each habitat.
-totals<- lady %>%
-  group_by(Habitat,morph_colour) %>%
+totals<- lady |>
+  group_by(Habitat,morph_colour) |>
   summarise (total.number = sum(number))
-# totals %>%
-#   kbl() %>%
+# totals |>
+#   kbl() |>
 #   kable_styling(full_width=FALSE)
+totals
 ```
 
 #### Plot the data. 
@@ -179,7 +180,7 @@ Now that we have these totals we can use them to plot a bar chart of the data:
 
 ```{r,eval=TRUE}
 # plot the data, with sensible colours
-totals %>%
+totals |>
   ggplot(aes(x = Habitat,y = total.number,fill=morph_colour))+
   geom_col(position='dodge') +
   labs(x="Habitat",

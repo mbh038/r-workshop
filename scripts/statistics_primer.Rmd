@@ -142,7 +142,7 @@ english_scores<-c(rep(46,2),rep(49,2),rep(52,9),rep(55,0),rep(56,7),rep(57,5),re
 
 scores<-tibble(score=c(maths_scores,english_scores),subject=c(rep("maths",30),rep("english",30)))
 
-scores %>%
+scores |>
   ggplot(aes(x=score)) +
   geom_histogram(binwidth=4,fill=fill_colour1,colour=line_colour) +
   scale_x_continuous(breaks=seq(40,72,4),labels=seq(40,72,4)) +
@@ -177,9 +177,9 @@ var_tbl<-tibble(
   Variability=c("$\\Sigma (y_i-\\bar{y})^2=638$","$\\Sigma (y_i-\\bar{y})^2=2219$"),
   variance=c("$\\frac{1}{n-1}\\Sigma (y_i-\\bar{y})^2=\\frac{638}{29}=22.0$","$\\frac{1}{n-1}\\Sigma (y_i-\\bar{y})^2=\\frac{2219}{29}=76.5$"),
   st_dev=c("$\\sqrt{22.0}=4.7$","$\\sqrt{76.5}=8.75$")
-) %>%
-  kbl(align="c",booktabs=TRUE, escape= FALSE,col.names=col_names) %>%
-  add_header_above(c("Scores","Mean","Sum of deviations","Sum of squared deviations","Variance","Standard deviation"),align="c") %>%
+) |>
+  kbl(align="c",booktabs=TRUE, escape= FALSE,col.names=col_names) |>
+  add_header_above(c("Scores","Mean","Sum of deviations","Sum of squared deviations","Variance","Standard deviation"),align="c") |>
   kable_styling()
 var_tbl
 ```
@@ -224,8 +224,8 @@ y0<-dnorm(xvals,mean=5,sd=2)
 y1<-dnorm(xvals,mean=0,sd=2)
 y2<-dnorm(xvals,mean=0,sd=1)
 
-g1<-data.frame(x=xvals,y=y0) %>%
-  filter(x>-3 & x<13) %>%
+g1<-data.frame(x=xvals,y=y0) |>
+  filter(x>-3 & x<13) |>
   ggplot(aes(x=x,y=y)) +
   geom_line(colour=func_colour) +
   #labs(title="Example of standardising a normal distribution") +
@@ -246,8 +246,8 @@ g1<-data.frame(x=xvals,y=y0) %>%
   #       axis.ticks.y = element_blank())
 
 
-g2<-data.frame(x=xvals,y=y1) %>%
-  filter(x>-8 & x<8) %>%
+g2<-data.frame(x=xvals,y=y1) |>
+  filter(x>-8 & x<8) |>
   ggplot(aes(x=x,y=y)) +
   geom_line(colour=func_colour) +
   scale_x_continuous(limits=c(-8,13),breaks=seq(-4,4,2),labels=c("-4","-2","0","2","4")) +
@@ -261,8 +261,8 @@ g2<-data.frame(x=xvals,y=y1) %>%
   theme(axis.title.x=element_blank())
 
 
-g3<-data.frame(x=xvals,y=y2) %>%
-  filter(x>-4 & x<4) %>%
+g3<-data.frame(x=xvals,y=y2) |>
+  filter(x>-4 & x<4) |>
   ggplot(aes(x=x,y=y)) +
   geom_line(colour=func_colour) +
   scale_x_continuous(limits=c(-8,13),breaks=seq(-2,2,1),labels=c("-2","-1","0","1","2")) +
@@ -450,7 +450,7 @@ mu<-145
 sigma<-15
 lower_xlim<-mu-4*sigma
 upper_xlim<-mu+4*sigma
-seal.population<-tibble(mass=rnorm(population_size,mu,sigma)) %>%
+seal.population<-tibble(mass=rnorm(population_size,mu,sigma)) |>
   filter(mass<=upper_xlim & mass>lower_xlim)
 ```
 
@@ -470,7 +470,7 @@ myfun<-function(x,mean,sd,N,binwidth){
 #| fig.cap="Histogram of the weights of the entire population of adult grey seals in South West England. #| In reality, we would never be able to measure this, but if we could, it would very likely closely
 #| approximate a normal distribution, as shown here."
 population_dist<-
-  seal.population %>%
+  seal.population |>
   ggplot(aes(x=mass)) +
   geom_histogram(binwidth=5,fill=fill_colour1,colour=line_colour) +
   geom_function(fun=myfun,args=list(mean=mu,sd=sigma,N=population_size,binwidth=5),colour=func_colour) +
@@ -508,7 +508,7 @@ sample_means<-tibble(means=colMeans(samples))
 ```{r}
 single_sample<-tibble(mass=sample(seal.population$mass,size=sample_size,replace=TRUE))
 single_sample_dist<-
-  single_sample %>%
+  single_sample |>
   ggplot(aes(x=mass)) +
   geom_histogram(binwidth=5,fill=fill_colour1,colour=line_colour) +
   geom_function(fun=myfun,args=list(mean=mu,sd=sigma,N=sample_size,binwidth=5),colour=func_colour) +
@@ -540,16 +540,16 @@ single_sample_dist<-
 
 selected_samples<-sort(sample(n_samples,9))
 
-ybars<-samples %>%
-  select(all_of(selected_samples)) %>%
-  pivot_longer(1:9,names_to="sample",values_to="mass") %>%
-  group_by(sample) %>%
+ybars<-samples |>
+  select(all_of(selected_samples)) |>
+  pivot_longer(1:9,names_to="sample",values_to="mass") |>
+  group_by(sample) |>
   summarise(ybar=mean(mass),s=sd(mass))
   
  
-  samples %>%
-  select(all_of(selected_samples)) %>%
-  pivot_longer(1:9,names_to="sample",values_to="mass") %>%
+  samples |>
+  select(all_of(selected_samples)) |>
+  pivot_longer(1:9,names_to="sample",values_to="mass") |>
   ggplot(aes(x=mass)) +
   geom_histogram(binwidth=5,fill=fill_colour1,colour=line_colour) +
   geom_function(fun=myfun,args=list(mean=mu,sd=sigma,N=sample_size,binwidth=5),colour=func_colour) +
@@ -577,7 +577,7 @@ Note too that these samples are drawn from a population (we happen to know, beca
 ```{r}
 # sampling distribution - the distribution of the means of many samples drawn from a population.
 sampling_dist<-
-  sample_means %>%
+  sample_means |>
   ggplot(aes(x=means)) +
   geom_histogram(binwidth=0.5,fill=fill_colour1,colour=line_colour,alpha=0.2) +
   geom_function(fun=myfun,args=list(mean=mu,sd=sigma/sqrt(sample_size),N=n_samples,binwidth=0.5),colour=func_colour) +
@@ -665,13 +665,13 @@ set.seed(876543212)
 alpha<-0.05
 trials<-20
 
-estimators<-tibble(xs=rnorm(trials),ys=1:trials) %>%
+estimators<-tibble(xs=rnorm(trials),ys=1:trials) |>
   mutate(lowers=xs-abs(qnorm(alpha/2)),
          uppers=xs+abs(qnorm(alpha/2)),
          colours=ifelse((lowers>0 | uppers<0),"outside","inside"),
          linewidths=ifelse((lowers>0 | uppers<0),"thick","thin"))
 
-estimators %>%
+estimators |>
   ggplot(aes(x=xs,y=ys,colour=colours,size=linewidths)) +
   geom_point(size=5) +
   geom_linerange(aes(xmin = lowers, xmax = uppers)) +    
@@ -722,7 +722,7 @@ dfs<-c(rep(1,nreps),rep(3,nreps),rep(10,nreps),rep(30,nreps))
 
 t_colour=COL["red","full"]
 
-p<-tibble(x=xs,y=ys,df=as.factor(dfs)) %>%
+p<-tibble(x=xs,y=ys,df=as.factor(dfs)) |>
   ggplot(aes(x=x,y=y,colour=df)) +
   geom_line() +
   geom_line(data=tibble(x=xvals,y=dnorm(xvals),df=rep("1",nreps)),aes(x=x,y=y),colour=func_colour) +
@@ -779,7 +779,7 @@ For example the panels in Figure \@ref(fig:small-sample-hists) below show histog
 set.seed(6756)
 df_small_samples<-tibble(dataset=c(rep("A",10),rep("B",10),rep("C",10),rep("D",10)),data=c(rnorm(10,10,2),rnorm(10,10,2),rnorm(10,10,2),rnorm(10,10,2)))
 
-df_small_samples %>%
+df_small_samples |>
   ggplot(aes(x=data)) +
   geom_histogram(binwidth=1,fill=fill_colour1,colour=line_colour) +
   scale_x_continuous(limits=c(7,13),
@@ -799,7 +799,7 @@ For such small samples, quantile-quantile plots, or qq-plots as they are often c
 
 # qqplots of small samples
 
-df_small_samples %>%
+df_small_samples |>
   ggplot(aes(sample=data)) +
   geom_qq(colour=point_colour) +
   geom_qq_line(colour=line_colour) +
@@ -1049,7 +1049,7 @@ df <-tibble(DIFF =c(0.73037,0.56187,0.53982,1.19698,2.73584,1.50035,1.91098,1.89
 0.83244,-0.08622,0.02649,0.13844,1.89609,-0.26868,1.8784,0.58147,0.34533,0.29316))
 
 
-df %>%
+df |>
   ggplot(aes(x=DIFF)) +
   geom_histogram(binwidth=0.5,colour=line_colour,fill=fill_colour1) +
   scale_x_continuous(breaks=seq(-0.5,2.5,0.5)) +
@@ -1085,16 +1085,16 @@ Histograms and qq-plots of the data are shown in Figure \@ref(fig:untransformed-
 
 ```{r}
 # path<-here("data","basics_SQUIRREL.csv")
-# squirrels<-read_csv(path) %>%
-#   pivot_longer(1:2,names_to="sex",values_to="mass") %>%
+# squirrels<-read_csv(path) |>
+#   pivot_longer(1:2,names_to="sex",values_to="mass") |>
 #   mutate(log_mass=log(mass))
 
-squirrels<-squirrels %>% mutate(log_mass=log(mass))
+squirrels<-squirrels |> mutate(log_mass=log(mass))
 ```
 
 ```{r}
 sq_histograms<-
-  squirrels %>%
+  squirrels |>
   ggplot(aes(x=mass)) +
   geom_histogram(bins=14,fill=fill_colour1,colour=line_colour) +
   scale_x_continuous(breaks=seq(0.3,1.1,0.2)) +
@@ -1107,7 +1107,7 @@ sq_histograms<-
 
 ```{r}
 sq_qqplots<-
-  squirrels %>%
+  squirrels |>
   ggplot(aes(sample=mass)) +
   geom_qq(colour=point_colour) +
   geom_qq_line(colour=line_colour) +
@@ -1138,7 +1138,7 @@ We show the result of doing this in Figure \@ref(fig:transformed-data) below
 
 ```{r}
 sq_log_histograms<-
-  squirrels %>%
+  squirrels |>
   ggplot(aes(x=log_mass)) +
   geom_histogram(bins=14,fill=fill_colour1,colour=line_colour) +
   scale_x_continuous(breaks=seq(0.3,1.1,0.2)) +
@@ -1149,7 +1149,7 @@ sq_log_histograms<-
   theme(strip.background = element_blank())
 
 sq_log_qqplots<-
-  squirrels %>%
+  squirrels |>
   ggplot(aes(sample=log_mass)) +
   geom_qq(colour=point_colour) +
   geom_qq_line(colour=line_colour) +
@@ -1175,10 +1175,10 @@ That's much better.
 Here is a summary of the log(mass) values for each sample:
 
 ```{r}
-squirrels %>%
-  group_by(sex) %>%
-  summarise ('Mean log (mass)'=mean(log_mass), 'SD log (mass)' = sd(log_mass) ) %>%
-  kbl(digits=3) %>%
+squirrels |>
+  group_by(sex) |>
+  summarise ('Mean log (mass)'=mean(log_mass), 'SD log (mass)' = sd(log_mass) ) |>
+  kbl(digits=3) |>
   kable_styling(full_width=FALSE)
 ```
 
@@ -1208,8 +1208,8 @@ The number of degrees of freedom in this case is $n_\text{A}+n_\text{B}-2=50+50-
 If we do this test in R, this is the output we get:
 
 ```{r}
-males_log_mass<-squirrels %>% filter(sex=="MALE") %>% select(log_mass) %>% pull()
-females_log_mass<-squirrels %>% filter(sex=="FEMALE") %>% select(log_mass) %>% pull()
+males_log_mass<-squirrels |> filter(sex=="MALE") |> select(log_mass) |> pull()
+females_log_mass<-squirrels |> filter(sex=="FEMALE") |> select(log_mass) |> pull()
 t.test(males_log_mass,females_log_mass,var.equal=TRUE)
 ```
 
@@ -1220,8 +1220,8 @@ Note that in this output from R we are given the *t*-statistic, the number of de
 As a word of caution about using a *t*-test on data that does not meet the criteria required, look what we get if we did the *t*-test on the untransformed masses, which we have seen above to have skewed, non-normal distributions:
 
 ```{r}
-males_mass<-squirrels %>% filter(sex=="MALE") %>% select(mass) %>% pull()
-females_mass<-squirrels %>% filter(sex=="FEMALE") %>% select(mass) %>% pull()
+males_mass<-squirrels |> filter(sex=="MALE") |> select(mass) |> pull()
+females_mass<-squirrels |> filter(sex=="FEMALE") |> select(mass) |> pull()
 t.test(males_mass,females_mass,var.equal=TRUE)
 ```
 This gives a *t*-statistic of 2.17 and *p*-value of 0.03, on the basis of which we would erroneously reject the null hypothesis that males and female squirrels on average have the same body mass. We would be wrong to think that this output gave us grounds to do that, since the data do not meet the criteria required for a *t*-test, and hence we should not believe the output if we use one. 

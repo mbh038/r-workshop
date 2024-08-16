@@ -34,7 +34,7 @@ glimpse(penguins)
 We can see from the first few values of the glimpse table that some rows have missing values (NAs). We need to decide what to do with them. Here we will simply remove them! Here is a way to remove any row that contains missing values in one column or another:
 
 ```{r}
-penguins_clean <- penguins %>%
+penguins_clean <- penguins |>
   drop_na()
 glimpse(penguins_clean)
 ```
@@ -45,9 +45,9 @@ That has removed 11 rows of data, so we haven't lost too much information.
 Here we use the famliar `group_by()` and `summarise()` construction to find the mean body mass for each combination of species and sex. We also calculate the standard error of those means and the number of individuals in each group.
 
 ```{r}
-penguins_clean %>%
-  group_by(species, sex) %>%
-  summarise(n = n(), mean_bm = mean(body_mass_g), se_bm = sd(body_mass_g)/sqrt(n()) ) %>%
+penguins_clean |>
+  group_by(species, sex) |>
+  summarise(n = n(), mean_bm = mean(body_mass_g), se_bm = sd(body_mass_g)/sqrt(n()) ) |>
   ungroup()
 ```
 
@@ -60,7 +60,7 @@ To get further insight into these questions, we can plot the data. Here we will 
 
 
 ```{r}
-penguins_clean  %>%
+penguins_clean  |>
   ggplot(aes(x=species, y = body_mass_g, fill = sex)) +
   geom_boxplot() +
   labs(x = "Species",
@@ -106,16 +106,16 @@ For the penguin data, getting it was easy as it came with the `palmerpenguins` p
 To prepare the data, we start with the full data set and narrow it down to just the females, using the `filter()` function, and again make sure there are no lines with missing values, using `drop_na()`. We save this cleaned data set in an object called `females`.
 
 ```{r}
-females <- penguins %>%
-  filter(sex == "female") %>%
+females <- penguins |>
+  filter(sex == "female") |>
   drop_na()
 ```
 
 Then let's summarise these values to find the number of individuals, the mean body mass for each species, and the standard errors of those means:
 
 ```{r}
-females %>%
-  group_by(species) %>%
+females |>
+  group_by(species) |>
   summarise(n = n(), mean.mass_f = mean(body_mass_g), se.mass_f = sd(body_mass_g)/sqrt(n()))
 
 ```
@@ -124,7 +124,7 @@ We should inspect this summary table and see what we already think about whether
 Now let's plot them, using a box plot (but choose your favourite plot type):
 
 ```{r}
-females  %>%
+females  |>
   ggplot(aes(x=species, y = body_mass_g)) +
   geom_boxplot(fill = "#9ebcda") +  # pick your favourise colour from https://colorbrewer2.org/
   labs(x = "Species",

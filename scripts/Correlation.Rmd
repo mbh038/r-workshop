@@ -101,13 +101,13 @@ The notable statistician Karl Pearson (1857 - 1936) carried out a study to inves
 
 ```{r,out.width="100%"}
 
-# father.son %>%
+# father.son |>
 # ggplot(aes(x=fheight,y=sheight)) +
-PearsonLee %>%
-  filter(gp %in% c("fs","md")) %>%
-  group_by(gp) %>%
-  mutate(ave_parent=mean(parent)) %>%
-  ungroup() %>%
+PearsonLee |>
+  filter(gp %in% c("fs","md")) |>
+  group_by(gp) |>
+  mutate(ave_parent=mean(parent)) |>
+  ungroup() |>
   ggplot(aes(x=parent,y=child)) +
   geom_abline(slope=1,linetype="dashed",colour="gray60") +
   geom_point(alpha=0.7,colour=COL['blue','full']) +
@@ -169,7 +169,7 @@ library(DescTools)
 #             nv = 100, border = par("fg"), col = par("bg"),
 #             lty = par("lty"), lwd = par("lwd"), plot = FALSE)
 
-big_faithful <- faithful %>% filter(eruptions > 3)
+big_faithful <- faithful |> filter(eruptions > 3)
 
 mean_waiting <- mean(big_faithful$waiting)
 mean_eruptions <- mean(big_faithful$eruptions)
@@ -193,7 +193,7 @@ ymax<-mean_eruptions+5*sd_eruptions
 # the path is not closed; close it
 # ellpath <- rbind(ellpath, ellpath[1,])
 
-ellipse_plot<- big_faithful %>%
+ellipse_plot<- big_faithful |>
   ggplot(aes(x = waiting, y = eruptions)) +
   geom_point(colour="white") +
   stat_ellipse(colour="red") +
@@ -272,7 +272,7 @@ x<-rnorm(N,mean=mu,sd=10)
 noise<-rnorm(N,mean=0,sd=0.7)
 y<-x+noise
 
-p1<-tibble(x=x,y=y) %>%
+p1<-tibble(x=x,y=y) |>
   ggplot(aes(x=x,y=y)) +
   geom_point(alpha=0.7,size=2,colour=COL['blue','full']) +
   xlim(0,10) +
@@ -290,7 +290,7 @@ p1<-tibble(x=x,y=y) %>%
 x<-rnorm(N,mean=mu,sd=10)
 noise<-rnorm(N,mean=0,sd=2.7)
 y<-x+noise
-p2<-tibble(x=x,y=y) %>%
+p2<-tibble(x=x,y=y) |>
   ggplot(aes(x=x,y=y)) +
   geom_point(alpha=0.7,size=2,colour=COL['blue','full']) +
   xlim(0,10) +
@@ -377,8 +377,8 @@ cor_data<-tibble(x=rep(xbase,length(rho)),
                  r=rep(rho,1,each=N))
 
 #cor_data<-neg_cor_data
-actual_rhos<-cor_data %>%
-  group_by(r) %>%
+actual_rhos<-cor_data |>
+  group_by(r) |>
   summarise(actual_r=round(cor(x,y),2))
 labels<-sapply(actual_rhos$actual_r,function(x){paste("Cor. coef.","=",x)})
 
@@ -416,12 +416,12 @@ Below we show six examples of negative correlation. As in the previous figure, a
 N<-50
 
 
-neg_cor_data<-tibble(r=rep(rho,1,each=N)) %>%
+neg_cor_data<-tibble(r=rep(rho,1,each=N)) |>
   add_column(x=cor_data$x)
 
 y_rev<-function(cor_data,rho){
-  ys<-cor_data %>%
-  filter(r==rho) %>%
+  ys<-cor_data |>
+  filter(r==rho) |>
   pull(y)
   rev(ys)
 }
@@ -433,7 +433,7 @@ for (r in rho){
 }
 ys<-as.vector(ys)
 
-neg_cor_data<-neg_cor_data %>%
+neg_cor_data<-neg_cor_data |>
   add_column(y=ys)
 ```
 
@@ -452,23 +452,23 @@ neg_cor_data<-tibble(x=rep(xbase,length(rho)),
 ```
 
 ```{r}
-actual_rhos<-neg_cor_data %>%
-  group_by(r) %>%
-  summarise(actual_r=round(cor(x,y),2)) %>%
+actual_rhos<-neg_cor_data |>
+  group_by(r) |>
+  summarise(actual_r=round(cor(x,y),2)) |>
   arrange(-actual_r)
 labels<-sapply(actual_rhos$actual_r,function(x){paste("Cor. coef.","=",x)})
 
-# neg_cor_data<-neg_cor_data %>%
+# neg_cor_data<-neg_cor_data |>
 #   arrange(desc(r))
 
 neg_cor_data$titles<-factor(neg_cor_data$r,label=labels)
 
 
 
-f_labels<-tibble(r=rho,label=labels) %>%arrange(desc(r))
-neg_cor_data %>%
-  mutate(r=as.factor(r)) %>%
-  mutate(r = fct_relevel(r, "-0.3", "-0.5", "-0.7","-0.9","-0.95","-0.99")) %>%
+f_labels<-tibble(r=rho,label=labels) |>arrange(desc(r))
+neg_cor_data |>
+  mutate(r=as.factor(r)) |>
+  mutate(r = fct_relevel(r, "-0.3", "-0.5", "-0.7","-0.9","-0.95","-0.99")) |>
   ggplot(aes(x=x,y=y)) +
   geom_point(colour=COL['blue','f1']) +
   scale_x_continuous(limits=c(0,6),breaks=seq(0,6))+
@@ -492,7 +492,7 @@ Correlations are always between -1 and 1, but can take any value in between. A p
 First, let us try to find the correlation between two sets of data where we know what the correlation coefficient is, because we created the data ourselves. We will take the *x* and *y* data used above for which the correlation coefficient was fixed to be 0.8
 
 ```{r,echo=FALSE}
-df<-cor_data %>%
+df<-cor_data |>
   filter (r==0.8)
 
 x<-df$x
@@ -539,7 +539,7 @@ We will look to see if the data allow us to reject the idea that petal width and
 First, let's plot the data
 
 ```{r,echo=TRUE}
-iris %>%
+iris |>
   ggplot(aes(x=Petal.Width,y=Petal.Length,colour=Species)) +
   geom_point() +
   labs(x="Petal Width (mm)",
@@ -557,13 +557,13 @@ Looking at each graph, it appears that there is a positive correlation for each 
 Let us find out:
 
 ```{r,echo=TRUE}
-iris %>%
-  group_by(Species) %>%
+iris |>
+  group_by(Species) |>
   summarise(r=cor.test(Petal.Width,Petal.Length)$estimate,
             lower.boundb=cor.test(Petal.Width,Petal.Length)$conf.int[1],
             upper.bound=cor.test(Petal.Width,Petal.Length)$conf.int[2],
-            "p value"=cor.test(Petal.Width,Petal.Length)$p.value) %>%
-  kbl(digits=3) %>%
+            "p value"=cor.test(Petal.Width,Petal.Length)$p.value) |>
+  kbl(digits=3) |>
   kable_styling(full_width=0.7)
   
 ```
@@ -654,7 +654,7 @@ In the Figure above, note that the *r*-values for **C** and **E** are close to z
 
 ```{r}
 cor_plot <-function(plot_data){
-plot_data %>%
+plot_data |>
 ggplot(aes(x=x,y=y)) +
   geom_point(alpha=0.5) +
   xlim(0,max(max(x,y))) +

@@ -19,11 +19,12 @@ library(cowplot)
 library(ggfortify)
 library(ggtext)
 library(glue)
+library(MASS)
 ```
 
 ### What are error bars for?
 
-Error bars perform two main functions. One of these is a descriptive function, to give readers an idea of the spread of values within a data set, and this of the population from which the data have been drawn. The other is inferential, to enable readers to make inferences from a data set, for example to enable them to determine whether two data sets are plausibly drawn from the same population. These two functions are quite different.
+Error bars perform two main functions. One of these is a descriptive function, to give readers an idea of the spread of values within a data set, and thus of the population from which the data have been drawn. The other is inferential, to enable readers to make inferences from a data set, for example to enable them to determine whether two data sets are plausibly drawn from the same population. These two functions are quite different.
 
 ### Descriptive error bars
 We could indicate the spread of values of a data set using the *range* or the *standard deviation*. Range error bars go from the highest to the lowest value in the data set, while standard deviation $SD$ is calculated using the formula
@@ -42,21 +43,23 @@ However, the SD of the experimental results will approximate to $\sigma$, whethe
 ```{r}
 set.seed=5678
 #empirical=T forces mean and sd to be exact
-s3 <- MASS::mvrnorm(n=3, mu=40, Sigma=12^2, empirical=T)
-s10 <- MASS::mvrnorm(n=10, mu=40, Sigma=12^2, empirical=T)
-s30 <- MASS::mvrnorm(n=30, mu=40, Sigma=12^2, empirical=T)
+s3 <- MASS::mvrnorm(n=3, mu=40, Sigma=12^2, empirical=TRUE)
+s10 <- MASS::mvrnorm(n=10, mu=40, Sigma=12^2, empirical=TRUE)
+s30 <- MASS::mvrnorm(n=30, mu=40, Sigma=12^2, empirical=TRUE)
 
 df<-tibble(s=c(rep("s3",3),rep("s10",10),rep("s30",30)),
-           values=c(s3,s10,s30)) %>%
+           values=c(s3,s10,s30)) |>
   mutate(s=factor(s,levels=c("s3","s10","s30")))
 
-df_summary <- df %>%
-  summarise(n=n(), mean.s = mean(values), sd.s = sd(values), min.s=min(values), max.s = max(values), .by=s) %>%
+df_summary <- df |>
+  summarise(n=n(), mean.s = mean(values), sd.s = sd(values), min.s=min(values), max.s = max(values), .by=s) |>
   mutate(label_text = glue("*n* = {n}")) 
 ```
 
+
+
 ```{r}
-df_summary %>%
+df_summary |>
   ggplot(aes(x = s,y = mean.s)) +
   geom_point(data=df, aes(x=s,y=values),position=position_nudge(-0.3),alpha=0.5) + # plot the whole data sets
   geom_hline(yintercept=40, linetype="dashed", linewidth=0.5, colour="gray80") + # draw a horizontal line at the mean
@@ -93,10 +96,7 @@ $$SE = \frac{SD}{\sqrt{n}} $$
 where $SD$ is the standard deviation of an individual sample and $n$ is the sample size. Thus, unlike the standard deviation of a sample, the standard error of the mean of the samples *does* get systematically smaller as the sample size *n* increases. This is another way of saying that the larger a sample is the closer its mean is likely to be to the population mean. Another thing to notice is that the SE is proportional to the SD, which is to say that sample means are more likely to be a close approximation to the population mean if the spread of values within the population, and thus the sample, is small. Smaller SD means smaller SE. Who knew?
 
 
-
 #### The confidence interval
-
-
 
 ```{r confidence interval}
 # set.seed(876543212)
@@ -108,11 +108,11 @@ n<-10
 trials<-20
 
 # uncomment to generate new data
-# ys <- matrix(rnorm(n*trials,mean=mean.pop,sd=sd.pop),ncol=trials)
-# sample_means<-colMeans(ys)
-# sds <- sapply(data.frame(ys),sd)
+ys <- matrix(rnorm(n*trials,mean=mean.pop,sd=sd.pop),ncol=trials)
+sample_means<-colMeans(ys)
+sds <- sapply(data.frame(ys),sd)
 
-estimators <- tibble(xs=1:trials,ys=sample_means,sds=sds) %>%
+estimators <- tibble(xs=1:trials,ys=sample_means,sds=sds) |>
   mutate(margins_of_error = abs(qt(alpha/2,df=n-1))*sds/sqrt(n),
          lowers = ys - margins_of_error,
          uppers = ys + margins_of_error,
@@ -121,7 +121,7 @@ estimators <- tibble(xs=1:trials,ys=sample_means,sds=sds) %>%
          fills = ifelse((lowers > mean.pop | uppers < mean.pop),"hollow","filled"))
 
 
-estimators %>%
+estimators |>
   ggplot(aes(x=xs,y=ys,colour=colours,size=linewidths)) +
   geom_hline(yintercept=mean.pop,linetype="dashed",linewidth=0.3,colour="gray80") +
   geom_point(size=2) +
@@ -140,13 +140,17 @@ estimators %>%
   theme(legend.position="none")
   # theme(axis.title.y=element_blank())
 ```
-Confidence intervals. Means and 95% CIs for 20 independent sets of results, each of size *n* = 10, from a population with mean μ = 40 (marked by the dotted line). In the long run we expect 95% of such CIs to capture μ; here 19 do so (large black dots) and 1 does not (red dot). Successive CIs vary considerably, not only in position relative to μ, but also in length. The variation from CI to CI would be less for larger sets of results, for example n = 30 or more, but variation in position and in CI length would be even greater for smaller samples, for example n = 3.
+
+
+
+
+Means and 95% CIs for 20 independent sets of results, each of size *n* = 10, from a population with mean μ = 40 (marked by the dotted line). In the long run we expect 95% of such CIs to capture μ; here 19 do so (large black dots) and 1 does not (red dot). Successive CIs vary considerably, not only in position relative to μ, but also in length. The variation from CI to CI would be less for larger sets of results, for example n = 30 or more, but variation in position and in CI length would be even greater for smaller samples, for example n = 3.
 
 
 ```{r}
 
 
-df_summary %>%
+df_summary |>
   ggplot(aes(x = s,y = mean.s)) +
   # geom_col(fill="gray90",colour="gray50",width=0.5)+
   geom_point(data=df, aes(x=s,y=values),position=position_nudge(-0.3),alpha=0.5) + # plot the whole data sets
@@ -169,18 +173,4 @@ df_summary %>%
   theme(axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
   theme(axis.text.y = element_markdown())
 ```
-
-
-```{r}
-dm<-matrix(c(90,21,93,72,17,107),nrow=2)
-dm
-```
-
-```{r}
-chisq.test(dm)
-```
-
-We find evidence that the position in the water column is not independent of the time stage (Chi-square, X^2 = 110.9, df=2, p<0.001)
-
-fisher.test(dm)
 

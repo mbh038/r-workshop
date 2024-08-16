@@ -1,0 +1,11 @@
+---
+title: "Simple Linear Regression exercises"
+author: "Michael Hunt"
+date: "06-07-2024
+output: html_notebook
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+```
+

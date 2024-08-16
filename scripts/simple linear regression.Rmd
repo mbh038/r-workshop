@@ -15,7 +15,7 @@ A class of analytical models that you will use this year and next go under the n
 
 Despite appearances, these models are all fundamentally linear models. They share a common framework for estimation (least squares) and a common set of criteria that the data must satisfy before they can be used. These criteria centre around the idea of normally distributed residuals. An important stage of any analysis that uses linear models is that these assumptions are checked, as part of the *Plot* -> *Model* -> *Check Assumptions* -> *Interpret* -> *Plot again* workflow.
 
-Here, we will go through an example of simple linear regression - suitable for trend data where we wish to predict a continuously varying response, given a value of a continuous explanatory variable.
+Here, we will go through an example of simple linear regression - suitable for trend data where we wish to predict a continuously varying response, given a value of a continuous explanatory variable. As we go we show code snippets from an R script that does this job, and, at the bottom, an example complete script that you could adapt to your own needs.
 
 ### Simple Linear Regression
 
@@ -25,13 +25,15 @@ We predict that more moisture will probably allow higher growth rates. We note t
 
 What we want to do in linear regression is be able to predict the value of the dependent variable, knowing the value of the independent variable. In practice, this means drawing a 'best fit' straight line through the data and determining the intercept and gradient of this line.
 
+
 ### Load packages
 ```{r}
 library(tidyverse)
 library(here)
 library(ggfortify)
 library(cowplot)
-remotes::install_github("mbh038/mbhR")
+# un-comment and run the next line if you have not yet installed mbhR.
+# remotes::install_github("mbh038/mbhR")
 library(mbhR)
 ```
 
@@ -49,7 +51,7 @@ We see that the data set contains two continuous variables, as expected.
 We can use the package `ggplot2`, which is part of `tidyverse` to do this:
 
 ```{r}
-plants %>%
+plants |>
   ggplot(aes(x=soil.moisture.content, y=plant.growth.rate)) +
   geom_point() +
   labs(x="Soil moisture content",
@@ -130,7 +132,7 @@ We also see the *Adjusted R-squared* value of 0.7599. This is the proportion of 
 Typically, a final step in our analysis involves including the model we have fitted into the original figure, if that is possible in a straightforward way. In the case of simple linear regression, it is. It  means adding a straight line with the intercept and gradient displayed by the `summary()` function. We do this by adding a line `geom_smooth(method = "lm")` to our plot code:
 
 ```{r}
-plants %>%
+plants |>
   ggplot(aes(x=soil.moisture.content, y=plant.growth.rate)) +
   geom_point() +
   geom_smooth(method = "lm") +
@@ -144,5 +146,48 @@ plants %>%
 This gives both a straight line and the 'standard error' of that line - meaning, roughly speaking, the wiggle room within which the 'true' line , for the population as opposed to this sample drawn from it, probably lies.
 
 ### Conclusion
-We have carried out a simple linear regression on continuous data. This is an example of a general linear model. We first plotted the data, then we used `lm()` to fit the model. Next we inspected the validity of the model using `autoplot`. We then inspected the model itself using first `anova()` then `summary()`. Finally we included the output of the model on the plot, in this case by drawing a straight line 
+We have carried out a simple linear regression on continuous data. This is an example of a general linear model. We first plotted the data, then we used `lm()` to fit the model. Next we inspected the validity of the model using `autoplot`. We then inspected the model itself using first `anova()` then `summary()`. Finally we included the output of the model on the plot, in this case by adding to it a straight line with the intercept and gradient determined by the regression model. 
+
+### Sample script
+An example script to do linear regression might look like the following, here written as though a .R script. For this to work you will need to work within a project, with the data in a subfolder of that called "data". Here, the data is taken to be a .csv file called `mydata.csv`, with two columns of data, one called `x_values` and the other called `y_values`. You need to change these to suit your own data.
+
+````
+# load packages
+library(tidyverse)
+library(here)
+library(ggfortify)
+library(cowplot)
+
+# load data
+filepath <- here("data", "mydata.csv")
+mydata <- read_csv(filepath)
+glimpse(mydata)
+
+# plot the data
+mydata |>
+  ggplot(aes(x=x_values, y=y_values)) +
+  geom_point() +
+  labs(x = "X variable",
+       y = "Y variable") +
+  theme_cowplot()
+
+# fit the model
+mydata.model <- lm (y_values ~ x_values, data = mydata)
+
+# diagnostics
+autoplot(mydata.model)
+
+# investigate the model
+anova(mydata.model)
+summary(mydata.model)
+
+# replot the data, now with the model included
+mydata |>
+  ggplot(aes(x=x_values, y=y_values)) +
+  geom_point() +
+  geom_smooth(method="linear") +
+  labs(x = "X variable",
+       y = "Y variable") +
+  theme_cowplot()
+````
 

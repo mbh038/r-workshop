@@ -18,7 +18,7 @@ glimpse(ozone)
 
 
 # plot the data
-ozone %>%
+ozone |>
   ggplot(aes(x = garden.location, y = ozone)) +
   geom_boxplot() +
   labs(x = "Garden location",
@@ -30,3 +30,4 @@ ozone %>%
 
 # t-test
 t.test(ozone~garden.location,data=ozone)
+

@@ -1,0 +1,54 @@
+---
+title: "Reverse log transformation"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+---
+
+
+Your model  has the form
+
+$$\log_{10}C =\beta_T\log_{10}T + \text{other terms}$$,
+
+where $C$ stands for Competitive and $\beta_T = 7.59$ is the estimate for mean_temp that came out of the linear model. If the temperature changes from $T_1$ to $T_2$ while all other explanatory variables remain constant, the response variable $C$ will change from $C_1$ to a new value $C_2$, where
+
+$$
+\log_{10}C_2-\log_{10}C_1 =\beta_T(\log_{10}T_2-\log_{10}T_1)
+$$
+Now, from the way logarithms work, we have three basic rules:
+
+$$
+\begin{align*}
+\log\left(ab\right) &= \log(a) + \log(b)\\
+\log{\frac{a}{b}} &= \log(a) - \log(b)\\
+\log a^b &=b\log a
+\end{align*}
+$$
+This means that
+$$
+\log_{10}\left(\frac{C_2}{C_1}\right) =\log_{10}\left(\left(\frac{T_2}{T_1}\right)^{\beta_T}\right)
+$$
+
+and hence that
+
+$$
+\left(\frac{C_2}{C_1}\right) =\left(\frac{T_2}{T_1}\right)^{\beta_T}
+$$
+Hence if $T$ rose by 10%, $C$ would rise by a factor 
+
+$$
+\begin{align*}
+\left(\frac{C_2}{C_1}\right) &=\left(\frac{T_2}{T_1}\right)^{\beta_T}\\
+&= 1.1^{\beta_T}\\
+&=1.1^{7.59}\\
+&=2.1
+\end{align*}
+$$
+Thus if $T$ were to rise by 10% and nothing else changed, $C$ would more than double. In other words, $C$ is very sensitive to changes in temperature. Put another way, this means that if the mean temperature of a river were to rise by $1^{\circ}$ from $10^{\circ}$ to $11^{\circ}$ *and other factors did not change*, then $C$ would roughly double.
+
+That is the prediction, anyway. Is that what you find?
+
+
+(A possible issue here is that $T$ is measured in celsius, not kelvin, which affects the value of the ratio between two temperatures. I *think* it is OK here to continue to use celsius.)

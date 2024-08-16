@@ -3139,7 +3139,7 @@ both the <code>supplement</code> and <code>diet</code> columns of the
 data set as factors, and the level order of each is specified, with
 <code>control</code> coming first for <code>supplement</code> and
 <code>barley</code> coming first for <code>diet</code>.</p>
-<pre class="r"><code>weights &lt;- weights %&gt;%
+<pre class="r"><code>weights &lt;- weights |&gt;
   mutate(supplement = factor(supplement, levels = c(&quot;control&quot;,&quot;agrimore&quot;, &quot;supergain&quot;, &quot;supersupp&quot;)),
          diet = factor(diet, levels = c(&quot;barley&quot;,&quot;oats&quot;, &quot;wheat&quot;)))
 glimpse(weights)</code></pre>
@@ -3185,12 +3185,12 @@ formula:</p>
 <p><span class="math display">\[
 \text{SE}=\frac{SD}{\sqrt{n}}\]</span></p>
 <pre class="r"><code># we use the group_by() and summarise() functions from dplyr (the package within tidyverse for data manipulation)
-growth_summary&lt;-weights %&gt;%
-  group_by(diet,supplement) %&gt;%
-  summarise(mean_gain = mean(gain),se_gain = sd(gain)/sqrt(n())) %&gt;%
+growth_summary&lt;-weights |&gt;
+  group_by(diet,supplement) |&gt;
+  summarise(mean_gain = mean(gain),se_gain = sd(gain)/sqrt(n())) |&gt;
   ungroup()
 growth_summary</code></pre>
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<table class="table" style="color: black; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -3388,7 +3388,7 @@ is to plot the data in a way that sheds light on the question we have.
 Here, we can use the use the means and standard errors of the mean that
 we have just calculated to produce a useful kind of line plot that in
 this context is often referred to as an interaction plot:</p>
-<pre class="r"><code>growth_summary %&gt;%
+<pre class="r"><code>growth_summary |&gt;
   ggplot(aes(x=supplement,y=mean_gain, colour = diet, group = diet)) +
   geom_point(size=2) +
   geom_line() +
@@ -3434,7 +3434,7 @@ interactions there may be.</p>
 which will look to see if there is evidence that either diet or
 supplement or both affect growth rate (the so-called main effects), and
 if the effect of one depends on the nature of the other (the so-called
-interaction). THe null hypothesis is that neither has any main effect
+interaction). The null hypothesis is that neither has any main effect
 and that there is no interaction.</p>
 <p>Now we can use either of the functions <code>aov()</code> or
 <code>lm()</code> to fit a factorial ANOVA (the choice affects only
@@ -3541,7 +3541,7 @@ with the mean values given in table above and in the interaction plot
 for other combinations of diet and supplement.</p>
 <p>Here is a table to help you interpret the output of the
 <code>summary()</code> function.</p>
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<table class="table" style="color: black; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -3913,15 +3913,15 @@ which we might sensibly call “best”, by which we mean
 <code>agrimore</code> or <code>supersupp</code>, and “worst” by which we
 mean <code>control</code> or <code>supergrain</code>. We’ll name this
 new factor <code>supp2</code>.</p>
-<pre class="r"><code>weights &lt;- weights %&gt;%
+<pre class="r"><code>weights &lt;- weights |&gt;
   mutate(supp2 = ifelse(supplement %in% c(&quot;agrimore&quot;,&quot;supersupp&quot;),&quot;best&quot;,&quot;worst&quot;))</code></pre>
 <p>If we calculate the means and standard errors for weight gain under
 each diet for each of the two new classifications of supplement, and
 then plot them, we get this new interaction plot:</p>
-<pre class="r"><code>weights %&gt;%
-  group_by(diet,supp2) %&gt;%
-  summarise(mean_gain = mean(gain), se_gain = sd(gain)/sqrt(n())) %&gt;%
-  ungroup() %&gt;%
+<pre class="r"><code>weights |&gt;
+  group_by(diet,supp2) |&gt;
+  summarise(mean_gain = mean(gain), se_gain = sd(gain)/sqrt(n())) |&gt;
+  ungroup() |&gt;
 
   ggplot(aes(x = supp2,y = mean_gain,colour = diet,group=diet)) +
   geom_point(size=2) +

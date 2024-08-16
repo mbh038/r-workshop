@@ -91,8 +91,8 @@ df <- data.frame(Model = c("linear", "log linear","logistic","gamma"),
                  Error = c("Gaussian", "Poission","binomial","gamma"),
                  Link = c("identity","log","logit","reciprocal"))
 
-df %>%
-  kable(col.names = c("Model", "Deviance", "Error","Link"), escape = F, caption = "") %>%
+df |>
+  kable(col.names = c("Model", "Deviance", "Error","Link"), escape = F, caption = "") |>
   kable_styling(latex_options = "hold_position")
 ```
 

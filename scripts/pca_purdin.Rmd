@@ -47,7 +47,7 @@ glimpse(purdin)
 As we are most interested in how the geo-chemical composition varies, we will pull those variables (columns 2--10) off into a separate data frame called `geochem` for our analysis
 
 ```{r}
-geochem <- purdin %>%
+geochem <- purdin |>
   select(d13C:Si) # means select all columns from d1C to Si, inclusive.
 glimpse(geochem)
 ```
@@ -55,7 +55,7 @@ glimpse(geochem)
 Thinking ahead to how we want to do an exploratory plot of these measurements, and possibly summaries, grouping by variable, we realise that this will be difficult unless we 'tidy' the data. What we mean by this is that we could think of this data set as having one 'factor' = geochemical variable, within which there are many levels = d13C, d18O, Al, Ca etc. If the data were tidy, then there would be just one column for the neamse of all these levels, and oanother column for their values. At the moment the data set is not tidy as the levels of the variable are spread across several columns, but we can make it so by using the `pivot_longer()` function:
 
 ```{r}
-geochem_tidy<-geochem %>%
+geochem_tidy<-geochem |>
   pivot_longer(1:8,names_to="Variable",values_to="Value")
 glimpse(geochem_tidy)
 ```
@@ -65,7 +65,7 @@ Do you see what that has done? We started with a short, fat data set and have en
 Now we have tidied the data, we can easily look at it for each level:
 
 ```{r}
-geochem_tidy %>%
+geochem_tidy |>
   ggplot(aes(x=Value)) +
   geom_histogram() +
   facet_wrap(~Variable,scales="free") +
@@ -79,7 +79,7 @@ Several of the major elements among these (Al, Fe, Mg, Mn, Si) seem to be right-
 For PCA to work, the data need to be normally distributed, just like in all the variations of the linear model (regression, t-test, ANOVA, Pearson correlation). To make this more approximately the case for this data set, we can transform them using a log10 transformation.
 
 ```{r}
-geochem_trans <- geochem %>% mutate(across(c("Al","Si"),log10))
+geochem_trans <- geochem |> mutate(across(c("Al","Si"),log10))
 ```
 
 Other restrictions on the data apply to the use of PCA just as in linear model analyses. In particular, outliers should be removed since they will have a disproportionate influence on the outcome.
@@ -115,7 +115,7 @@ A scree plot help us see how the variance in the data is distributed among the p
 
 ```{r}
 ### Basic scree plot
-scree %>%
+scree |>
   ggplot(aes(x=PC,y=vpc)) +
   geom_point() +
   geom_line() +
@@ -168,7 +168,7 @@ From the distribution of the data in the biplot we can identify underlying patte
 It turns out too that the rock samples come from one of two layers, the Carters and the Hermitage formations, depending on whether they are above or below a major non-conformity in sediment deposition that occurs at a stratigraphic position of 34.2 m. We can colour the points in the biplot accordingly
 
 ```{r}
-geochem<-geochem %>%
+geochem<-geochem |>
   mutate(formation=ifelse(purdin$StratPosition<34.2,"Carters","Hermitage"))
 ```
 
