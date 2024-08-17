@@ -12,9 +12,9 @@ knitr::opts_chunk$set(message=FALSE,warning=FALSE)
 ```
 
 
-This is intended as a rough outline of the sequence of steps that are commonly found in scripts:
+This is intended as a rough outline of the sequence of steps one commonly goes through when working on scripts:
 
-* Before we start on the script: am I working in a Project? 
+* Before we start on the script: am I working in a Project?. If not, fix this! 
 * What is my question?
 * Load packages
 * Load data
