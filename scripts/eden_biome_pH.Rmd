@@ -1,0 +1,231 @@
+---
+title: "Eden Biome soil analysis"
+author: "Michael Hunt"
+date: " 03-04-2023"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r,include=FALSE}
+# this is a set-up chunk that avoids getting unnecessary messages in the rendered html version of this script. You can also use it to hide the code in the rendered version.
+knitr::opts_chunk$set(message=FALSE,warning=FALSE)
+```
+
+* What is /are your question(s). ie what are you trying to achieve with this script?
+* Are you working in your Project?
+* Is the data file in the "data" subfolder?
+* Run each line as you write it. Put the curser in the line and use Ctrl-Enter or Cmd-Enter on a Mac. If the line doesn't work, fix it.
+
+### Load packages
+```{r}
+# If any of these lines don't work, try install.packages("name of package") - do this in the console window.
+library(tidyverse)
+library(here)
+library(readxl)
+library(ggfortify)
+library(cowplot)
+library(rstatix) # let's try this: it enables use of tidyverse syntax with all the common stats tests.
+library(janitor) # this cleans up column names for us.
+```
+
+### Load data
+Suppose your data is in a spreadsheet called `pH samples for med and rainforest biomes.xlsx`, on a sheet called `Biome soil pH`, occupying cell range `A1:E59`, and is in your `data` folder, inside your project folder:
+
+```{r}
+# change file and sheet names as appropriate
+filepath <- here("data","pH samples for med and rainforest biomes.xlsx")
+biome_pH<-read_excel(filepath,
+               sheet="Biome soil pH")
+glimpse (biome_pH)
+```
+
+This is a 'tidy' data set in that each variable appears in only one column. For example the season, biome and pH values are each recorded in only one column.  An 'untidy' version of this would be one in which, for example, the pH values were recorded in four columns, and the season and biome were indicated in the column headings: pH_Autumn_Rainforest,pH_Autumn_Med, pH_Spring_Rainforest and pH_Spring_Med. While the latter works well for us as people to read and is how you might set out a data collection sheet, the 'tidy
+
+### Clean up the data
+Notice that we have some 'NA's ie missing values in the pH column, and some of the column names begin with capitals and have spaces. Let's sort both of those issues and save the cleaned data in a tibble called `biome_clean`:
+
+```{r}
+biome_clean<-biome_pH %>%
+  clean_names() %>% # this does a good job of cleaning up column names - removes speaces, capitals and any illiigal characters.
+  rename(pH=p_h) %>% # annoyingly, it messes up 'pH', so we restore that.
+  select(-sample_bed_code) %>%# let's omit this column. We won't be using it.
+  drop_na() # omit any rows that have any missing values.
+glimpse(biome_clean)
+```
+
+
+### Summarise data
+
+If we are interested in seeing whether there is a difference in pH between the biomes and the seasons, it would be useful to find out the mean pH values and the standard errors of those means for each combination of biome and season.
+
+A 'standard error of the mean' is one type of error measurement. It is an estimate of how precisely our sample means estimate the means of the populations from which they have been drawn. Thus it is an 'inferential' tool since we use it to infer something about the population from what we have found to be the case for the sample that we drew from that population. It will become smaller, the larger the sample size - you get a more precise picture of what a population is like if you draw a large sample from it than you do if you draw a small sample, which will be more prone to random fluctuations.
+
+An alternative is to use a 'standard deviation'. This is a descriptive measure that describes the spread of values in our sample, so we would use this instead of standard error when that is what we wat to know or convey to a reader. It serves as an estimate of the spread of values in the whole population, and, while it will differ from sample to sample, it will will not systematically get smaller for larger and larger samples.
+
+These two errors, the standard error $SE$ and the standard deviation $SD$ are related through the relation:
+
+$$\text{SE}=\dfrac{\text{SD}}{\sqrt{n}}$$
+
+where $n$ is the sample size. Hence standard errors of the mean are larger when samples are drawn from populations with a high veriability, so that SD is large, and are larger if sample sizes are small, and vice-versa.
+
+Let us create summary tables of those values and write the result back to an object (In R-speak, a tibble in this case) called `biome_summary`.
+
+```{r}
+biome_summary<-biome_clean %>% 
+  drop_na() %>%
+  group_by(biome,season) %>%
+  summarise(n = n(),
+            mean_pH = mean(pH,na.rm=TRUE),
+            se_pH = sd(pH,na.rm=TRUE)/sqrt(n())
+            )
+biome_summary
+```
+
+
+* Which biome has the lower pH?
+* Which season has the lower pH?
+* Are the mean values several standard errors apart?
+* Does it look as though the difference in pH is significant?
+
+### Plot the data
+
+Let us plot the data, using a box plot, with the actual data superposed on top. This will show us th distribution of the data sets and give us summary information as to these data:
+
+```{r}
+biome_clean %>%
+  ggplot(aes(x = biome, y = pH, colour=season, fill = season)) + # what we want to plot
+  geom_boxplot(notch=TRUE,outlier.shape=NA,alpha=0.3) + # box plot
+  geom_point(position=position_jitterdodge(jitter.width=0.1,jitter.height=0.1),alpha=0.7) + # points on top, with added sideways 'jitter so we can see them more easily
+  labs (x = "Biome", y = "pH") + # axis labels
+  theme_cowplot() # choose a theme to give the plot a 'look' that we like.
+```
+This code we have added two 
+
+Now we've got this plot, what about these questions:
+
+* Do the pHs look different for the different biomes?
+* Do the pHs look different for the different seasons?
+* How do these difference compare with the spread of data within each season or biome?
+* Are the individual pH values roughly symmetrically distributed about the middle value?
+* Are there any outliers?
+
+### Analysis one - pairwise t-tests
+
+We could investigate the data to see if soil pH varies with season, ignoring the effect of biome, or analyse for the effect of biome, ignoring any variation with season. That probably isn't a great idea, since quite possibly both factors affect soil pH and there may be an interplay between the ways in which they do so, which we won't see with this approach, but it is the simplest thing we can do, so let's start with that.
+
+```{r}
+spring_pH<-biome_clean %>%
+  filter(season=="Spring") %>%
+  select(pH) %>%
+  pull()
+
+autumn_pH<-biome_clean %>%
+  filter(season=="Autumn") %>%
+  select(pH) %>%
+  pull()
+
+t.test(spring_pH,autumn_pH)
+```
+```{r}
+biome_clean %>%
+  t_test(pH~season)
+```
+
+
+
+```{r}
+biome_clean %>%
+  #filter(season=="Autumn") %>%
+  anova_test(pH~biome*season)
+```
+
+
+
+### 2-way ANOVA
+
+#### Interactive model
+
+
+
+```{r}
+pH_model<-lm(pH~season*biome,data=biome_clean)
+```
+
+```{r}
+autoplot(pH_model) + theme_cowplot()
+```
+
+```{r}
+anova(pH_model)
+```
+```{r}
+pH_model2<-lm(pH~season+biome,data=biome_clean)
+```
+
+```{r}
+anova(pH_model,pH_model2)
+```
+```{r}
+summary(pH_model2)
+```
+
+
+
+### Report the result in plain English
+
+Something like:
+
+We find tha the soil pH in the Med biome (5.24, SE=1.0) is significantly lower than that in the Rainforest biome (5.55 SE=0.11) (t-test, df = 52.2, p = 0.046)
+
+
+### Variations
+* If we had samples from the same locations of a biome, but taken in differnt seasons/years, then we could use a paired t-test to compare them. There is an optional argument for `t_test()` that enables us to do this.
+* If we wanted to see whether season and biome affected the soil pH values, we could either do consecutive t-tests, or we could do the analysis in one go using a 2-way ANOVA.
+* Instead of reporting the errors as standard errors of the mean, we could have used standard deviations, or confidence intervals. Which is more appropriate here? Hint: it's a big topic, with lots of arguments flying back and forth in favour of each of them. The most important thing is to report clearly which one you have actually used.
+
+### Paired t-test
+
+Here is a way to do this for the rainforest data, where we data from the same beds from both Autumn 2022 and Spring 2023. We need to take into account the information that the samples from the same beds are 'paired' and we need to acount for the fact that data from some beds is missing from either the Spring set or the Autumn set, or both.
+
+We can only analyse 'paired' data where we have data from both spring and autumn from a given bed.
+
+The simplest thing to do is probably to create second and third sheets in the original spreadsheet, one for the rainforest paired data, one for the med biome data. 
+
+For the rainforest data, you could have three columns named: "bag_code", "RF_autumn_2022" and "RF_spring_2023". Copy across to this sheet a complete list of the bag codes, and the pH values for each season, leaving gaps where you have no data.
+
+#### Rainforest
+```{r}
+# read in the rainforest data
+RF_paired_data <-read_excel(filepath,sheet="RF_paired_data")
+
+
+RF_paired_data <- RF_paired_data %>%
+  drop_na()
+
+# Save the data in two different vectors
+RF_autumn <- RF_paired_data$RF_autumn_2022
+RF_spring <- RF_paired_data$RF_spring_2023
+# Compute t-test
+res <- t.test(RF_autumn, RF_spring, paired = TRUE)
+res
+```
+
+#### Med
+```{r}
+# read in the rainforest data
+Med_paired_data <-read_excel(filepath,sheet="Med_paired_data")
+
+
+Med_paired_data <- Med_paired_data %>%
+  drop_na()
+
+# Save the data in two different vectors
+Med_autumn <- Med_paired_data$Med_autumn_2022
+Med_spring <- Med_paired_data$Med_spring_2023
+# Compute t-test
+res <- t.test(Med_autumn, Med_spring, paired = TRUE)
+res
+```
+
+

@@ -1,0 +1,204 @@
+---
+title: "Power"
+output:
+  html_document:
+    df_print: paged
+---
+
+This topic is all about how to design our studies such that they are likely to detect an effect, whether that is a correlation or a difference, if there really is one there to be detected. If there were, and we didn't that would be a shame (and a waste of time and money and possibly an ethical hoohah).
+
+In what follows we focus on a simple study that seeks to detect a difference between two populatons, but the ideas generalise to other designs.
+
+```{r,echo=TRUE,include=FALSE}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(cowplot) # for nice looking figures
+library(pwr)
+```
+
+Suppose we have a magic soil supplement that we hope will enhance the growth rate of tomato plants, make us rich and pay for a comfortable retirement.
+
+Before riches, however, we have to be sure that it has the desired effect. For it to be a money spinner we need it to enhance the growth rate of plants by 10% and so we must do a study to see if this is the case.
+
+In a properly randomised design, we take _N_ plants and give them 'normal' plant food, and another _N_ plants and give the normal food plus our supplement. All other conditions are the same for the two groups of plants.
+
+The plants grown with the usual food grow with a mean mass after 30 days of 300g, with a standard deviation of 30g. The other plants will need to have a mean mass of 330g, and we will suppose that they too will have a standard deviation of 30g.
+
+Suppose we took _N_ = 10. Then we can simulate the masses of the plants in the two groups, supposing there were a 10% effect of supplement. We do this by using the `rnorm()` function to draw samples of 30 from a normally distributed population, in one case with a mean of 300g and in the other with a mean of 330g, both with standard deviations of 30g
+
+```{r}
+N<-100
+delta<-0.1 # ie 10% ie the mean of the treatment population is 10% greater than that of the control population
+
+m1<-300
+sd1<-30
+m2<-(1+delta)*m1
+sd2<-sd1
+
+untreated<-rnorm(N,m1,sd1) # the control sample
+treated<-rnorm(N,m2,sd2) # the treated sample
+
+trial_data<-tibble(control=untreated,treated=treated) %>% # this will give us an untidy data set!
+  pivot_longer(1:2,names_to="treatment",values_to="mass") # so we tidy it
+
+trial_data %>%
+  ggplot(aes(x=treatment,y=mass,fill=treatment),alpha=0.4) +
+  geom_boxplot() +
+  geom_jitter(colour="gray50",width=0.2) +
+  labs(x="Treatment",
+       y="Plant mass (g)") +
+  theme_classic() +
+  theme(legend.position="none")
+```
+
+
+Suppose the supplement really works like this. How many plants do we need to take in each group in order to be able to spot this effect with an 80% confidence?  That is, what value of _N_ do we need in order for us to have an 80% chance of detecting the effect that we are interested in. This is what we call the **power** of a study. If the effect is smaller than 10% (or whatever boost we deemed sufficient) and we do not detect it we do not mind, since that means that our supplement does not work as we had hoped, but it would be a waste of our time and money if there really were an effect but we did not spot it because our sample size was too small. Equally, we do not want a sample size that is larger than is necessary to achieve sufficient power. Doing so would incur unnecessary time and money costs and possibly have ethical implications.
+
+In this study we might formulate a null hypothesis:
+
+_The supplement has no effect._
+
+In that case we would expect the difference between the masses of the treated plants and untreated plants to be zero.
+
+In order for us to be able to detect the effect with an at least 80% chance, there has to be an at least 80% chance that the mean value of our treated plants lies outside the rejection regime of the null hypothesis.
+
+With one set of plants, we might or might not detect the effect:
+
+```{r}
+t.test(mass~treatment,data=trial_data)$p.value
+```
+Now let us do this 1000 times and see in what fraction of our trials we see a significant effect, supposing that the supplement really does work. That will give us an idea of the power of our study.
+
+We write a function that will return TRUE or FALSE depending on the  _p_-value of a trial in which we specifiy the mean value of the control group, the standard deviation of the control group (assumed to be the same in the treatment group), the size of the effect `delta`, where if delta is 0.1, say, then the effect size is a 10% increase in growth mass, _N_ is the sample size for each group and _alpha_ is the significance level that we choose (most likely, but not necessarily 0.05).
+
+In the function we carry out a _t_-test for each pair of samples to determine whether we can reject the null hypothesis that the treated plants are drawn from a population with the same mass as the untreated plants.
+
+We know that the null hypothesis is false. We want to see if our test correctly rejects the null so that we detect the effect, the mass difference between the means of the two groups of plants.
+
+If the _p_-value is less than our chosen significance level then we reject the null, if not, we do not
+
+
+```{r}
+effect_detected<-function(m1,sd1,delta,N,alpha){
+  pop1<-rnorm(N,m1,sd1)
+  pop2<-rnorm(N,m1*(1+delta),sd1)
+  return(t.test(pop1,pop2)$p.value<alpha)
+}
+```
+
+
+Now we run this trial as many times as we want. In any one trial we may or may not reject the null. We want to see in what fraction of trials, in the long run, we do reject the null. That will be an estimate of the power of our study: the likelihood that we will detect an effect if the effect really exists.
+
+```{r}
+# Warning: this chunk takes a while if you use more than around 1000 trials .
+trials<-10000
+m1<-300
+sd1<-30 # population standard deviation
+delta<-0.03 # effect size where, for example, 0.05 means that the effect is 5% the size of the control mean
+N<-100 # sample size
+alpha<-0.05 # chosen significance level
+trial_results<-replicate(trials,effect_detected(m1,sd1,delta,N,alpha))
+power<-mean(trial_results)
+power
+```
+
+### Calculate the power of the study for a range of sample sizes
+
+If we run the power calculation above for various sample sizes, we get: 
+
+```{r}
+# these are data from using an effect size of 0.05, m1=300,sd1=30, alpha=0.05
+Ns<-c(10,20,30,40,50,60,70,80,90,100,110, 120,130,140,150,160,175,200)
+powers<-c(0.186,0.331,0.473,0.601,0.687,0.779,0.85,0.879,0.924,0.944,0.9593,0.9702,0.9771,0.9874,0.994,0.9948, 0.998,1)
+```
+
+Plotted, this looks like:
+
+
+```{r}
+tibble(N=Ns,Power=powers) %>%
+  mutate(ok=Power>0.8) %>%
+  ggplot(aes(x=N,y=Power,colour=ok)) +
+  geom_point() +
+  scale_x_continuous(breaks=seq(0,200,10)) +
+  scale_y_continuous(breaks=seq(0,1,0.2)) +
+  geom_hline(yintercept=0.8,linetype="dashed",colour="darkblue") +
+  theme_bw() +
+  theme(legend.position="none")
+```
+
+Here we plot the powers we get for various sample sizes, given an effect size of 0.05 (ie the treated plants put on 5% more mass than the untreated plants), with a population standard devation of 30 g on a control mean of 300g, and a significance level of 0.05.
+
+**What is a suitable sample size for a power of 80%?** 
+
+We see that we need a sample size of about 65 to get a power of 80%.
+
+**What sample size would be needed for a power of 90%, or 99%?** 
+
+We need sample sizes of 85 for a power of 90% and of 150 for a power of 99%. There are progressively diminshing returns once you try to make the power much greater than 80% or 90% or so. The sample sizes needed become very large.
+
+Now try varying the effect size, the population variation and the chosen significance level and see how they affect the power.
+
+We should find that, all else being equal:
+
+* If the effect size is reduced, the power decreases. It is harder to tell apart two populations that do not differ by much.
+* If the population variation goes down the power increases. It is easier to tell apart two populations if there is little variation within each population. 
+* If the signicance level is reduced, say to 0.01 from 0.05, the power will go down. We are reducing the type 1 error rate, but at the same increasing the type 2 error rate. It is les likely, even if there is an effect, that we will detect it.
+
+
+**What factors about a study force you to have larger sample sizes for a given power? **  
+
+If the effect size is small, the population variation is large or the significance level required is small.
+
+**How would you know what the variation of your population is? How could you reduce this?**.  
+
+You might look at the literature. Very likely, someone has done a study similar to yours. What variation did they see? Alternatively, you could do a pilot study and with relatively little effort get an idea yourself of the variation within your population of interest of the attrivute you want to measure.
+
+
+
+**What downside might there be to reducing the population variation, supposing you could do it, in order to increase power?**.  
+
+You can sometimes reduce the variation within the population that you are studying by restricting variation in factors that do not interest you for that particular study, but which might also be contributing to variation in the factor that does interest you. So while your study might focus on the impact of soil treatments on growth rates of seedlings, for example, it may be that soil moisture also affects growth rate. Hence if you ensure that all seedlings are grown under the same moisture conditions, you will remove any variation in growth rates due to that, and hence reduce the total varation. This will increase the power of your study - in this case, we mean by that the likelihood that you will detect any difference that your soil supplement made to growth rate.
+
+The downside to this approach is that you will restrict the applicability of your study. In the example above, having applied the supplement and observed some difference or not compared to a control sample, you could only make inferences to populations of seedlings that were grown under precisely the soil moisture conditions you chose for your study. You could no longer make statements about the supplement preferences of seedlings grown under any old soil moisture conditions.
+
+An alternative approach, which preserves both power and range of applicability is to to change the design of the study. in this case, instead of making it a one-factor study in which growth rate is measured against supplement presence/absence, we also measure the soil moisture and include this in the analysis. If we had measured discrete levels of soil moisture, we would now have a 2-way ANOVA, and if we had measured it as a continuous variable we would have an ANCOVA.
+
+**How would you know what the effect size was, and could you increase it?**
+
+The same applies here as for the variation. You could look at the literature. Someone else has very likely done a similar study. What effect size did they observe? Or, you could do a quick and dirty pilot study. Unlike the population variation thing, however, it is easier to detect an effect if the effect size is bigger. Is there anything you can do to increase it? In an observational study in the wild, perhaps not but in a manipulative study perhaps you can. In our example we might use large doses of supplement rather than small ones, hoping to see a larger effect as a result.
+
+**What assumptions have gone into this power calculation?**
+
+We assumed here that our samples were drawn from normally distributed populations with equal variances. In our simulations we knew that was the case because me made it so by design, but we could have given them any distribution or variance we wanted. Simulations are a very powerful tool.
+
+### Use of packages to determine power
+
+
+Calculate pooled standard deviation:
+
+```{r}
+n1<-8
+n2<-8
+sd1<-20
+sd2<-20
+deltam1m2<-30
+alpha<-0.05
+
+psd<-sqrt( ( (n1-1)*sd1^2 + (n2-1)*sd2^2 ) / (n1 +n2 - 2) ) # pooled standard deviation (psd).
+
+d<-deltam1m2 / psd # Cohen's d: difference between the means divided by the psd
+
+pwr.t2n.test(n1=n1,n2=n2,d=d)
+```
+
+
+
+```{r}
+pwr.t.test(n=100,d=9/30,sig.level=0.05,type="two.sample")
+```
+
+
