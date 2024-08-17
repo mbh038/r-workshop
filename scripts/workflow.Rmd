@@ -14,6 +14,7 @@ knitr::opts_chunk$set(message=FALSE,warning=FALSE)
 
 This is intended as a rough outline of the sequence of steps that are commonly found in scripts:
 
+* Before we start on the script: am I working in a Project? 
 * What is my question?
 * Load packages
 * Load data
@@ -27,11 +28,13 @@ This is intended as a rough outline of the sequence of steps that are commonly f
 Details will differ from script to script, but this sequence of steps is very common.
 
 
-
-
 ### Are you working within your Project?
 
-We need to work in our Project, or bad things will happen. If you are, the Project name will be at the top right of the RStudio window. If you are not, save the script you are working on, and go to File/Open Project and open your Project.
+Before we even think of the script, we need to make sure that we are working within our Project, or bad things will happen. If you are, the Project name will be at the top right of the RStudio window. If you are not, save the script you are working on, and go to File/Open Project and open your Project. If you haven't even got a 'Project' or don't know what that means then just make sure that everything you need for whatever you are working on is in one folder and then turn that folder into a Project. (So a 'Project' is just a regular folder that has been given superpowers.) You do that by going to File/New Project/Existing Directory. Then you navigate to your folder and click on Create Project. RStudio will then restart and you will see the name of your newly anointed Project folder at the top-right of the RStudio window, You know that a folder is a 'Project' because it will have a .Rproj file inside it.
+
+If all this sounds complicated, don't worry. It really isn't. Just get someone to show you how to do it and you will be fine.
+
+Now, to the script itself:
 
 ### Statement of the question(s) to be investigated
 
@@ -43,7 +46,7 @@ Suppose we were trying to test the hypothesis that there is no difference betwee
 
 ### Set-up chunk
 
-Just put this chunk in at the top. Worry about it later.
+Just put this chunk in at the top. Worry about it later. Or don't worry about it at all, if you prefer. It is there to suppress warnings and messages from appearing in the rendered version of your script.
 
 ````
 ```{r, include=FALSE}`r ''`
@@ -54,7 +57,7 @@ knitr::opts_chunk$set(message=FALSE,warning=FALSE)
 
 ### Load Packages
 
-You will nearly always want the first four packages. Others, such as `vegan` will be useful from time to time.
+You will nearly always want the first five packages. Others, such as `vegan` will be useful from time to time, depending on what you are doing.
 If any of these lines throw an error, it is most likely becuase you have not yet installed that package. Do so in the console pane (not in this script!) using the function `install.packages("name of package")`. Then run this whole chunk again.
  
 ```{r}
@@ -69,6 +72,10 @@ library(vegan)
 
 
 ### Load data
+
+There are several ways to do this, so details will differ depending on what file type your data is saved in and where it is stored.
+
+Here are two examples. In each case the data is stored in a subfolder called 'data' within the Project folder, and we use the function `here()` from the `here` package. In my experience this dramatically simplifies the business of finding your data, wherever your script is, and makes it easier for you to share your script woith others and be confident that what worked for you will work for them. It *does* require that you are working within your project.
 
 #### (a) If from a csv file
 
@@ -98,7 +105,7 @@ Often we need to do some sort of data 'wrangling' to get the data into the form 
 For example, lets create a new data frame for just the *setosa* species of iris:
 
 ```{r}
-setosa <- iris %>%
+setosa <- iris |>
   filter(Species == "setosa") # filter picks out rows according to criteria being satisfied in some column
 glimpse(setosa)
 ```
@@ -106,7 +113,7 @@ glimpse(setosa)
 or maybe we just want the numeric columns:
 
 ```{r}
-iris_numeric <- iris %>%
+iris_numeric <- iris |>
   select(-Species) # select() retains or leaves out particular columns. Here, we leave out the Species column.
 glimpse(iris_numeric)
 ```
@@ -116,8 +123,8 @@ glimpse(iris_numeric)
 We nearly always want to do this. For example, let's find the mean petal widths of the three species, the standard errors of those means and save the results to a data frame called `petal_summary`
 
 ```{r}
-petal_summary<-iris %>%
-  group_by(Species) %>%
+petal_summary<-iris |>
+  group_by(Species) |>
   summarise(mean.Pwidth = mean(Petal.Width),
             se.Pwidth = sd(Petal.Width/sqrt(n())))
 petal_summary
@@ -134,7 +141,7 @@ The next step is usually to plot the data in some way. We would typically use th
 We could plot a bar plot with error bars, working from the summary data frame that we created:
 
 ```{r}
-petal_summary %>%
+petal_summary |>
   ggplot(aes(x = Species, y = mean.Pwidth)) +
   geom_col(fill="#a6bddb") + # this is the geom that gives us a bar plot when we have already done the calculations
   geom_errorbar(aes(ymin = mean.Pwidth - se.Pwidth, ymax = mean.Pwidth + se.Pwidth), width = 0.15) +
@@ -159,7 +166,7 @@ Here are three other plot types that do show the distribution of petal widths fo
 #### Box plot
 
 ```{r}
-iris %>%
+iris |>
   ggplot(aes(x=Species, y=Petal.Width)) + # what we want to plot
   geom_boxplot(fill="#a6bddb",notch=TRUE) + # what kind of plot we want
   geom_jitter(width=0.1, colour = "#f03b20",alpha=0.5) +
@@ -176,7 +183,7 @@ Here, we have added the points themselves on top of the box plot. When there are
 A useful alternative to the box plot, especially when the data set is large, is the violin plot:
 
 ```{r}
-iris %>%
+iris |>
   ggplot(aes(x=Species, y=Petal.Width)) + # what we want to plot
   geom_violin(fill="#a6bddb",notch=TRUE) + # what kind of plot we want
   #geom_jitter(width=0.1, colour = "#f03b20",alpha=0.5) +
@@ -194,7 +201,7 @@ A bit like a violin plot. This needs the package `ggridges` to be installed.
 
 ```{r}
 library(ggridges)
-iris %>%
+iris |>
   ggplot(aes(x=Petal.Width,y=Species)) + # what we want to plot
   geom_density_ridges(fill="#a6bddb") + # what kind of plot we want
   #geom_jitter(width=0.1, colour = "#f03b20",alpha=0.5) +
@@ -212,7 +219,7 @@ Having seen the summary and one of these plots of the data, would you be incline
 
 Only now do we move on to the statistical analysis to try to answer our intial question(s). But by now, after the summary and plot(s), we may already have a pretty good idea what that answer will turn out to be.
 
-The exact form of the analysis could take many forms. Here, an appropriate analysis might be to use the linear model in the form of a one-way ANOVA, since we have one factor (Species) with three levels (*setosa*, *versicolor* and *virginica*) and an output variable that is numeric and likely to be normally distributed. We can use the `lm()` function for this.
+The exact form of the analysis could take many forms. In a typical ecology project you might carry out several types of analysis, each one complementing the other. Here, an appropriate analysis might be to use the linear model in the form of a one-way ANOVA, since we have one factor (Species) with three levels (*setosa*, *versicolor* and *virginica*) and an output variable that is numeric and likely to be normally distributed. We can use the `lm()` function for this.
 
 #### Create the model object
 

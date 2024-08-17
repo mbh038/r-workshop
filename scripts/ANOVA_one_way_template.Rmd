@@ -10,7 +10,7 @@ output:
 In this exercise we will carry out a method of analysis known as ANOVA - this is what is commonly used when you have one or more categorical variables, such as species, sex and so on, and a numerical response variable such as body mass and you want to know if there is a difference in the response variable between the categories.
 
 
-Fill in or modufy the code in each of the code chunks below. Run each chunk as you, or even better, run each line using Ctrl-Enter or Cmd-Enter on a Mac. If you get an error, it will probably be a typ. Fix it and run the chunk again. rpeat until the chunk works.
+Fill in or modufy the code in each of the code chunks below. Run each chunk as you, or even better, run each line using Ctrl-Enter or Cmd-Enter on a Mac. If you get an error, it will probably be a typ. Fix it and run the chunk again. repeat until the chunk works.
 
 ### Load packages
 ```{r}
@@ -21,7 +21,7 @@ Fill in or modufy the code in each of the code chunks below. Run each chunk as y
 The `palmerpenguins` package comes with two in-built data sets on penguins. The simplest of them is called `penguins` and is the one we will use in this exercise:
 
 ```{r}
-# enter code to view the sructure of the penguins data set. Clue: glimps()
+# enter code to view the sructure of the penguins data set. Clue: glimpse()
 
 ```
 

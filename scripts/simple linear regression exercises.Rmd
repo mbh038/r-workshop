@@ -9,3 +9,51 @@ output: html_notebook
 knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 ```
 
+```{r}
+library(tidyverse)
+library(here)
+library(cowplot)
+```
+
+
+### Exercise 1: Decline of Arctic sea ice
+
+```{r}
+filepath <- here("data", "N_09_extent_v3.0.csv")
+# filepath <- here("data", "arctic_sea_ice_minimum.csv")
+arctic_ice <- read_csv(filepath)
+glimpse(arctic_ice)
+```
+
+```{r}
+arctic_ice %>%
+  ggplot(aes(x = year, y = extent)) +
+  geom_point() +
+  geom_line(colour="gray80") +
+  labs( x = "Year",
+        y = "Sea ice minimum area (Mkm^2)") +
+  theme_cowplot()
+```
+
+```{r}
+sea_ice_model <- lm(area ~ year, data = arctic_ice)
+```
+
+```{r}
+anova(sea_ice_model)
+```
+```{r}
+summary(sea_ice_model)
+```
+
+```{r}
+arctic_ice %>%
+  ggplot(aes(x = year, y = area)) +
+  geom_point() +
+  geom_line(colour="gray80") +
+  geom_smooth(method = "lm", se= FALSE, colour = "blue", linewidth = 0.5) +
+  labs( x = "Year",
+        y = "Sea ice minimum extent (Mkm^2)") +
+  theme_cowplot()
+```
+
