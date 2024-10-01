@@ -192,7 +192,7 @@ iris |>
   theme_cowplot() # choose a theme to give the plot a 'look' that we like
 ```
 
-The widths of the blobs (I am probably supposed to call them 'violins'!) show us the distribution of the data - where they are widest is where the data are concentrated, while the height of the blobs shows us the range of variation of the data. The positions of the blobs tells us the mean petal widths of the different species and gives us an ida of the differences between them.
+The widths of the blobs (I am probably supposed to call them 'violins'!) show us the distribution of the data - where they are widest is where the data are concentrated, while the height of the blobs shows us the range of variation of the data. The positions of the blobs tells us the mean petal widths of the different species and gives us an idea of the differences between them.
 
 
 #### Ridge plot
