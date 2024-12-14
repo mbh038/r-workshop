@@ -120,7 +120,7 @@ results |>
   labs(x ="Relative sample sizes",
        y = "Power") +
   scale_x_log10(guide = "axis_logticks",breaks = breaks, minor_breaks = minor_breaks) +
-  scale_y_continuous(limits= c(0.1,0.9),breaks = seq(0.1,0.9,.1)) +
+  scale_y_continuous(limits= c(0.1,1.0),breaks = seq(0.1,0.9,.1)) +
   theme_classic() +
     theme(panel.grid.major = element_line(colour="grey70"),
         panel.grid.minor = element_line(colour="grey80",linewidth=0.2)
