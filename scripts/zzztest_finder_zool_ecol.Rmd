@@ -1,5 +1,5 @@
 ---
-title: "Types of test"
+title: "Types of test: a simple key to decide which one you need"
 author: "Michael Hunt"
 date: "06/03/2024"
 output:
@@ -33,6 +33,13 @@ That depends on what type of data you have  and how many you have collected.
 We can use a simplified scheme for determining which test we need to use 
 
 The one below is taken from Barnard et al (2007), "Asking Questions in Biology". The book contains both this and a more detailed version.
+
+### Test finder
+
+**A**    Are you looking for a trend or for a difference? (If unsure, go to *Help* 1)  
+
+
+
 
 ```{r , echo=FALSE}
 knitr::include_graphics(here::here("figures","test_finder_and_help1.png"))

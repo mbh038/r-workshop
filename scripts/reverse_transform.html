@@ -1630,9 +1630,8 @@ display: none;
 <p>where <span class="math inline">\(C\)</span> stands for Competitive
 and <span class="math inline">\(\beta_T = 7.59\)</span> is the estimate
 for mean_temp that came out of the linear model. If the temperature
-changes from $T_1 $ to <span class="math inline">\(T_2\)</span> while
-all other explanatory variables remain constant, the response variable
-<span class="math inline">\(C\)</span> will change from <span class="math inline">\(C_1\)</span> to a new value <span class="math inline">\(C_2\)</span>.</p>
+changes from <span class="math inline">\(T_1\)</span> to <span class="math inline">\(T_2\)</span> while all other explanatory variables
+remain constant, the response variable <span class="math inline">\(C\)</span> will change from <span class="math inline">\(C_1\)</span> to a new value <span class="math inline">\(C_2\)</span>, where</p>
 <p><span class="math display">\[
 \log_{10}C_2-\log_{10}C_1 =\beta_T(\log_{10}T_2-\log_{10}T_1)
 \]</span> Now, from the way logarithms work, we have three basic
@@ -1650,7 +1649,8 @@ rules:</p>
 <p>and hence that</p>
 <p><span class="math display">\[
 \left(\frac{C_2}{C_1}\right) =\left(\frac{T_2}{T_1}\right)^{\beta_T}
-\]</span> Hence if T rose by 10% C would rise by a factor</p>
+\]</span> Hence if <span class="math inline">\(T\)</span> rose by 10%,
+<span class="math inline">\(C\)</span> would rise by a factor</p>
 <p><span class="math display">\[
 \begin{align*}
 \left(\frac{C_2}{C_1}\right)
@@ -1659,17 +1659,19 @@ rules:</p>
 &amp;=1.1^{7.59}\\
 &amp;=2.1
 \end{align*}
-\]</span> Hnece if <span class="math inline">\(T\)</span> rises by 10%
-and nothing else changes, C more than doubles. In other words, <span class="math inline">\(C\)</span> is very sensitive to changes in
-temperature. This means, if the mean temperature of a river rose by
-<span class="math inline">\(1^{\circ}\)</span> from <span class="math inline">\(10^{\circ}\)</span> to <span class="math inline">\(11^{\circ}\)</span> <em>and other factors did not
-change</em>,then <span class="math inline">\(C\)</span> would roughly
+\]</span> Thus if <span class="math inline">\(T\)</span> were to rise by
+10% and nothing else changed, <span class="math inline">\(C\)</span>
+would more than double. In other words, <span class="math inline">\(C\)</span> is very sensitive to changes in
+temperature. Put another way, this means that if the mean temperature of
+a river were to rise by <span class="math inline">\(1^{\circ}\)</span>
+from <span class="math inline">\(10^{\circ}\)</span> to <span class="math inline">\(11^{\circ}\)</span> <em>and other factors did not
+change</em>, then <span class="math inline">\(C\)</span> would roughly
 double.</p>
 <p>That is the prediction, anyway. Is that what you find?</p>
 <p>(A possible issue here is that <span class="math inline">\(T\)</span>
-is measured in celsius, not kelvin, which the value of the ratio between
-two temperatures. I <em>think</em> it is OK here to continue to use
-celsius.)</p>
+is measured in celsius, not kelvin, which affects the value of the ratio
+between two temperatures. I <em>think</em> it is OK here to continue to
+use celsius.)</p>
 
 
 

@@ -1,0 +1,86 @@
+---
+title: "Analysis of ozone data from two parts of a city"
+author: "Michael Hunt"
+date: "13-11-2024"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r, include = FALSE}
+# This chunk makes the rendered version look prettier
+# it supresses warnings and other messages
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+This uses the parametric t-test for a difference between two samples
+
+### load the packages we need
+```{r}
+library(tidyverse)
+library(here)
+```
+
+
+### load the data
+
+This data set is saved as a .csv file, so we use the `read_csv()` function to open it.
+```{r}
+filepath <- here("data","ozone.csv")
+ozone<-read_csv(filepath)
+glimpse(ozone)
+```
+### summarise the data
+```{r}
+ozone.summary<-ozone |>
+group_by(garden.location) |>
+summarise(n = n(),
+          mean.ozone = mean(ozone),
+          se.ozone = sd(ozone)/sqrt(n()))
+ozone.summary
+```
+
+### plot histograms for each location
+```{r}
+ozone |>
+ggplot(aes(x=ozone))+
+  geom_histogram(binwidth=10,fill="darkred")+
+  facet_wrap(~garden.location,ncol=1) +
+  theme_classic()
+```
+
+### plot box plot for the two locations
+```{r}
+ozone |>
+  ggplot(aes(x=garden.location,y=ozone))+
+  geom_boxplot()+
+  labs(x="Garden Location",
+       y="Ozone concentration (ppb)") +
+  theme_classic()
+
+```
+
+
+# are the ozone levels in each location normally distributed?
+```{r}
+ozone |>
+  group_by(garden.location) |>
+  summarise(sw=shapiro.test(ozone)$p.value)
+```
+
+### graphical check for normality:
+
+#### quantile-quantile plots for ozone levels in each location
+```{r}
+ozone |>
+  ggplot(aes(sample=ozone)) +
+  stat_qq(colour="blue") +
+  stat_qq_line() +
+  facet_wrap(~garden.location) +
+  theme_classic()
+```
+
+### and finally, the actual _t_-test
+```{r}
+t.test(ozone~garden.location,data=ozone)
+```

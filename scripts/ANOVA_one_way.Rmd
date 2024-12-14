@@ -7,7 +7,24 @@ output:
     df_print: paged
 ---
 
-In this exercise we will carry out a method of analysis known as ANOVA - this is what is commonly used when you have one or more categorical variables, such as species, sex and so on, and a numerical response variable such as body mass and you want to know if there is a difference in the response variable between the categories.
+### Introduction
+
+In this exercise we will carry out a method of analysis known as ANOVA - this is what is commonly used when you have one or more categorical variables, such as species, sex and so on, and a numerical response variable such as body mass and you want to know if there is a difference in the response variable between when the levels of the factors take different values.
+
+A one-way ANOVA is used where where we have one categorical variable with three or more level (you could also use it where there are just two levels, but we use a t-test for that). For example if you want to see if a captive bird species prefers red, green or blue food pellets, then the factor would be be food colour, and three levels of that would be the three colours.
+
+A two-way ANOVA is used where we have two categorical variables, each of which has at least two levels. (Even if both have two levels, we still call it a two-way ANOVA. There is no such thing as a two-way t-test!). So, sticking with the captive birds, if were interested in whether they had a preference for colour (red, blue, green) and/or shape (round, square) of food pellets, then we could use a two way ANOVA to investigae the data, where the two factors or 'ways' would be food colour and food shape, with food colour having three levels (red, blue and green) and food shape having two levels (round and square).
+
+ANOVAs involving three ways or more (the horror, the horror!) are rarely used since their interpretation is in practice difficult due to the multiplicity of possible so-called 'interaction' effects that commonly arise, whereby the impact on the output of the levels of one factor depend on the values of the levels of one or more other factors. Best avoided!
+
+ANOVAs, whatever their flavour (one way, two way, repeated measures, ANCOVA etc) are examples of parametric tests. That is, they can only be used if the data at least approximately meet certain requirements such as equal variance across the data sets, normality of residuals etc. At the very least, the data should be numerical and not ordinal. Hence whenever we think of using an ANOVA we need to check that these requirements are at least approximately met. If they are not, then we may choose to turn to non-parametric alternatives.
+
+A non-parametric alternative to a one-way ANOVAs is commonly used, especially for studies that involve ordinal data such as Likert-type outputs from surveys. It is called a Kruskal-Wallis test.
+
+## Example: penguin data from the palmerpenguins package
+
+In the following, we show how a one-way ANOVA might be carried out on a set of data on penguins, where we have a numerical output such as body mass, and categorical variables such as species (three levels: Adelie, Gentoo and Chinstrap) and sex (two levels: female and male). If we were interested in whether there was a difference in the output across the levels of species, then a one-way ANOVA might well be suitable.
+
 
 ```{r set-up, include = FALSE}
 knitr::opts_chunk$set(message=FALSE,warning=FALSE)
@@ -126,7 +143,7 @@ Now let's plot them, using a box plot (but choose your favourite plot type):
 ```{r}
 females  |>
   ggplot(aes(x=species, y = body_mass_g)) +
-  geom_boxplot(fill = "#9ebcda") +  # pick your favourise colour from https://colorbrewer2.org/
+  geom_boxplot(fill = "#9ebcda") +  # pick your favourite colour from https://colorbrewer2.org/
   labs(x = "Species",
        y = "Body mass (g)") +
   theme_bw()
@@ -152,7 +169,7 @@ Here the `lm()` function has done all the maths of the ANOVA, and we have saved 
 
 
 #### Is the model valid?
-All linear models are only valid if the data meet a number of criteria. Chief among these for an ANOVA is that the spread of the data should be roughly the same in each subset, and that the data within each subset should be normally distributed around their respective mean values. Only if there conditions are met can be just go on and trust the output of the model. If they are not, we need to transform the data in some way until they are, or use a different test.
+All linear models are only valid if the data meet a number of criteria. Chief among these for an ANOVA is that the spread of the data should be roughly the same in each subset, and that the data within each subset should be normally distributed around their respective mean values. Only if these conditions are at least approximately met can be just go on and trust the output of the model. If they are not, we need to transform the data in some way until they are, or use a different test. A commonly used non-parametric alternative to the one-way ANOVA is the Kruskal-Wallis test.
 
 There are various ways we can find out whether these consitions are met. A useful one is to do it graphically, and a useful way to do that is to use the `autoplot()` function from the `ggfortify` package. Let's do it:
 
@@ -164,7 +181,7 @@ All four graphs presented here tell us something about the validity or not of ou
 
 * top-left: this shows the spread of the residual masses (diference between an individual's mass and the mean mass for its species) for each species. We see that the spread of these values is aout the same for all three species. Check!
 
-* top-right: this is a qq-plot, or `quantile-quantile` plot. This compares the distribution of the residuals for each species with a normal distribution. If the residuals are normally distributed, we will get a straight line.  If not, we won't. To get an idea of what qq-plots can look like for data that definitely are not normally distriuted, see https://rpubs.com/mbh038/725314. Here, there is a hint of a curve, but this is really pretty good for a real data set. No such data is ever perfectly normally distrivuted, so the best we are looking for, in practice is something approximating a straight line, often with some raggedness at either end. So, check again!
+* top-right: this is a qq-plot, or `quantile-quantile` plot. This compares the distribution of the residuals for each species with a normal distribution. If the residuals are normally distributed, we will get a straight line.  If not, we won't. To get an idea of what qq-plots can look like for data that definitely are not normally distriuted, see https://rpubs.com/mbh038/725314. Here, there is a hint of a curve, but this qq-plot is really a pretty good approximation to linear for a real data set. No such data is ever perfectly normally distributed, so the best we are looking for, in practice is something approximating a straight line, often with some raggedness at either end. So, check again!
 
 On both counts, we are good to go: we can reasonably trust the output of the ANOVA.
 
@@ -181,13 +198,13 @@ This gives us an overvierw of all the data and asks the question: how likely is 
 
 * the test statistic, here called an F-value. This is a number calculated from the data. If the validity criteria for the test have been met by the data, then this has a known distribution. The bigger it is, the more likely it is that the null will be rejected.
 
-* the `degrees of freedom`, here denoted as Df and listed in the first column. These are the numer of independent pieces of information in the data, which here means, how many species and how many penguins. 
+* the `degrees of freedom`, here denoted as Df and listed in the first column. These are the number of independent pieces of information in the data, which here means, how many species and how many penguins. 
 
 * the p-value,  which is the probability of getting an F value as big as or bigger than the one actually found, if the null hypothesis were true. This is is the number listed at the right as Pr(>F).
 
 The F value here is huge and the p-value is tiny, so tiny that it is esentially zero. Thus we can confidently reject the null hypothesis and assert that there is evidence from the data that body mass of females differs between at least one pair of species. Which two, or between all of them, and by how much we don't yet know. This first step just tells us whether there is some difference somewhere. If there were no evidence of any difference we would stop the analysis right here.
 
-But there is a differnce in this case, so we continue
+But there is a difference in this case, so we continue
 
 #### The detailed picture
 
@@ -196,21 +213,21 @@ We use the `summary()` function for this:
 ```{r}
 summary(females.model)
 ```
-The is a lot in ths output, so let's just consider the coefficient table, to begin with. Focus first on the top left value, in the Estimate column. This tells us the mean body mass of the reference or 'Intercept' species. In this case that is 'Adelie', purely because 'Adelie' comes alphabetically before the other two species names, 'Chinstrap' and 'Gentoo'. By default, R will always order levels of a factor alpabetically. This is often a nuisance, and we have to tell R to reorder the levels the way we want them, but here it is OK.
+There is a lot in ths output, so let's just consider the coefficient table, to begin with. Focus first on the top left value, in the Estimate column. This tells us the mean body mass of the reference or 'Intercept' species. In this case that is 'Adelie', purely because 'Adelie' comes alphabetically before the other two species names, 'Chinstrap' and 'Gentoo'. By default, R will always order levels of a factor alpabetically. This is often a nuisance, andwith many data sets we have to tell R to reorder the levels the way we want them, but here the order is OK.
 
-So, the mean mass of female Adelie penguins in our sample is 3368 g. Cross ceck that with your initial summary table and the box plot. What about the other two species? Here's the thing: for all rows except the first in the Estimate column we are not given the absolute value but the difference between their respective mean values and the reference mean in the first, 'Intercept' row.
+So, the mean mass of female Adelie penguins in our sample is 3368 g. Cross check that with your initial summary table and the box plot. What about the other two species? Here's the thing: for all rows except the first in the Estimate column we are not given the absolute value but the difference between their respective mean values and the reference mean in the first, 'Intercept' row.
 
 Thus, we are being told that Chinstrap females in the sample have a mean body mass that is 158.37 g heavier than that of Adelie females, so that their mean body mass is 3368.84 + 158.37 = 3527.27g. Again, cross chck that with your summary table and the box plot. Is it right?
 
 What about Gentoo females? Were they heavier than Adelie penguins, and if so, by how much? What was their mean body mass.
 
-Why doesn't `summary()` just tell us the actual body masses instead for all three species instead of doing it in this round about way? The reason is that ANOVA is concerned with detecing evidence of *difference*. This we are being told what the differences are between each of the levels and one reference level, which here is Adelie.
+Why doesn't `summary()` just tell us the actual body masses instead for all three species instead of doing it in this round about way? The reason is that ANOVA is concerned with detecting evidence of *difference*. This is why we are being told what the differences are between each of the levels and one reference level, which here is Adelie.
 
 Are those differenes signifcant? We use the right hand p-value column for that. Look in the rows for Chinstrap and Gentoo penguins. In both cases the p values are much less than 0.05. This is telling us that in both cases there is evidence that females of these species are significantly heavier than those of the Adelie species. 
 
-Note that we have only been told, so far, about the magnitude and significance of differences between all the levels and the reference level. We are not told the significance of of any difference between any other pair of levels. So in particular, the ANOVA does not tell us whether there is a significant difference between the masses of Chinstrap and Gentoo females (although we may have a good idea what the answer is, from our initial summary table and plot).
+Note that we have only been told, so far, about the magnitude and significance of differences between all the levels and the reference level. We are not told the significance of any difference between any other pair of levels. So in particular, the ANOVA does not tell us whether there is a significant difference between the masses of Chinstrap and Gentoo females (although we may have a good idea what the answer is, from our initial summary table and plot).
 
-To find the answer to that, we o post-hoc tests:
+To find the answer to that, we do post-hoc tests:
 
 #### Post hoc tsts.
 
@@ -225,16 +242,16 @@ In each row of the output we see the difference between the mean masses of the f
 
 Compare these differences with your initial summary table and your box plot. Do they agree? They should!
 
-The right-hand column  'p adj' tells us whtehr these difference are significant. If the p values are less than 0.05 then they are, at the 5% significance level. In this case they all are. The p values are so tiny for the differences between Gentoo and the other two species that that they are reported as zero.
+The right-hand column  'p adj' tells us whether these difference are significant. If the p values are less than 0.05 then they are, at the 5% significance level. In this case they all are. The p values are so tiny for the differences between Gentoo and the other two species that that they are reported as zero.
 
 
 ### Reporting the Result.
 
-We try to use plain English to report our results, while still telling the reader what test was used and the key outputs of the test. Try to report the name of the test, the test statistic, the degrees of freedom, and the p-value. if. the p-value is really small then it is common to report it as p<0.01, or p<0.001. No one cares if it is a billionth or a squillionth. t just matters that is t is *really* small, if that is the case. If it is onlt just below 0.05, then I would report it isn full, so we might write p = 0.018. If p > 0.05 then conventiallly it is not reported, except to say p > 0.05.
+We try to use plain English to report our results, while still telling the reader what test was used and the key outputs of the test. Try to report the name of the test, the test statistic, the degrees of freedom, and the p-value. if. the p-value is really small then it is common to report it as p<0.01, or p<0.001. No one cares if it is a billionth or a squillionth. It just matters that is t is *really* small, if that is the case. If it is only just below 0.05, then I would report it in full, so we might write p = 0.018. If p > 0.05 then conventiallly it is not reported, except to say p > 0.05.
 
 In this case, we might say something like:
 
-*We find evidence that there is a difference between the body masses of females of the penguon species Adelie, Chinstrap and Gentoo (ANOVA, df = 2, 162, F = 393, p < 0.001). In particular Gentoo are more than 1kg heavier than the other two (p< 0.001) while the difference between Chinstrap and Adelie is smaller, at 158g, but still significant (p = 0.018).*
+*We find evidence that there is a difference between the body masses of females of the penguin species Adelie, Chinstrap and Gentoo (ANOVA, df = 2, 162, F = 393, p < 0.001). In particular Gentoo are more than 1 kg heavier than the other two (p< 0.001) while the difference between Chinstrap and Adelie is smaller, at 158 g, but still significant (p = 0.018).*
 
 
 

@@ -1,7 +1,7 @@
 ---
 title: 'ANOVA: Factorial experiments and model simplification'
 author: 'Michael Hunt'
-date: '15-11-2022'
+date: '15-11-2022 - 11-12-2024'
 output:
   html_document:
     df_print: paged
@@ -10,7 +10,7 @@ output:
 ---
 
 ```{r set-up, include = FALSE}
-knitr::opts_chunk$set(message=FALSE,warning=FALSE)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 ```
 
 This exercise sheet is heavily indebted to Michael Crawley's *Statistics: An introduction using R*, 2nd Ed, Wiley. Published in 2015 this emphasises statistics over R (in fact, much of the R he presents is written prior to the advent of the `tidyverse` dialect which we use here, and so may seem terse if that is what you are used to). It is very useful and is at a higher level than Beckerman, Childs and Petchey's *Getting Started in R: An introduction for biologists*, 2nd Ed. OUP published in 2017. Their book also includes a simpler version of the example explored here.
@@ -63,8 +63,8 @@ The `growth.csv` data file needs to be in the `data` folder within the Project f
 In this chunk we read the `growth.csv` data into an R object to which we give the name `weights`.
 
 ```{r}
-filepath<-here("data","growth.csv")
-weights<-read_csv(filepath) # this function is from the readr package, part of tidyverse
+filepath <- here("data", "growth.csv")
+weights <- read_csv(filepath) # this function is from the readr package, part of tidyverse
 glimpse(weights)
 ```
 
@@ -83,7 +83,7 @@ In the following chunk, `factor()` is used to designate both the `supplement` an
 ```{r convert to factors}
 weights <- weights |>
   mutate(supplement = factor(supplement, levels = c("control","agrimore", "supergain", "supersupp")),
-         diet = factor(diet, levels = c("barley","oats", "wheat")))
+         diet = factor(diet, levels = c("barley", "oats", "wheat")))
 glimpse(weights)
 ```
 Do you see how the variable types of the `supplement` and `diet` columns have been changed to `<fct>`? It worked!
@@ -103,22 +103,22 @@ $$ \text{SE}=\frac{SD}{\sqrt{n}}$$
 
 ```{r make data summary table one, eval= FALSE}
 # we use the group_by() and summarise() functions from dplyr (the package within tidyverse for data manipulation)
-growth_summary<-weights |>
-  group_by(diet,supplement) |>
-  summarise(mean_gain = mean(gain),se_gain = sd(gain)/sqrt(n())) |>
+growth_summary <- weights |>
+  group_by(diet, supplement) |>
+  summarise(mean_gain = mean(gain), se_gain = sd(gain)/sqrt(n())) |>
   ungroup()
 growth_summary
 ```
 
 ```{r, echo = FALSE}
 library(kableExtra)
-growth_summary<-weights |>
+growth_summary <- weights |>
   group_by(diet,supplement) |>
-  summarise(mean_gain = mean(gain),se_gain = sd(gain)/sqrt(n())) |>
+  summarise(mean_gain = mean(gain), se_gain = sd(gain)/sqrt(n())) |>
   ungroup()
 growth_summary |>
   kbl() |>
-  kable_styling(full_width=FALSE)
+  kable_styling(full_width = FALSE)
 ```
 
 Note the ordering of the diet and supplement levels in their respective columns: just what we have imposed! 
@@ -129,12 +129,12 @@ The next step, as so often before we launch into actual statistics, is to plot t
 
 ```{r interaction plot one}
 growth_summary |>
-  ggplot(aes(x=supplement,y=mean_gain, colour = diet, group = diet)) +
-  geom_point(size=2) +
+  ggplot(aes(x = supplement,y = mean_gain, colour = diet, group = diet)) +
+  geom_point(size = 2) +
   geom_line() +
-  geom_errorbar(aes(ymin = mean_gain - se_gain, ymax = mean_gain + se_gain), width=0.1) +
-  labs(x="Supplement",
-       y="Mean weight gain") +
+  geom_errorbar(aes(ymin = mean_gain - se_gain, ymax = mean_gain + se_gain), width = 0.1) +
+  labs(x = "Supplement",
+       y = "Mean weight gain") +
   scale_fill_brewer() +
   theme_cowplot()
 ```
@@ -161,9 +161,11 @@ The plots tell you a great deal about what main effects and/or interactions ther
 
 ### ANOVA
 
-Now for the actual statistical test. We will conduct a two-way ANOVA, which will look to see if there is evidence that either diet or supplement or both affect growth rate (the so-called main effects), and if the effect of one depends on the nature of the other (the so-called interaction). The null hypothesis is that neither has any main effect and that there is no interaction.
+Now for the actual statistical test. We will conduct a two-way ANOVA, which will look to see if there is evidence that either diet or supplement or both affect growth rate (the so-called main effects), and if the effect of one depends on the nature of the other (the so-called interaction).
 
-Now we can use either of the functions `aov()` or `lm()` to fit a factorial ANOVA (the choice affects only whether we get an ANOVA table or a list of parameter estimates as the default output from `summary()`.). Here, we will use `lm()`.
+The null hypothesis is that neither has any main effect and that there is no interaction.
+
+Now we can use either of the functions `aov()` or `lm()` to carry out a factorial ANOVA (the choice affects only whether we get an ANOVA table or a list of parameter estimates as the default output from `summary()`.). Here, we will use `lm()`, partly because we would also use it for one-way ANOVAs and linear regression, and to do so here reminds of the common mathematical machinery that underlies all these methods.
 
 We estimate parameters for the main effects of each level of diet and each level of supplement, plus terms for the interaction between diet and supplement.
 
@@ -182,7 +184,7 @@ which can be written more simply using the asterisk notation as:
 First we construct the model using `lm()` and store the outputs of all the maths that ``lm()` does in an object called `model0`:
 
 ```{r make interactive model}
-model0<-lm(gain ~ diet * supplement, data = weights)
+model0 <- lm(gain ~ diet * supplement, data = weights)
 ```
 
 #### Do we reject the null hypothesis?
@@ -218,9 +220,9 @@ Here is a table to help you interpret the output of the `summary()` function.
 ```{r additional table, echo = FALSE}
 library(tidytidbits)
 library(kableExtra)
-summary.table<-broom::tidy(summary(model0)) |>
-  mutate(absolute_value=ifelse(term=="(Intercept)",estimate, estimate+ estimate[1])) |>
-  mutate(type_of_effect=c(rep("Main effect",6),rep("Interaction",6))) |>
+summary.table <- broom::tidy(summary(model0)) |>
+  mutate(absolute_value = ifelse(term=="(Intercept)",estimate, estimate + estimate[1])) |>
+  mutate(type_of_effect = c(rep("Main effect",6), rep("Interaction",6))) |>
   mutate (meaning = c("barley + control",
                       "oats + control",
                       "wheat + control",
@@ -233,15 +235,15 @@ summary.table<-broom::tidy(summary(model0)) |>
                       "wheat + supergain",
                       "oats + supersupp",
                       "wheat + supersupp")) |>
-  mutate(estimate=round(estimate,2),
+  mutate(estimate = round(estimate,2),
          absolute_value = round(absolute_value,2),
-         p_value=as_formatted_p_value(p.value,prefix="",alpha=0.05)) |>
+         p_value=as_formatted_p_value(p.value,prefix = "", alpha=0.05)) |>
   mutate(significance = case_when(
     p.value <= 0.001 ~ "***",
     p.value > 0.001 & p.value <= 0.01 ~ "**",
     p.value > 0.01 & p.value <= 0.05 ~ '  *.  ',
     p.value > 0.05 ~ "")) |>
-  select(term, meaning,type_of_effect,estimate, absolute_value, p_value, significance)
+  select(term, meaning, type_of_effect,estimate, absolute_value, p_value, significance)
 summary.table |>
   kbl() |>
   kable_styling(full_width=FALSE)
@@ -256,7 +258,7 @@ The output of the `summary()` function re-emphasises that none of the interactio
 Given the results of the full interaction model, we begin model simplification by leaving out the interaction terms, to leave us with an additive model:
 
 ```{r additive model one}
-model_1<-lm(gain ~ diet + supplement, data = weights)
+model_1 <- lm(gain ~ diet + supplement, data = weights)
 summary(model_1)
 ```
 ### Check the validity of the linear model
@@ -273,42 +275,45 @@ Back to interpreting the output of the ANOVA:
 
 It is clear that we need to retain all three levels of diet since the effect values of each differ from each other by an amount that is several times the standand errors, so that *t* >> 1. It is not clear that we need all the levels of supplement, however. `supersupp` is not obviously different from `agrimore` (difference = -0.727 with standard error = 0.509), yet both are clearly different from `control`. However `supergrain` is not obviously different from `control` (difference = -0.68, error = 0.509). Hence we are tempted to try a new model with just two levels of the factor supplement which we might sensibly call "best", by which we mean `agrimore` or `supersupp`, and "worst" by which we mean `control` or `supergrain`. We'll name this new factor `supp2`.
 
+This code chunk amends the `weights` data frame by adding a new column to it called `supp2` in which the values are either `best` if the supplement is agrimore or supersupp, or `worst` if the supplement is either of the other two
+
 ```{r condense supplements to two}
 weights <- weights |>
-  mutate(supp2 = ifelse(supplement %in% c("agrimore","supersupp"),"best","worst"))
+  mutate(supp2 = ifelse(supplement %in% c("agrimore", "supersupp"), "best", "worst"))
+glimpse(weights)
 ```
 
 If we calculate the means and standard errors for weight gain under each diet for each of the two new classifications of supplement, and then plot them, we get this new interaction plot:
 
 ```{r simplified additive model plot}
 weights |>
-  group_by(diet,supp2) |>
+  group_by(diet, supp2) |>
   summarise(mean_gain = mean(gain), se_gain = sd(gain)/sqrt(n())) |>
   ungroup() |>
 
-  ggplot(aes(x = supp2,y = mean_gain,colour = diet,group=diet)) +
+  ggplot(aes(x = supp2,y = mean_gain,colour = diet, group=diet)) +
   geom_point(size=2) +
   geom_line() +
-  geom_errorbar(aes(ymin = mean_gain-se_gain, ymax = mean_gain+se_gain), width=0.1) +
-  labs(x="Supplement",
-       y="Mean weight gain") +
+  geom_errorbar(aes(ymin = mean_gain-se_gain, ymax = mean_gain + se_gain), width=0.1) +
+  labs(x = "Supplement",
+       y = "Mean weight gain") +
   scale_fill_brewer() +
   theme_cowplot()
 ```
 
-From this we can see that diet clearly makes a difference to weight gain, since the three lines are separated by a distance much larger than the standard errors, the best supplement clearly makes a difference since there is a consistent drop on going from 'best' to 'worst', again by an amount that is much larger than the error bars, and there is clearly no interaction between diet and supplement, since the lines are parallel within the wiggle room allowed by the error bars, which means that the effect of diet does not depend on supplement, and the effect of supplement does not depend on diet.
+From this we can see that diet clearly makes a difference to weight gain, since the three lines are separated by a distance much larger than the standard errors, and also that the best supplement clearly makes a difference since there is a consistent drop on going from 'best' to 'worst', again by an amount that is much larger than the error bars, and there is clearly no interaction between diet and supplement, since the lines are parallel within the wiggle-room allowed by the error bars, which means that the effect of diet does not depend on supplement, and the effect of supplement does not depend on diet.
 
 Now we will make the simpler model, calling it model_2 (for comparison with the first additive model, model_1)
 
 ```{r simplest additive model}
 # additive model whee the supplements have been condensed from four to two: best and worst
-model_2<-lm(gain ~ diet + supp2, data = weights)
+model_2 <- lm(gain ~ diet + supp2, data = weights)
 ```
 
-and them compare the two additive models:
+and then compare the two additive models:
 
 ```{r anova compare additive models}
-anova(model_1,model_2)
+anova(model_1, model_2)
 ```
 
 When we use `anova()` in this way it is testing the explanatory power of the second model against that of the first ie how much of the variance in the data does each explain. Its null hypothesis is that both models explain just as much of the variance as the other.

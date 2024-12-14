@@ -1,0 +1,183 @@
+---
+title: "Scripts to find correlation coefficients"
+author: "your name"
+date: "the date"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r, include = FALSE}
+# you can ignore this chunk - it just makes the rendered script look nicer
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+```
+
+
+This notebook contains three examples of use of correlation tests on continuous data.
+
+You can copy whichever parts meets your needs, delete the rest and adapt it to your data.
+
+
+## Example of normally distributed data - no evidence of correlation
+
+
+**Question**: Is tree height correlated with tree diameter at breast height?
+
+### load packages
+```{r}
+library(tidyverse)
+library(here)
+library(cowplot)
+```
+
+### Load data
+Here we will choose tree data. Your data file should be a csv file, inside the data subolder of your project
+
+```{r}
+filepath <- here("data","tree_vol.csv")
+trees <- read_csv(filepath)
+glimpse(trees)
+```
+
+### Plot the data
+
+```{r}
+trees |>
+  ggplot(aes(x = diameter, y = height)) + # what we want to plot
+  geom_point() + # what kind of plot
+  labs(x = "Tree diameter (m)",
+       y = "Tree height (m)") + # axis labels
+  theme_cowplot() # give the plot a nice 'look'
+```
+
+Does it look as though tree diameter and height are linearly correlated?
+
+
+#### Check for normality
+```{r}
+shapiro.test(trees$diameter) 
+shapiro.test(trees$height)
+```
+
+If p > 0.05 in both cases, then we can assume normality 
+
+If both are distributed normally, then we check for Pearson's r, if not we check for Spearman's Rank r
+
+### Find correlation coefficient
+```{r}
+cor.test(trees$diameter,trees$height, method = "pearson")
+```
+
+#### Interpret the output
+
+* What is r?  
+* Is p < 0.05? 
+* Does the confidence interval encompass zero?
+* Is r significantly different from zero? 
+
+
+## Example of normally distributed data - where there is evidence of correlation
+
+
+**Question**: Is virginica petal width correlated with virginica petal length?
+
+### Load packages
+```{r}
+library(tidyverse)
+library(here)
+library(cowplot)
+```
+
+### Load data
+Here we choose the iris data set
+```{r}
+filepath <- here("data","iris.csv")
+iris <- read_csv(filepath)
+glimpse(iris)
+```
+
+### Select subset of data
+Let us select the data for the setosa species
+```{r}
+virginica <- iris %>%
+  filter(Species == "virginica")
+```
+
+### Plot the data - petal length vs petal width
+
+```{r}
+virginica %>%
+  ggplot(aes(x = Petal.Width, y = Petal.Length)) + # what we want to plot
+  geom_point() + # what kind of plot
+  labs(x = "Petal diameter (cm)",
+       y = "Petal width (cm)") + # axis labels
+  theme_cowplot() # give the plot a nice 'look'
+```
+
+
+Does it look as though petal width and length are linearly correlated?
+
+
+### Check for normality
+```{r}
+shapiro.test(virginica$Petal.Length)  # p > 0.05?
+shapiro.test(virginica$Petal.Width) # p > 0.05?
+```
+
+
+### Find correlation coefficient - pearson's r
+```{r}
+cor.test(virginica$Petal.Length,virginica$Petal.Width, method = "pearson")
+```
+
+#### Interpret the output
+
+* What is r?  
+* Is p < 0.05? 
+* Does the confidence interval encompass zero?
+* Is r significantly different from zero?
+
+## Example of correlation test where we have to use Spearman's rank r~sp~
+
+
+**Question**: Is WEMWBS score correlated with nep score?
+
+### Load packages
+```{r}
+library(tidyverse)
+library(here)
+library(cowplot)
+```
+
+### Load data
+We choose the marine wellness data set - where the data are ordinal data
+```{r}
+filepath <- here("data","marine_wellness.csv")
+wellness <- read_csv(filepath)
+glimpse(wellness)
+```
+
+We have wellness scores for 288 individuals according to two scales - WEMWBS and nep
+
+### Plot the data - WEMWBS score vs nep score
+```{r}
+wellness %>%
+  ggplot(aes(x = WEMWBS, y = nep)) + # what we want to plot
+  geom_point() + # what kind of plot
+  labs(x = "WEMWBS score",
+       y = "nep score") + # axis labels
+  theme_cowplot() # give the plot a nice 'look'
+```
+
+Does it look as though the relationship between the two scores is monotonic?
+
+### Test for correlation
+```{r}
+cor.test(wellness$WEMWBS,wellness$nep, method = "spearman",,exact = FALSE)
+```
+
+#### Interpret the output
+
+* What is r~sp~?  
+* Is p < 0.05? 
+* Is r significantly different from zero?

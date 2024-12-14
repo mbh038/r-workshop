@@ -1,7 +1,7 @@
 ---
 title: "Use of ggplot for plotting"
 author: "Michael Hunt"
-date: "10-01-2024"
+date: "10-01-2024 to 11-12-2024"
 output:
   html_document:
     df_print: paged
@@ -480,9 +480,9 @@ Now try producing graphs like the ones above, but for body mass rather than flip
 
 ### Bar chart with error bar
 
-There are different ways to produce this commonly used way to summarise data. For example we might use one to compare the mean flipper lengths of the different penguin species. For a bar chart of these to be of any use at all, it needs to include error bars that show standard errors of the means, or standard deviations or confidence intervals (Why?). Which you use depends on the story you are trying to tell, but we won't go into that here.
+There are different ways to produce this commonly used way to summarise data. For example we might use one to compare the mean flipper lengths of the different penguin species. For a bar chart of these to be of any use at all, it needs to include error bars that show standard deviations of the samples, standard errors of the means, or confidence intervals (Why?). Which you use depends on the story you are trying to tell.
 
-Here, we will add error bars that are ± one standard deviation of the samples
+First, we will add error bars that are ± one standard deviation of the samples.
 
 I usually first create a summary of the data, in which we calculate the means and appropriate error for each species for whichever variable I am interested in, then feed this summary table to `ggplot` and use `geom_col()` to plot the bars, with `geom_errorbar()` on top of that to plot the error bars.
 
@@ -498,17 +498,48 @@ flipper_summary
 ```
 
 
-To calculate error bar lengths we use a formula $\text{SE} = \frac{\text{SD}}{\sqrt{n}}$ where $n$ is the number of observations, SD is the standard deviation of the sample and SE is the standard error of the means of the sample. We can use the summary functions `sd()` to calculate the standard deviation, and `n()` to calculate $n$.
-
 ```{r}
 flipper_summary |>
   ggplot(aes(x = species, y = fl.mean)) +
   geom_col() +
-  geom_errorbar(aes(ymin=fl.mean-fl.sd, ymax = fl.mean + fl.sd),width=0.1) +
+  geom_errorbar(aes(ymin = fl.mean-fl.sd, ymax = fl.mean + fl.sd), width = 0.1) +
   labs(x = "Species",
        y = "Flipper length (mm)") +
   theme_bw() 
 ```
+
+
+#### Standard deviation or standard error?
+The error bars in the plot above are ± one standard deviation. A standard deviation gives us an idea of the spread of values within a sample or population. Remember that if a population is normally distributed about its mean, there is a roughly 95% probability that a random chosen individual will lie within two standard deviations of the mean.
+
+So standard deviations of samples are useful. They are a useful way to summarise the variability of the sample, they tell us about the likely variability of the next sample, and they are our best estimate of the variability of the population from which the sample was drawn. 
+
+Sometimes, though, we want to know more than that. We might want to know how closely a sample mean is likely o be to the true mean of the population from which the sample was drawn, and perhaps to get an idea as to whether two or more populations are different, given the means of samples drawn from those populations. For this, we need not the standard deviation but the *standard error*. These are the error bars that are most commonly displayed on bar charts when you see them in papers.
+
+To calculate standard deviation error bar lengths we use a formula $\text{SE} = \frac{\text{SD}}{\sqrt{n}}$ where $n$ is the number of observations, SD is the standard deviation of the sample and SE is the standard error of the means of the sample. We can use the summary functions `sd()` to calculate the standard deviation, and `n()` to calculate $n$.
+
+
+```{r}
+flipper_summary2 <- penguins |>
+  drop_na() |>
+  # these two lines produce a summary table
+  group_by(species) |>
+  summarise(fl.mean = mean(flipper_length_mm), fl.se = sd(flipper_length_mm)/sqrt(n()))
+flipper_summary
+```
+
+
+```{r}
+flipper_summary2 |>
+  ggplot(aes(x = species, y = fl.mean)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=fl.mean-fl.se, ymax = fl.mean + fl.se),width=0.1) +
+  labs(x = "Species",
+       y = "Flipper length (mm)") +
+  theme_bw() 
+```
+These standard error bars are always smaller than the standard deviation error bars (by a factor equal to the square root of the sample size). Here they are so small as to be barely visible. They ar useful in bar charts like this one since they give us a rough and ready way of assessing whether the differences between the samples (the heights of the bars) are likely to indicate real differences between the populations. If the bar-height differences are much greater than the size of the standard error bars, then they probably indicate significant differences between the popultions. If not, then they probably don't.
+
 
 Now let's alter this code so that each bar has a different fill colour, and  remove the legend that then appears, since it is unnecessary?
 
@@ -533,7 +564,7 @@ To do this we can add the line `scale_fill_brewer(palette = "Set2")`. Note: we u
 flipper_summary |>
   ggplot(aes(x = species, y = fl.mean, fill = species)) +
   geom_col() +
-  geom_errorbar(aes(ymin=fl.mean-fl.sd, ymax = fl.mean + fl.sd),width=0.1) +
+  geom_errorbar(aes(ymin=fl.mean-fl.sd, ymax = fl.mean + fl.sd), width=0.1) +
   labs(x = "Species",
        y = "Flipper length (mm)") +
   scale_fill_brewer(palette="Set2") +
@@ -550,8 +581,8 @@ If you agree that having different fill colours for the bars is actually confusi
 flipper_summary |>
   ggplot(aes(x = species, y = fl.mean)) + 
   # add arguments here that give fill colour "#a6bddb" and outline colour "grey50".
-  geom_col(fill = "#a6bddb",colour = "grey50") +
-  geom_errorbar(aes(ymin=fl.mean-fl.sd, ymax = fl.mean + fl.sd),width=0.1) +
+  geom_col(fill = "#a6bddb", colour = "grey50") +
+  geom_errorbar(aes(ymin=fl.mean-fl.sd, ymax = fl.mean + fl.sd), width=0.1) +
   labs(x = "Species",
        y = "Flipper length (mm)") +
   theme_bw() +

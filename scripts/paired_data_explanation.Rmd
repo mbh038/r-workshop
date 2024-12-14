@@ -1,5 +1,7 @@
 ---
 title: "Two samples with paired replicates: test for difference"
+author: "Michael Hunt"
+date: "14/11/2024"
 output:
   html_document:
     df_print: paged
@@ -39,7 +41,7 @@ Both tests will give a p value. This is the probability that the mean (t-test) o
 
 ### Example
 
-We will use as an example a data set from Laureysens et al. (2004) that has measurements of metal content in the wood of 13 poplar clones growing in a polluted area, once in August and once in November. The idea was to investigate the extent to which poplars could absorb metals from the soil and thus be useful in cleaning that up. Under a null hypothesis, there would be no difference between the metal concentrations in the plant tissue between August and November. Under an alternate hypothesis, there would be.
+We will use as an example a data set from Laureysens et al. (2004) that has measurements of metal content in the wood of 13 poplar clones growing in a polluted area, once from each clone in August and once again from each of them in November. The idea was to investigate the extent to which poplars could absorb metals from the soil and thus be useful in cleaning that up. Under a null hypothesis, there would be no change in the metal concentrations in the plant tissue of each clone between August and November. Under an alternate hypothesis, there would be.
 
 Laureysens, I. et al. (2004) ‘Clonal variation in heavy metal accumulation and biomass production in a poplar coppice culture: I. Seasonal variation in leaf, wood and bark concentrations’, Environmental Pollution, 131(3), pp. 485–494. Available at: https://doi.org/10.1016/j.envpol.2004.02.009.
 
@@ -100,20 +102,28 @@ poplars_tidy |>
 Does it look as though the difference between the medians could plausibly be zero for the population? Or, put another way, if it was zero, how big a fluke would this sample be? That is what the p value actually tells us.
 
 
+### Two sample paired t-test
+
 #### Check for normality of differences
 
-Before we use the t-test, we need to check that it is OK to do so.
-The null hypothesis of the Shapiro-Wilk test is that the data set given to it is drawn from a normally distributed population.
+Before we use the t-test, we need to check that it is OK to do so. This means checking whether the paired differences are plausibly drawn from a normal distribution centred on zero. 
+
+The null hypothesis of the Shapiro-Wilk test is that the data set given to it *is* drawn from a normally distributed population. So let us give our sample of paired differences:
+
 ```{r}
 shapiro.test(poplars$August-poplars$November)
 ```
-The p value is very high. Thus we can reasonably assume that the differences between the August and November aluminium concentrations in the sample could plausibly have been drawn from a normally distributed population, despite the outlier value in the November sample. Thus we can reasonably test for difference using a paired t-test. 
+
+The p value is very high. Thus we do not reject the null hypothesis and we can reasonably assume that the differences between the August and November aluminium concentrations in the sample could plausibly have been drawn from a normally distributed population, despite the outlier value in the November sample. Thus we can reasonably test for difference using a paired t-test. 
+
+#### The actual t-test
 
 We can do this in R using the function `t.test()`, where we give to the function both the August and the November data, knowing that each August value has a counterpart November value, and we set the argument `paired` to `TRUE`.
 
 ```{r}
 t.test(poplars$August, poplars$November, paired = TRUE)
 ```
+
 All parts of the output have meaning and are useful, but here we will focus on just two:
 
 * the p value is equal to 0.040. Hence, if we have chosen the usual significance value of 0.05, we can take this to mean that there is evidence of a significant difference between the August and November values.
@@ -128,7 +138,7 @@ wilcox.test(poplars$August, poplars$November, paired = TRUE)
 ```
 We see that the conclusion (in this case) is the same.
 
-#### Relation to one-sample paired test
+### Relation to one-sample paired test
 
 The two-sample paired tests as we have done above are the same as doing a one-sample test to see if the differences between the August and November paired values is different from zero. This is true whether we do a t-test or a Wilcoxon signed rank test.
 

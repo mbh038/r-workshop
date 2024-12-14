@@ -1,17 +1,19 @@
 ---
 title: "Correlation"
 author: Michael Hunt
-date: 19-01-22
+date: 19-01-22 - 04-12-2024
 output:
   html_document:
-    df_print: paged
+    # df_print: paged
+    toc: true
+    # toc_float: true
 ---
 
 ```{r, include=FALSE}
 options(tinytex.verbose = TRUE)
 ```
 
-This guide to correlation is heavily based on the very helpful chapter in Statistics, by David Freedman, Robert Pisani, Roger Purves and Ani Adhikari, 2nd ed., Norton.
+This guide to correlation draws heavily on the very helpful chapter in Statistics, by David Freedman, Robert Pisani, Roger Purves and Ani Adhikari, 2nd ed., Norton.
 
 ```{r global-options, include=FALSE,echo=FALSE}
 knitr::opts_chunk$set(fig.width=9,
@@ -25,9 +27,11 @@ knitr::opts_chunk$set(fig.width=9,
 ```{r load packages, message=FALSE,warning=FALSE,include=FALSE}
 library(tidyverse)
 library(here)
+library(readxl)
 library(kableExtra)
 library(cowplot)
 library(gridExtra)
+
 
 library(UsingR) # for Pearson's father-son data
 data(PearsonLee) # for Pearson's mother-daughter data
@@ -534,45 +538,86 @@ head(iris)
 ```
 
 
-We will look to see if the data allow us to reject the idea that petal width and petal length are not correlated within the wider populations of each of these species:
+We will look to see if the data allow us to reject the idea that sepal width and sepal length are not correlated within the wider populations of each of these species:
 
 First, let's plot the data
 
 ```{r,echo=TRUE}
 iris |>
-  ggplot(aes(x=Petal.Width,y=Petal.Length,colour=Species)) +
+  ggplot(aes(x=Sepal.Width,y=Sepal.Length,colour=Species)) +
   geom_point() +
-  labs(x="Petal Width (mm)",
-       y="Petal Length (mm)") +
+  labs(x="Sepal Width (mm)",
+       y="Sepal Length (mm)") +
   facet_wrap(~Species,nrow=1,scales="free") +
   theme_classic() +
   theme(legend.position="none") +
   theme(strip.background=element_blank())
 ```
 
-Having seen the plots, do you think that petal width and length are correlated in these samples, and roughly what value for *r* do you expect in each case?
+#### What we can tell from plotting the data
 
-Looking at each graph, it appears that there is a positive correlation for each species, but that this is weaker for *setosa* and *virginica* than it is for *versicolor*. Knowing the petal width for that species gives you a much better idea of the petal length, and vice-versa, than is true for the other two species.
+Having seen the plots, do you think it plausible that there is a linear relationship between sepal width and length? Only in this case can you use a Pearson correlation test (see below). If not linear, do you think there is at least a monotonic relationship between petal width and length (ie no peaks or troughs)? That, at least, would enable you to use a Spearman's Rank correlation test. If neither are true, then you can't use either test.
+
+#### Test for normality
+
+It does look as though there is a plausibly linear relationship between sepal width and length, so we might be able to use the Pearson method for calculating correlation coefficient. This is the 'parametric' method that is more powerful than the 'non-parametric' alternative, the Spearman's rank method. 
+
+In principle, however, this method requires that each group of the data be approximately normally distributed around its repective mean (that is what the word parametric is getting at), so we ought to test for this. We can do this either graphically or using a normality test such as the Shapiro wilk test. Let us do the latter here:
+
+```{r}
+iris |>
+  group_by(Species) |>
+  summarise(Sepal.Length_p.val = shapiro.test(Sepal.Length)$p.value,Sepal.Width_p.val = shapiro.test(Sepal.Width)$p.value)
+```
+
+
+All the p-values for this test are comfortably greater than 0.05 so we can reasonably presume that our data are drawn from normally distributed populations. This, plus the plausibly linear realtionships we have seen in the graphs means that can go ahead and use the Pearson method to calculate the correlation coefficient between sepal length and width for each species!
+
+#### Calculate the correlation coefficients
+
+Looking at each graph, it appears that there is a positive correlation for each species, but that this is weaker for *versicolar* and *virginica* than it is for *setosa*. Knowing the sepal width for that species gives you a much better idea of the sepal length, and vice-versa, than is true for the other two species.
 
 Let us find out:
 
 ```{r,echo=TRUE}
 iris |>
   group_by(Species) |>
-  summarise(r=cor.test(Petal.Width,Petal.Length)$estimate,
-            lower.boundb=cor.test(Petal.Width,Petal.Length)$conf.int[1],
-            upper.bound=cor.test(Petal.Width,Petal.Length)$conf.int[2],
-            "p value"=cor.test(Petal.Width,Petal.Length)$p.value) |>
+  summarise(r=cor.test(Sepal.Width,Sepal.Length)$estimate,
+            lower.bound95=cor.test(Sepal.Width,Sepal.Length)$conf.int[1],
+            upper.bound95=cor.test(Sepal.Width,Sepal.Length)$conf.int[2],
+            "p value"=cor.test(Sepal.Width,Sepal.Length)$p.value) |>
   kbl(digits=3) |>
   kable_styling(full_width=0.7)
   
 ```
 
-The table gives the estimated value for the Pearson correlation coefficient in each case, the lower and upper bound of the confidence interval for that coefficient and the *p*-value.
+The table gives the estimated value for the Pearson correlation coefficient in each case, the lower and upper bound of the 95% confidence interval for that coefficient and the *p*-value.
 
-Do these output provide evidence for a correlation between petal length and petal width in each case?
+Do these output provide evidence for a correlation between sepal length and sepal width in each case?
 
-### The correlation coefficient measures the degree of linear association.
+### The problem of missing variables
+
+Suppose in the above analysis we had not distinguished between the three species. If we had plotted the speal length and width data we would have seen this:
+
+```{r,echo=TRUE}
+iris |>
+  ggplot(aes(x=Sepal.Width,y=Sepal.Length)) +
+  geom_point() +
+  labs(x="Sepal Width (mm)",
+       y="Sepal Length (mm)") +
+  theme_classic() +
+  theme(legend.position="none") +
+  theme(strip.background=element_blank())
+```
+
+This looks like a weak *negative* correlation, as is confirmed by calculating the Spearman's (in this case) rank correlation coefficient. 
+
+The message here is that failure to spot importnat 'missing' variables, in the case species, can lead to grossly misleading ideas as to whether two variables are correlated, and if so, how.
+
+
+
+
+### The correlation coefficient measures the degree of *linear* association.
 
 Sometimes the Pearson correlation coefficient *r* is a poor measure of the degree of association within a data set. Outliers and non-linearity are two problem cases.
 
@@ -690,9 +735,76 @@ Plots A to F above show scatter plots of different data sets _Y_ against _X_.
 * For which of them might it be appropriate to calculate the following correlation coefficients between _X_ and _Y_?
   * Pearson *r*
   * Spearman rank *r*~sp~
-
-
+  
+  
 ## Exercise 2
+
+Measurements were made on female Adelie penguins on a series of islands in the Antarctic. The bill lengths and depths of 73 individuals were recorded and are shown in the plot below.
+
+```{r,include = FALSE}    
+filepath<-here("data","difference_data.xlsx")
+penguins<-read_excel(filepath,"penguins")
+# glimpse(penguins)
+
+adelieF<- penguins |>
+  filter(species == "Adelie", sex=="female") |>
+  dplyr::select(-species,-sex)
+
+
+bill_lengths <- adelieF |> dplyr::select(bill_length_mm) |> pull()
+bill_depths <- adelieF |> dplyr::select(bill_depth_mm) |> pull()
+```
+
+
+
+
+```{r, echo=FALSE}
+adelieF |>
+  ggplot(aes(x=bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  labs(x = "Bill length (mm)",
+       y = "Bill depth (mm") +
+  theme_cowplot()
+```
+From this information and  plot, decide
+
+* Whether it is plausible that there is a linear relationship between the bill depths and lengths within the data set
+* Whether the correlation coefficient within the data set is likely to be positive or negative
+* Whether the correlation is 'strong' or 'weak' ie is the absolute value of the correlation coefficient likely to be close to 1 or close to zero
+* Whether there might be evidence from this data that there is any correlation between bill depth and bill length in the population from which this data set was drawn.
+
+#### Tests for normality
+
+Shapiro-Wilk tests are carried out to check for normality of the two sets of data:
+
+```{r, echo = TRUE}
+shapiro.test(bill_depths)
+```
+```{r, echo = TRUE}
+shapiro.test(bill_lengths)
+```
+
+On this basis, we see that we can use the Pearson  method to calculate the correlation coefficient between bill depth and bill length. What is telling us this?
+
+#### Calculate correlation coefficient
+
+For these data, we calculate the correlation coefficient using the Pearson method.
+
+```{r, echo = TRUE}
+# Pearson
+cor.test(bill_depths,bill_lengths, method = "pearson")
+```
+
+Which part(s) of this output tell us that:
+
+* There is a weak positive correlation between bill length and depth *within the sample*?
+* There is no evidence that this correlation exists in the wider population from which this data set was drawn? 
+
+How would you report this result?
+
+
+
+## Exercise 3
 
 Open a new R notebook
 
@@ -716,7 +828,7 @@ glimpse(iris)
 
 5.  Calculate the Pearson correlation coefficient between sepal length and sepal width for each species, and display this, plus the lower and upper bounds of the confidence interval and the *p*-value for each species in a table.
 
-For (4) and (5) you can adapt code used on the previous tab.
+For (4) and (5) you can adapt code used on the main Correlation tab.
 
 Now:
 

@@ -1,0 +1,64 @@
+---
+title: "Analysis of WEMWBS and nep likert scale scores"
+author: "Michael Hunt"
+date: "13-11-2024"
+output:
+  html_document:
+    df_print: paged
+---
+
+This script uses the non-parametric Mann-Whitney U / Wilcoxon test for a difference.
+
+```{r, include = FALSE}
+# This chunk makes the rendered version look prettier
+# it supresses warnings and other messages
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+
+### Load packages
+```{r}
+library(tidyverse)
+library(here)
+```
+
+### Load data
+```{r}
+filepath<-here("data","wellness.csv")
+wellness<-read_csv(filepath)
+glimpse(wellness)
+```
+
+### Summarise data
+```{r}
+wellness |>
+  group_by(scale,marine) |>
+  summarise(median.score=median(total_score),
+            iqr_25=quantile(total_score,0.25),
+            iqr_75=quantile(total_score,0.75))
+```
+
+### Plot data
+```{r}
+wellness |>
+  ggplot(aes(x = scale,y = total_score,fill=marine)) +
+  geom_boxplot() +
+  labs(x = "Likert Scale",
+       y = "Wellbeing Score") +
+  theme_classic()
+```
+
+
+### Test for a difference
+
+#### First for the WEMWBS scores
+```{r}
+WEMWBS<-wellness |> filter(scale=="WEMWBS")
+wilcox.test(total_score~marine,data=WEMWBS)
+```
+
+#### then for the nep scores
+```{r}
+nep<-wellness |> filter(scale=="nep")
+wilcox.test(total_score~marine,data=nep)
+```

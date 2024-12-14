@@ -1,0 +1,166 @@
+---
+title: "Do balanced designs have greater power?"
+author: "Michael Hunt"
+date: "26/11/2024"
+output: html_notebook
+---
+
+A script to test how the power of a study to distinguish two populations that really do differ in some respect is impacted by the relative sizes of the samples, given a fixed total numer of replicates.
+
+We take the case where the total replicate number is 40, and we split it between two samples of sizes (2,38), (3,37),....(20,20),....(37,3), (38,2).
+
+
+```{r}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(here)
+library(ggfortify)
+library(cowplot)
+library(gridExtra)
+```
+
+```{r}
+# we use the fabulous openintro here only for its colour scheme
+library(openintro)
+data(COL)
+fill_colour1<-COL['blue','f3']
+fill_colour2<-COL['red','f6']
+fill_colour3<-COL['blue','f1']
+line_colour<-COL['blue','full']
+func_colour<-"darkblue"
+point_colour<-COL['blue','full']
+error_colour<-COL['red','full']
+```
+
+```{r}
+# bespoke themes to set axis styles.
+theme_no_x <- function () { 
+    theme_cowplot() %+replace% 
+  theme(
+    axis.ticks.x=element_blank(),
+    axis.text.x=element_blank(),
+    axis.title.x=element_blank(),
+    axis.line.x=element_blank()
+        )
+}
+
+theme_no_y <- function () { 
+    theme_cowplot() %+replace% 
+  theme(
+    axis.ticks.y=element_blank(),
+    axis.text.y=element_blank(),
+    axis.title.y=element_blank(),
+    axis.line.y=element_blank()
+        )
+}
+
+theme_no_axes <- function () { 
+    theme_cowplot() %+replace% 
+  theme(
+    axis.ticks=element_blank(),
+    axis.text=element_blank(),
+    axis.title=element_blank(),
+    axis.line=element_blank()
+        )
+}
+```
+
+
+Suppose we had a population with a mean mass of 100 kg and another with a mean mass of 110 kg, each with standard deviation of 10 kg, and time to take 40 replicates. We could take a proportion p from one population, making that sample be of size 40p, and a proportion 1-p from the other population, so that sample would be of size 40(1-p). 
+
+If p = 0.5 then each sample is of size 20 and we have a balanced design.
+
+
+```{r}
+mean1 <- 100
+sd1 <- 10
+
+mean2 <- 110
+sd2 <- 10
+```
+
+
+Draw samples n1 and n2 such that n1 + n2 = N from each population. Find power of a t-test by carrying one out 1000 times. Repat for another chocie of n1, n2.w
+```{r}
+N <- 40
+results <- tibble(n1=2:(N-2), n2 = (N-2):2, powers = rep(0,length(2:(N-2))))
+i <- 0
+for (n1 in 2:(N-2)){
+  i <- i + 1
+  n2 <- N-n1
+  pvals <-vector()
+  for (j in 1:1000){
+    s1 <- rnorm(n1, mean = mean1, sd = sd1)
+    s2 <- rnorm(n2, mean = mean2, sd = sd2)
+    pvals[j] <-t.test(s1,s2)$p.value 
+  }
+  results$powers[i] <-sum(pvals<0.05)/1000
+}
+
+results <- results |>
+  mutate(sample_size_ratio =n1/n2)
+```
+
+
+
+```{r}
+breaks <- 10^(-10:10)
+minor_breaks <- rep(1:9, 21)*(10^rep(-10:10, each=9))
+```
+
+
+```{r}
+results |>
+  ggplot(aes(x = sample_size_ratio, y = powers)) +
+  geom_point(colour="red3") +
+  scale_color_brewer(palette="Set1") +
+  labs(x ="Relative sample sizes",
+       y = "Power") +
+  scale_x_log10(guide = "axis_logticks",breaks = breaks, minor_breaks = minor_breaks) +
+  scale_y_continuous(limits= c(0.1,0.9),breaks = seq(0.1,0.9,.1)) +
+  theme_classic() +
+    theme(panel.grid.major = element_line(colour="grey70"),
+        panel.grid.minor = element_line(colour="grey80",linewidth=0.2)
+        )
+```
+
+
+```{r}
+bar_plot <- function(n1,n2){
+  s1 <- rnorm(n1, mean = mean1, sd = sd1)
+  s2 <- rnorm(n2, mean = mean2, sd = sd2)
+  bar_results <- tibble(N = c(n1,n2), population = c("s1", "s2"),s.means = c(mean(s1),mean(s2)), s.ses = c(sd(s1)/sqrt(n1),sd(s2)/sqrt(n2)))
+  
+  bp <- bar_results |>
+    ggplot(aes(x = population, y = N, fill = population)) +
+    geom_col() +
+    scale_fill_brewer(palette = "Set2") +
+    # geom_errorbar(aes(ymin = s.means - s.ses, ymax = s.means + s.ses), width=0.2) +
+    # geom_text(aes(label = N, x = population, y = 0), nudge_y = 8, size = 12, colour = "black") +
+    theme_classic() +
+    theme_no_axes() +
+    theme(legend.position = "none")
+ ggsave(here("figures","balance",paste0("bp_",n1,"_",n2,".png")))
+}
+```
+
+```{r}
+bp_2_38 <- bar_plot(2,38)
+bp_5_35 <- bar_plot(5,35)
+bp_15_25 <- bar_plot(15,25)
+bp_20_20 <- bar_plot(20,20)
+bp_25_15 <- bar_plot(25,15)
+bp_35_5 <- bar_plot(35,5)
+bp_38_2 <- bar_plot(38,2)
+```
+
+```{r}
+plot_grid(bp_2_38,bp_5_35,bp_15_25,bp_20_20, nrow = 1)
+```
+
+
+
+

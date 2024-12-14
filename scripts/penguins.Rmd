@@ -1,0 +1,62 @@
+---
+title: "Pnguoin analysis"
+author: "Michael Hunt"
+date: "06-11-2024"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+### Load packages
+Now we will load packages
+```{r}
+library(tidyverse)
+library(here)
+library(readxl)
+```
+
+### Load data
+```{r}
+filepath <- here("data","difference_data.xlsx")
+penguins <- read_excel(filepath,"penguins")
+glimpse(penguins)
+```
+
+### Summarise data
+```{r}
+penguins |>
+  group_by(species) |>
+  summarise(n = n(), mean_bill_length=mean(bill_length_mm),sd_bill_length=sd(bill_length_mm))
+```
+
+### Fipenguins |>
+
+```{r}
+adelie <- penguins |>
+  filter(species == "Adelie")
+glimpse(adelie)
+```
+
+### Plot Adelie data
+```{r}
+adelie |>
+  ggplot(aes(x=island, y=bill_length_mm)) +
+  geom_boxplot() +
+  labs(x = "Island",
+       y = "Bill length (mm)") +
+  theme_classic()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
