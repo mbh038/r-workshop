@@ -17,7 +17,7 @@ This exercise sheet is heavily indebted to Michael Crawley's *Statistics: An int
 
 ### Instructions
 
-You will need the following files (your lecturee will tell you where to find them - probably Moodle)
+You will need the following files (your lecturer will tell you where to find them - probably Moodle)
 
 * To be put in the Project/scripts folder:
 
@@ -31,7 +31,7 @@ You will need the following files (your lecturee will tell you where to find the
 
 #### Open your Project
 
-You should be working within a folder that you have designated as what RStudio calls a 'Project'. If you are, the name of your Project will appear at the top right of the RStudio window. Inside your Project folder you should have a `scripts` folder for scripts like this worksheet and the template file, and a `data` folder for all the data files, including the one used here, `growth.csv`.. You will also see, at the top level of the Project, the `.RProj` file. You can see all this in the Files pane, bottom-right.
+You should be working within a folder that you have designated as what RStudio calls a 'Project'. If you are, the name of your Project will appear at the top right of the RStudio window. Inside your Project folder you should have a `scripts` folder for scripts like this worksheet and the template file, and a `data` folder for all the data files, including the one used here, `growth.csv`. You will also see, at the top level of the Project, the `.RProj` file. You can see all this in the Files pane, bottom-right.
 
 #### What to do
 
@@ -52,7 +52,7 @@ You should be working within a folder that you have designated as what RStudio c
 
 The `growth.csv` data file needs to be in the `data` folder within the Project folder.
 
-In this chunk we read the `growth.csv` data into an R object to which we give the name `weights`.
+In this chunk, already filled in, we read the `growth.csv` data into an R object to which we give the name `weights`.
 
 ```{r}
 filepath <- here("data", "growth.csv")
@@ -70,12 +70,13 @@ glimpse(weights)
 In the following chunk, use `factor()` to designate both the `supplement` and `diet` columns of the data set as factors, and specify the level order of each, with `control` coming first for `supplement` and `barley` coming first for `diet`. 
 
 ```{r convert to factors}
-# No need to add any code here - ju run the chunk
-
-# This line of code designates the supplement and diet columns of weights as factors, orders the levels of these factors as required and saves the result under the original name.
+# Enter code to designate the supplement and diet columns of weights as factors and to order the levels of these factors as required. Save the result under the original name.
 
 
-# enter code to check the structure of the new version of weights
+# Use glimpse() to check that this worked
+
+
+# check the level order of each factor - does the 'reference' level come first?
 
 ```
 
@@ -90,9 +91,8 @@ There isn't a function in base R with which we can calculate standard error of t
 $$ \text{SE}=\frac{SD}{\sqrt{n}}$$
 
 ```{r make data summary table one}
-# we use the group_by() and summarise() functions from dplyr (the package within tidyverse for data manipulation) to
-# calculate the mean and standard error of the mean of each combination of diet and supplement
-# save the result to an object. called growth_summary
+# Use the group_by() and summarise() functions from dplyr (the package within tidyverse for data manipulation) to calculate the mean and standard error of the mean for each combination of diet and supplement
+#  Save the result to an object called growth_summary
 
 
 # type the name growth_summary so that it is displayed here
@@ -155,10 +155,11 @@ which can be written more simply using the asterisk notation as:
 
 #### Construct the model
 
-Replace the `NULL` in this line of code to run an interactive model for the dependence of gain on diet and supplement
+Replace the `NULL` in this line of code to run an interactive model for the dependence of gain on diet and supplement, and to save the result under the name `model_0`.
 
 ```{r make interactive model}
-model_0<-lm(diet * supplement,   data = weights)
+# replace NULL with suitable code
+model_0<-NULL
 ```
 
 #### Do we reject the null hypothesis?
@@ -199,7 +200,7 @@ Given the results of the full interaction model, we begin model simplification b
 
 ```{r additive model one}
 # 
-model_1<-nullfile()
+model_1<-NULL
   
 # enter code to generate a summary table of the effects within model_1
 
@@ -271,7 +272,7 @@ From this, does it look as though:
 Now we will make the simpler model. # Replace the `NULL` with code to fit an additive model for `gain` with `diet` and `supp2` as the explanatory variables
 
 ```{r simplest additive model}
-# additive model where the supplements have been condensed from four to two: best and worst
+# create an additive model where the supplements have been condensed from four levels to two: 'best' and 'worst'
 model_2 <- NULL
 
 ```
@@ -279,7 +280,7 @@ model_2 <- NULL
 and then compare the two additive models:
 
 ```{r anova compare additive models}
-# enter code to compare the explanatory power of model_1 and model_2
+# enter code to use anova() to compare the explanatory power of model_1 and model_2
 
 ```
 

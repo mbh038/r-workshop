@@ -52,7 +52,7 @@ This is in general useful to get, at least for the columns that contain numerica
 
 ```{r}
 
-# enter the code to summary descriptive statistics on each column of the penguins data frame
+# enter the code to produce summary descriptive statistics on each column of the penguins data frame
 
 ```
 

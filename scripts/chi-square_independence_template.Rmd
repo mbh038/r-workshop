@@ -1,0 +1,81 @@
+---
+title: "Chi Square contigency analysis ( = test of independence"
+author: "your name"
+date: "the data"
+output: html_notebook
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+
+We are going to analyse some data on counts of ladybirds found in an industrial and in a rural location. Some of the ladybirds are red and some are black. We would like to test for whether there is an association between the ladybird colour and its location. In particular: is some feature of the habitat associated with the frequencies of the different colourings, or is colouring independent of habitat. If so, then an individual ladybird is just as likely to be black or red regardless of which habitat it is in.
+
+We will use a Chi-Square contingency analysis to do this
+
+### Hypotheses
+What do you think a suitable hypothesis should be for this investigation, and what would the corresponding null hypothesis be?
+
+The null hypotheses is: H0:
+The alternate hypothesis is: H1:
+
+
+### Load packages
+```{r}
+# include code t oload the tidyverse, here and cowplot packages
+
+```
+
+### load data
+```{r}
+# include code to load and inspect data from the file ladybirds_morph_colour.csv into an object called 'lady'
+
+```
+
+### Calculate the totals of each colour in each habitat.
+```{r}
+# Use group_by() and summarise() to find the total numbe of each colour ladybird found in each setting.
+# Save the resulting summary table with the name 'totals'
+
+```
+
+### Plot the data
+
+Here is some code that will plot the data as a bar chart
+```{r}
+totals %>%
+  ggplot(aes(x = Habitat,y = total.number,fill=morph_colour))+
+  geom_col(position='dodge') + #try leaving out the position='dodge' argument. What do you get?
+  labs(x = "Habitat",
+       y = "Total number seen") +
+  theme_cowplot() # try leaving out this line (but if you do, leave out the final '+' in the line above). What happens?
+```
+
+### Plot again with sensible colours
+```{r}
+totals %>%
+  ggplot(aes(x = Habitat,y = total.number,fill=morph_colour))+
+  geom_col(position='dodge') +
+  labs(x = "Habitat",
+       y = "Total number seen") +
+  scale_fill_manual(values=c(black='black',red='red')) +# this line manually sets the colours for us
+  theme_cowplot()
+```
+
+What does the plot tell you?
+
+### Make contingency table
+```{r}
+# Use the xtabs() function to make a 2x2 contingency table of habitat (rows) vs colour (columns)
+# Save the result to an object called 'lady.mat'
+```
+
+### Chi-square test
+```{r}
+# Carry out the actual chi-square test, using the lady.mat object as the sole argument
+```
+
+What does the outtput of this tell you?
+Is it consistent with what you see in the plot?
+How would you report the result?

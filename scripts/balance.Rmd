@@ -128,6 +128,8 @@ results |>
 ```
 
 
+### Generalise - power as a function of balance and effect size 
+
 ```{r}
 bar_plot <- function(n1,n2){
   s1 <- rnorm(n1, mean = mean1, sd = sd1)

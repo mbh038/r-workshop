@@ -9,10 +9,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Michael Hunt" />
+<meta name="author" content="your name" />
 
 
-<title>Predator -prey model: hoew to construct a model</title>
+<title>Chi Square contigency analysis ( = test of independence</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1747,27 +1747,125 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Predator -prey model: hoew to construct a
-model</h1>
-<h4 class="author">Michael Hunt</h4>
-<h4 class="date">02-12-2024</h4>
+<h1 class="title toc-ignore">Chi Square contigency analysis ( = test of
+independence</h1>
+<h4 class="author">your name</h4>
+<h4 class="date">the data</h4>
 
 </div>
 
 
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<p>We are going to analyse some data on counts of ladybirds found in an
+industrial and in a rural location. Some of the ladybirds are red and
+some are black. We would like to test for whether there is an
+association between the ladybird colour and its location. In particular:
+is some feature of the habitat associated with the frequencies of the
+different colourings, or is colouring independent of habitat. If so,
+then an individual ladybird is just as likely to be black or red
+regardless of which habitat it is in.</p>
+<p>We will use a Chi-Square contingency analysis to do this</p>
+<div id="hypotheses" class="section level3">
+<h3>Hypotheses</h3>
+<p>What do you think a suitable hypothesis should be for this
+investigation, and what would the corresponding null hypothesis be?</p>
+<p>The null hypotheses is: H0: The alternate hypothesis is: H1:</p>
+</div>
+<div id="load-packages" class="section level3">
+<h3>Load packages</h3>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBpbmNsdWRlIGNvZGUgdCBvbG9hZCB0aGUgdGlkeXZlcnNlLCBoZXJlIGFuZCBjb3dwbG90IHBhY2thZ2VzXG5cbmBgYCJ9 -->
+<pre class="r"><code># include code t oload the tidyverse, here and cowplot packages
+</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Suppose we had a world that consisted of two species, one</p>
+</div>
+<div id="load-data" class="section level3">
+<h3>load data</h3>
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBpbmNsdWRlIGNvZGUgdG8gbG9hZCBhbmQgaW5zcGVjdCBkYXRhIGZyb20gdGhlIGZpbGUgbGFkeWJpcmRzX21vcnBoX2NvbG91ci5jc3YgaW50byBhbiBvYmplY3QgY2FsbGVkICdsYWR5J1xuXG5gYGAifQ== -->
+<pre class="r"><code># include code to load and inspect data from the file ladybirds_morph_colour.csv into an object called &#39;lady&#39;
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="calculate-the-totals-of-each-colour-in-each-habitat." class="section level3">
+<h3>Calculate the totals of each colour in each habitat.</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBVc2UgZ3JvdXBfYnkoKSBhbmQgc3VtbWFyaXNlKCkgdG8gZmluZCB0aGUgdG90YWwgbnVtYmUgb2YgZWFjaCBjb2xvdXIgbGFkeWJpcmQgZm91bmQgaW4gZWFjaCBzZXR0aW5nLlxuIyBTYXZlIHRoZSByZXN1bHRpbmcgc3VtbWFyeSB0YWJsZSB3aXRoIHRoZSBuYW1lICd0b3RhbHMnXG5cbmBgYCJ9 -->
+<pre class="r"><code># Use group_by() and summarise() to find the total numbe of each colour ladybird found in each setting.
+# Save the resulting summary table with the name &#39;totals&#39;
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="plot-the-data" class="section level3">
+<h3>Plot the data</h3>
+<p>Here is some code that will plot the data as a bar chart</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudG90YWxzICU+JVxuICBnZ3Bsb3QoYWVzKHggPSBIYWJpdGF0LHkgPSB0b3RhbC5udW1iZXIsZmlsbD1tb3JwaF9jb2xvdXIpKStcbiAgZ2VvbV9jb2wocG9zaXRpb249J2RvZGdlJykgKyAjdHJ5IGxlYXZpbmcgb3V0IHRoZSBwb3NpdGlvbj0nZG9kZ2UnIGFyZ3VtZW50LiBXaGF0IGRvIHlvdSBnZXQ/XG4gIGxhYnMoeCA9IFwiSGFiaXRhdFwiLFxuICAgICAgIHkgPSBcIlRvdGFsIG51bWJlciBzZWVuXCIpICtcbiAgdGhlbWVfY293cGxvdCgpICMgdHJ5IGxlYXZpbmcgb3V0IHRoaXMgbGluZSAoYnV0IGlmIHlvdSBkbywgbGVhdmUgb3V0IHRoZSBmaW5hbCAnKycgaW4gdGhlIGxpbmUgYWJvdmUpLiBXaGF0IGhhcHBlbnM/XG5gYGAifQ== -->
+<pre class="r"><code>totals %&gt;%
+  ggplot(aes(x = Habitat,y = total.number,fill=morph_colour))+
+  geom_col(position=&#39;dodge&#39;) + #try leaving out the position=&#39;dodge&#39; argument. What do you get?
+  labs(x = &quot;Habitat&quot;,
+       y = &quot;Total number seen&quot;) +
+  theme_cowplot() # try leaving out this line (but if you do, leave out the final &#39;+&#39; in the line above). What happens?</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="plot-again-with-sensible-colours" class="section level3">
+<h3>Plot again with sensible colours</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudG90YWxzICU+JVxuICBnZ3Bsb3QoYWVzKHggPSBIYWJpdGF0LHkgPSB0b3RhbC5udW1iZXIsZmlsbD1tb3JwaF9jb2xvdXIpKStcbiAgZ2VvbV9jb2wocG9zaXRpb249J2RvZGdlJykgK1xuICBsYWJzKHggPSBcIkhhYml0YXRcIixcbiAgICAgICB5ID0gXCJUb3RhbCBudW1iZXIgc2VlblwiKSArXG4gIHNjYWxlX2ZpbGxfbWFudWFsKHZhbHVlcz1jKGJsYWNrPSdibGFjaycscmVkPSdyZWQnKSkgKyMgdGhpcyBsaW5lIG1hbnVhbGx5IHNldHMgdGhlIGNvbG91cnMgZm9yIHVzXG4gIHRoZW1lX2Nvd3Bsb3QoKVxuYGBgIn0= -->
+<pre class="r"><code>totals %&gt;%
+  ggplot(aes(x = Habitat,y = total.number,fill=morph_colour))+
+  geom_col(position=&#39;dodge&#39;) +
+  labs(x = &quot;Habitat&quot;,
+       y = &quot;Total number seen&quot;) +
+  scale_fill_manual(values=c(black=&#39;black&#39;,red=&#39;red&#39;)) +# this line manually sets the colours for us
+  theme_cowplot()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>What does the plot tell you?</p>
+</div>
+<div id="make-contingency-table" class="section level3">
+<h3>Make contingency table</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBVc2UgdGhlIHh0YWJzKCkgZnVuY3Rpb24gdG8gbWFrZSBhIDJ4MiBjb250aW5nZW5jeSB0YWJsZSBvZiBoYWJpdGF0IChyb3dzKSB2cyBjb2xvdXIgKGNvbHVtbnMpXG4jIFNhdmUgdGhlIHJlc3VsdCB0byBhbiBvYmplY3QgY2FsbGVkICdsYWR5Lm1hdCdcbmBgYCJ9 -->
+<pre class="r"><code># Use the xtabs() function to make a 2x2 contingency table of habitat (rows) vs colour (columns)
+# Save the result to an object called &#39;lady.mat&#39;</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="chi-square-test" class="section level3">
+<h3>Chi-square test</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDYXJyeSBvdXQgdGhlIGFjdHVhbCBjaGktc3F1YXJlIHRlc3QsIHVzaW5nIHRoZSBsYWR5Lm1hdCBvYmplY3QgYXMgdGhlIHNvbGUgYXJndW1lbnRcbmBgYCJ9 -->
+<pre class="r"><code># Carry out the actual chi-square test, using the lady.mat object as the sole argument</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>What does the outtput of this tell you? Is it consistent with what
+you see in the plot? How would you report the result?</p>
+<!-- rnb-text-end -->
+</div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUHJlZGF0b3IgLXByZXkgbW9kZWw6IGhvZXcgdG8gY29uc3RydWN0IGEgbW9kZWwiCmF1dGhvcjogIk1pY2hhZWwgSHVudCIKZGF0ZTogIjAyLTEyLTIwMjQiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KCmBgYHtyfQprbml0cjo6b3B0c19jaHVuayRzZXQobWVzc2FnZSA9IEZBTFNFLCB3YXJuaW5nID0gRkFMU0UpCmBgYAoKYGBge3J9CmxpYnJhcnkodGlkeXZlcnNlKQpsaWJyYXJ5KGhlcmUpCmBgYAoKU3VwcG9zZSB3ZSBoYWQgYSB3b3JsZCB0aGF0IGNvbnNpc3RlZCBvZiB0d28gc3BlY2llcywgb25lIAoKCgo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQ2hpIFNxdWFyZSBjb250aWdlbmN5IGFuYWx5c2lzICggPSB0ZXN0IG9mIGluZGVwZW5kZW5jZSIKYXV0aG9yOiAieW91ciBuYW1lIgpkYXRlOiAidGhlIGRhdGEiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KCmBgYHtyLCBpbmNsdWRlID0gRkFMU0V9CmtuaXRyOjpvcHRzX2NodW5rJHNldChtZXNzYWdlID0gRkFMU0UsIHdhcm5pbmcgPSBGQUxTRSkKYGBgCgoKV2UgYXJlIGdvaW5nIHRvIGFuYWx5c2Ugc29tZSBkYXRhIG9uIGNvdW50cyBvZiBsYWR5YmlyZHMgZm91bmQgaW4gYW4gaW5kdXN0cmlhbCBhbmQgaW4gYSBydXJhbCBsb2NhdGlvbi4gU29tZSBvZiB0aGUgbGFkeWJpcmRzIGFyZSByZWQgYW5kIHNvbWUgYXJlIGJsYWNrLiBXZSB3b3VsZCBsaWtlIHRvIHRlc3QgZm9yIHdoZXRoZXIgdGhlcmUgaXMgYW4gYXNzb2NpYXRpb24gYmV0d2VlbiB0aGUgbGFkeWJpcmQgY29sb3VyIGFuZCBpdHMgbG9jYXRpb24uIEluIHBhcnRpY3VsYXI6IGlzIHNvbWUgZmVhdHVyZSBvZiB0aGUgaGFiaXRhdCBhc3NvY2lhdGVkIHdpdGggdGhlIGZyZXF1ZW5jaWVzIG9mIHRoZSBkaWZmZXJlbnQgY29sb3VyaW5ncywgb3IgaXMgY29sb3VyaW5nIGluZGVwZW5kZW50IG9mIGhhYml0YXQuIElmIHNvLCB0aGVuIGFuIGluZGl2aWR1YWwgbGFkeWJpcmQgaXMganVzdCBhcyBsaWtlbHkgdG8gYmUgYmxhY2sgb3IgcmVkIHJlZ2FyZGxlc3Mgb2Ygd2hpY2ggaGFiaXRhdCBpdCBpcyBpbi4KCldlIHdpbGwgdXNlIGEgQ2hpLVNxdWFyZSBjb250aW5nZW5jeSBhbmFseXNpcyB0byBkbyB0aGlzCgojIyMgSHlwb3RoZXNlcwpXaGF0IGRvIHlvdSB0aGluayBhIHN1aXRhYmxlIGh5cG90aGVzaXMgc2hvdWxkIGJlIGZvciB0aGlzIGludmVzdGlnYXRpb24sIGFuZCB3aGF0IHdvdWxkIHRoZSBjb3JyZXNwb25kaW5nIG51bGwgaHlwb3RoZXNpcyBiZT8KClRoZSBudWxsIGh5cG90aGVzZXMgaXM6IEgwOgpUaGUgYWx0ZXJuYXRlIGh5cG90aGVzaXMgaXM6IEgxOgoKCiMjIyBMb2FkIHBhY2thZ2VzCmBgYHtyfQojIGluY2x1ZGUgY29kZSB0IG9sb2FkIHRoZSB0aWR5dmVyc2UsIGhlcmUgYW5kIGNvd3Bsb3QgcGFja2FnZXMKCmBgYAoKIyMjIGxvYWQgZGF0YQpgYGB7cn0KIyBpbmNsdWRlIGNvZGUgdG8gbG9hZCBhbmQgaW5zcGVjdCBkYXRhIGZyb20gdGhlIGZpbGUgbGFkeWJpcmRzX21vcnBoX2NvbG91ci5jc3YgaW50byBhbiBvYmplY3QgY2FsbGVkICdsYWR5JwoKYGBgCgojIyMgQ2FsY3VsYXRlIHRoZSB0b3RhbHMgb2YgZWFjaCBjb2xvdXIgaW4gZWFjaCBoYWJpdGF0LgpgYGB7cn0KIyBVc2UgZ3JvdXBfYnkoKSBhbmQgc3VtbWFyaXNlKCkgdG8gZmluZCB0aGUgdG90YWwgbnVtYmUgb2YgZWFjaCBjb2xvdXIgbGFkeWJpcmQgZm91bmQgaW4gZWFjaCBzZXR0aW5nLgojIFNhdmUgdGhlIHJlc3VsdGluZyBzdW1tYXJ5IHRhYmxlIHdpdGggdGhlIG5hbWUgJ3RvdGFscycKCmBgYAoKIyMjIFBsb3QgdGhlIGRhdGEKCkhlcmUgaXMgc29tZSBjb2RlIHRoYXQgd2lsbCBwbG90IHRoZSBkYXRhIGFzIGEgYmFyIGNoYXJ0CmBgYHtyfQp0b3RhbHMgJT4lCiAgZ2dwbG90KGFlcyh4ID0gSGFiaXRhdCx5ID0gdG90YWwubnVtYmVyLGZpbGw9bW9ycGhfY29sb3VyKSkrCiAgZ2VvbV9jb2wocG9zaXRpb249J2RvZGdlJykgKyAjdHJ5IGxlYXZpbmcgb3V0IHRoZSBwb3NpdGlvbj0nZG9kZ2UnIGFyZ3VtZW50LiBXaGF0IGRvIHlvdSBnZXQ/CiAgbGFicyh4ID0gIkhhYml0YXQiLAogICAgICAgeSA9ICJUb3RhbCBudW1iZXIgc2VlbiIpICsKICB0aGVtZV9jb3dwbG90KCkgIyB0cnkgbGVhdmluZyBvdXQgdGhpcyBsaW5lIChidXQgaWYgeW91IGRvLCBsZWF2ZSBvdXQgdGhlIGZpbmFsICcrJyBpbiB0aGUgbGluZSBhYm92ZSkuIFdoYXQgaGFwcGVucz8KYGBgCgojIyMgUGxvdCBhZ2FpbiB3aXRoIHNlbnNpYmxlIGNvbG91cnMKYGBge3J9CnRvdGFscyAlPiUKICBnZ3Bsb3QoYWVzKHggPSBIYWJpdGF0LHkgPSB0b3RhbC5udW1iZXIsZmlsbD1tb3JwaF9jb2xvdXIpKSsKICBnZW9tX2NvbChwb3NpdGlvbj0nZG9kZ2UnKSArCiAgbGFicyh4ID0gIkhhYml0YXQiLAogICAgICAgeSA9ICJUb3RhbCBudW1iZXIgc2VlbiIpICsKICBzY2FsZV9maWxsX21hbnVhbCh2YWx1ZXM9YyhibGFjaz0nYmxhY2snLHJlZD0ncmVkJykpICsjIHRoaXMgbGluZSBtYW51YWxseSBzZXRzIHRoZSBjb2xvdXJzIGZvciB1cwogIHRoZW1lX2Nvd3Bsb3QoKQpgYGAKCldoYXQgZG9lcyB0aGUgcGxvdCB0ZWxsIHlvdT8KCiMjIyBNYWtlIGNvbnRpbmdlbmN5IHRhYmxlCmBgYHtyfQojIFVzZSB0aGUgeHRhYnMoKSBmdW5jdGlvbiB0byBtYWtlIGEgMngyIGNvbnRpbmdlbmN5IHRhYmxlIG9mIGhhYml0YXQgKHJvd3MpIHZzIGNvbG91ciAoY29sdW1ucykKIyBTYXZlIHRoZSByZXN1bHQgdG8gYW4gb2JqZWN0IGNhbGxlZCAnbGFkeS5tYXQnCmBgYAoKIyMjIENoaS1zcXVhcmUgdGVzdApgYGB7cn0KIyBDYXJyeSBvdXQgdGhlIGFjdHVhbCBjaGktc3F1YXJlIHRlc3QsIHVzaW5nIHRoZSBsYWR5Lm1hdCBvYmplY3QgYXMgdGhlIHNvbGUgYXJndW1lbnQKYGBgCgpXaGF0IGRvZXMgdGhlIG91dHRwdXQgb2YgdGhpcyB0ZWxsIHlvdT8KSXMgaXQgY29uc2lzdGVudCB3aXRoIHdoYXQgeW91IHNlZSBpbiB0aGUgcGxvdD8KSG93IHdvdWxkIHlvdSByZXBvcnQgdGhlIHJlc3VsdD8K</div>
 
 
 
@@ -1814,7 +1912,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("predator-prey.Rmd");
+  window.initializeSourceEmbed("chi-square_independence_template.Rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>

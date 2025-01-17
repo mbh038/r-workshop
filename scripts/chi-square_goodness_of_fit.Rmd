@@ -1,0 +1,66 @@
+---
+title: "Chi-square goodness of fit test"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r,include=FALSE}
+knitr::opts_chunk$set(echo=FALSE,message=FALSE,warning=FALSE,comment=NA, fig.width=6, fig.height=6)
+```
+
+
+## Chi-square goodness of fit test
+
+A chi-square analysis is used when our data are in the form of raw counts for two or more categorical groups eg pea plants with either yellow peas or green peas, survival rate of mice if they took drug A or took drug B, etc. Each independent observation must definitely belong to either one group or the other, and there are no replicates. That is, for each category we just have one count.
+
+What we do is compare the counts we got to some *expected* value according either to chance or to some prior theory.
+
+For example:
+
+-   If we were tossing a fair coin 1000 times we would *expect* 500 heads and 500 tails, ie heads and tails in the proportion 1:1. In reality, if the coin were fair, we would probably get roughly the same number of heads and tails, but probably not exactly 500 of each. How far from 50:50 would the proportion of heads and tails have to be before we would be justified in rejecting the idea that the coin is fair?
+
+-   If we threw a fair dice a large number of times we would *expect* each possible score, from 1 to 6, to occur the same number of times. ie each score would occur 1/6th of the time. In reality we would probably get each score *roughly* 1/6 of the time, but not exactly 1/6. How far from the expected proportions could the numbers of each score get before we would be justified in thinking that the dice was not fair?
+
+-   If the basic idea of Mendelian inheritance with independent assortment involving a single gene is correct, then we would expect that if we crossed a large number of pea plants that were heterozygous for yellow and green pea colour, with yellow being dominant, then the offspring would have yellow:green peas in the ratio 3:1 (plants with genotypes YY, Yy, yY would all have yellow seeds and only those with yy would have green seeds). In practice, if the inheritance *were* according to the simplest type of Mendelian inheritance (ie involving just one gene, amongst other things) we would probably get yellow:green offspring in a ratio that was approximately but not exactly 3:1. How far from 3:1 would the ratio need to be before we would justified in claiming that the outcome was inconsistent with the Mendelian prediction?
+
+In a chi-square 'goodness of fit' test, we are testing data where we have a number of counts for each of two or more possible outcomes of some procedure (heads/tails, dice scores etc). We have an idea of how these counts should be distributed under some null hypothesis (the coin is fair, the dice is fair, genetic inheritance works in this or that way etc). The chi-square goodness of fit test tests how likely it is we would have got the counts we actually got if that null hypothesis were correct. We are testing how well our actual counts 'fit' the expected values.   
+
+In a typical software implementation of the test, such as in R, we give it the counts we actually got for each possible outcome and also the expected proportion for each outcome. The test then gives us a p-value, a probability, for how likely it is that we would have got the counts we actually got, or counts even furthe from the null hypothesis, if that null hypothesis were correct. If this p-value is too small, and usually, by that we mean less than 0.05, then we reject the null hypothesis.
+
+#### Example
+
+Suppose we have crossed pea plants that were all heterozygous for yellow/green pea colour. In the F1 generation we get 176 offspring , of which 130 were yellow and 46 were green.
+
+The data here are raw counts, and an individual pea plant offspring contributes either to the yellow count or to the green count, but not to both.
+
+Our expected counts of yellow and green are found by simply dividing the total count of offspring, 176, in the ratio 3:1, giving us an expected 132 yellow pea plants and an expected 44 green pea plants in the offspring F1 generation.
+
+#### Doing the chi-square test in R
+
+What we do in R is use the `chisq.test()` command to see how likely it is we would have got counts of 130 and 46 if the null hypothesis, with its expected counts in the ratio 3:1, were true.
+
+We do it like this:
+
+    chisq.test(c(130,46),p=c(0.75,0.25))
+
+There are two arguments. The first is the counts we got, which we enter as a 'vector' `c(z,y,....)`, so we write `c(130,46)`. The second is a vector of the proportions we expect for the two counts, where these proportions should add up to one. So for our expected 3:1 ratio we enter `c(0.75,0.25)`.
+
+Let's do it: type the above command into the console window (bottom left). You will get an output something like this:
+
+```{r,echo=FALSE}
+chisq.test(c(130,46),p=c(0.75,0.25))
+```
+
+This output is typical of tests done in R. We get the 'test statistic' whose name varies depending on the test. Here it is called `X-squared`, pronounced `chi-squared`. This is a number that the test calculates, based on the data you have given it. For the most part, we don't need to worry about how it does that. Then there is the p-value, which is the probability of getting this test statistic if the null hypothesis were true.
+
+In this case, we see that the p-value is 0.73, which is large. We could very plausibly have got yellow:green numbers of 130 and 46 if the null hypothesis were true, so we cannot reject that null hypothesis. In other words, our data are consistent with the predictions of simple Mendelian inheritance.
+
+#### Reporting the result in English
+
+In English, we might report this result as:
+
+*We found counts of 130 yellow plants and 46 green plants, which are consistent with the predictions of Mendelian inheritance (chi-squared test, X-squared = 0.12, p=0.73).*
+
+Note that we do not say we have proved Mendelian inheritance to be correct. We haven't. We never prove things in science. We haven't said anything about the truth of the null hypothesis. All we can say is whether our data are or are not consistent with the null hypothesis. In this case they are. We then report the test we used and the values of the test statistic and p-value. Other tests might give you other details to report too.
+

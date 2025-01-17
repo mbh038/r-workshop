@@ -52,7 +52,7 @@ We will look at data distributed according to
 
 ### What is a Q-Q plot?
 
-Quantiles partition a dataset into equal subsets. For example, if we wished to partition a standard normal (mean = 0, standard deviation = 1) population into 4 equal subsets, the 3 quantiles (ie the three values of x) that would do this are -0.675, 0 and 0.675. In this way, 25% of the population would have a value greater than 0.675, 25% between 0 and 0.675, 25% between -0.675 and 0 and the final 25% would have a value less than -0.675. When we draw the distribution, the areas under the curve between these quantiles will be equal:
+Quantiles partition a dataset into equal subsets. For example, if we wished to partition a standard normal (mean = 0, standard deviation = 1) population into 4 equal subsets, the 3 quantiles (ie the three values of x) that would do this are -0.675, 0 and 0.675. In this way, 25% of the population would have a value greater than 0.675, 25% between 0 and 0.675, 25% between -0.675 and 0 and the final 25% would have a value less than -0.675. When we draw the distribution, the areas under the curve between nqeighbouring quantiles will be equal:
 
 ```{r,echo=FALSE}
 tibble(x=seq(-4,4,0.01),y=dnorm(x)) |>

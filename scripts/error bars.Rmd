@@ -24,7 +24,7 @@ library(MASS)
 
 ### What are error bars for?
 
-Error bars perform two main functions. One of these is a descriptive function, to give readers an idea of the spread of values within a data set, and thus of the population from which the data have been drawn. The other is inferential, to enable readers to make inferences from a data set, for example to enable them to determine whether two data sets are plausibly drawn from the same population. These two functions are quite different.
+Error bars perform two main functions. One of these is a descriptive function, to give readers an idea of the spread of values within a data set, and thus of the spread within the population from which the data have been drawn. The other is inferential, to enable readers to make inferences from a data set, for example to enable them to determine whether two data sets are plausibly drawn from the same population. These two functions are quite different.
 
 ### Descriptive error bars
 We could indicate the spread of values of a data set using the *range* or the *standard deviation*. Range error bars go from the highest to the lowest value in the data set, while standard deviation $SD$ is calculated using the formula
@@ -36,7 +36,7 @@ where the sum $\sum$ is of the squared differences between the sample values $y_
 
 For a sample of data points that are approximately normally distributed around their mean, about two thirds of the data set will lie within one standard deviation either side of the mean while about 95% of the data set will lie within about two standard deviations of the mean. Thus, only about 5% of all such data are more than two SDs away from the mean, so if a new data point *is* more than 2 SD from the mean, you can regard it as unusual.
 
-The standard deviation of a sample will in general be approximately equal to the population standard deviation $\sigma$ and so can be used as an estimate for it. It gives an idea of the spread of values within the population, and also of the likely spread of values in any other sample taken from that population. If we take sample after sample from the population we would get a different sample standard deviation every time. There would be no systematic reduction in standard deviation for larger sample sizes. Instead, these values would dot around the true value for the population, but with less and less fluctuation for larger sample sizes: the larger the sample size, the closer the sample standard deviation is likely to be to the population standard deviation.
+The standard deviation of a sample will in general be approximately equal to the population standard deviation $\sigma$ and so can be used as an estimate for it. It gives an idea of the spread of values within the population, and also of the likely spread of values in any other sample taken from that population. If we take sample after sample from the population we would get a different sample standard deviation every time but there would be no systematic reduction in standard deviation for larger sample sizes. Instead, these values would dot around the true value for the population, but with less and less fluctuation for larger sample sizes: the larger the sample size, the closer the sample standard deviation is likely to be to the population standard deviation.
 
 However, the SD of the experimental results will approximate to $\sigma$, whether *n* is large or small. Like M, SD does not change systematically as *n* changes, and we can use SD as our best estimate of the unknown $\sigma$, whatever the value of *n*.
 
@@ -81,7 +81,7 @@ df_summary |>
   theme(axis.text.y = element_markdown())
 ```
 
-The figure above shows means with error bars for three cases of sample size: *n* = 3, *n* = 10, and *n* = 30. The small black dots are data points and the large black dots represent the sample means. The red bars against each sample show range, while the blue bars show standard deviation (SD). The mean $\bar{y}$ and SD have been made to be the same for every case here, but notice how much the range increases with $n$. This happens because larger samples are morely likely to capture extreme values within a population than small samples. Note also that although the range error bars encompass all of the experimental results, they do not necessarily cover all the results that could possibly occur. The population may include larger or smaller individuals than those included in the sample. 
+The figure above shows means with error bars for three cases of sample size: *n* = 3, *n* = 10, and *n* = 30. The small black dots are data points and the large black dots represent the sample means. The red bars against each sample show range, while the blue bars show standard deviation (SD). The mean $\bar{y}$ and SD have been made to be the same for every case here, but notice how much the range increases with $n$. This happens because larger samples are more likely to capture extreme values within a population than small samples. Note also that although the range error bars encompass all of the experimental results, they do not necessarily cover all the results that could possibly occur. The population may include larger or smaller individuals than those included in the sample. 
 
 SD error bars include about two thirds of the sample, and 2 x SD error bars would encompass roughly 95% of the sample.
  
@@ -93,11 +93,11 @@ Often in biology and ecology one wants to know if two or more samples of data pr
 
 If we know these then we know, roughly speaking, the range of values within which the means of the whole populations from which we drew our samples might plausibly lie, and thus whether we can reasonably reject the claim that there is no difference between these, so that the samples must have effectively been drawn from the same population.
 
-Supposing, in a hypthetical world, you could take sample after sample from a population, each sample presumed to be independent of all the others, and all of size *n* replicates. Each would most likely have a different mean from all the others, but the collection of sample means would be normally distributed around the true population mean. The 'standard error of the mean' is the standard deviation of *this* distribution, which is often referred to as the **sampling distribution**. This is the typical or roughly speaking the average deviation between a randomly chosen sample mean and the true, population mean. It is given by 
+Supposing, in a hypothetical world, you could take sample after sample from a population, each sample presumed to be independent of all the others, and all of size *n* replicates. Each would most likely have a different mean from all the others, but the collection of sample means would be normally distributed around the true population mean. The 'standard error of the mean' is the standard deviation of *this* distribution, which is often referred to as the **sampling distribution**. This is the 'typical' or roughly speaking the average deviation between a randomly chosen sample mean and the true, population mean. It is given by 
 
 $$SE = \frac{SD}{\sqrt{n}} $$
 
-where SD is the standard deviation of an individual sample and *n* is the sample size. Thus, unlike the standard deviation of a sample, the standard error of the mean of the samples *does* get systematically smaller as the sample size *n* increases. This is another way of saying that the larger a sample is the closer its mean is likely to be to the population mean. Another thing to notice is that the SE is proportional to the SD, which is to say that sample means are more likely to be a close approximation to the population mean if the spread of values within the population, and thus the sample, is small. Smaller SD means smaller SE. Who knew?
+where SD is the standard deviation of an individual sample and *n* is the sample size. Thus, unlike the standard deviation of a sample, the standard error of the mean of the samples *does* systematically get smaller as the sample size *n* increases. This is another way of saying that, the larger a sample is, the closer its mean is likely to be to the population mean. Another thing to notice is that the SE is proportional to the SD, which is to say that sample means are more likely to be a close approximation to the population mean if the spread of values within the population, and thus the sample, is small. Smaller SD means smaller SE. Who knew?
 
 
 #### The confidence interval
@@ -177,4 +177,12 @@ df_summary |>
   theme(axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
   theme(axis.text.y = element_markdown())
 ```
+
+The confidence interval is an inferential tool, like the standard error and unlike the standard deviation. That means, we repeat, that it does not so much indicate the spread of values in a sample or estimate the spread of values in a population - that is what the standard deviation does. Instead, like the standard error, it indicates the range of values within which the true mean of a population might plausibly lie. 
+
+What do we mean by plausibly? Well, we could mean, say, that we are confident that the true mean would be in the interval 95% of the time if we calculated it again and again. Then, if recall that the sample means are (or, at least, would be if took loads of samples) normally distributed, with a 'standard deviation' (ie average difference from the mean) that we call the 'standard error' $SE$, a value that is related to the standard deviation of an individual sample by $SE=\frac{SD}{\sqrt{n}}$, 
+
+
+
+### How to interpret figures
 

@@ -44,6 +44,46 @@ What is the analysis that will follow for? What question are you trying to answe
 
 Suppose we were trying to test the hypothesis that there is no difference between the petal widths of the *setosa*, *versicolor* and *virginica* species of iris. All we have to go on are the petal widths of the plants we happened to measure. From these measurements we want to make a statement about these three species in general.
 
+### Open a notebook
+
+In RStudio, go to File/New File/ R Notebook. Delete everything below the yaml section at the top. This strangeley named section is the bit between the two lines with three dashes in. For the most part, we will not need to worry about this section. We just should not delete it entirely. What is useful to do is to amend the title to something sensible, and to add `author: "your name"` and `date: "the date in any old format"` lines, so that your yaml will look something like this:
+
+````
+---
+title: "A typical workflow"
+author: "Who wrote this?"
+date: "Today's date"
+output:
+  html_document:
+    df_print: paged
+---
+````
+
+Delete everything beneath this yaml section. The big empty space that then leaves you with is where you write your code. Remember that in notebooks, the code goes in 'chunks' that are started and finished with by lines with three backticks. Any other text goes between the chunks and you can format this text using the simple rule of Markdown, available in the RStudio Help menu. Thus your script will end up looking something like this:
+
+````
+---
+title: "A typical workflow"
+author: "Who wrote this?"
+date: "Today's date"
+output:
+  html_document:
+    df_print: paged
+---
+
+### First header 
+Any text we want to add. Note that a code chunk starts with ```{r} and ends with ```
+```{r}
+library(tidyverse) # some actual R code
+```
+
+### Second header 
+Any text we want to add to explain what this next chunk does
+```{r}
+library(tidyverse) # some actual R code
+```
+````
+
 ### Set-up chunk
 
 Just put this chunk in at the top. Worry about it later. Or don't worry about it at all, if you prefer. It is there to suppress warnings and messages from appearing in the rendered version of your script.
@@ -88,13 +128,14 @@ glimpse(iris)
 
 #### (b) If from an Excel file
 
-You will need to use `read_excel()` from the `readxl` package, and you have to specify the name of the worksheet that holds the data you want. You can, if you want, specify the exact range that is occupied by the data.
+You will need to use `read_excel()` from the `readxl` package, and you have to specify the name of the worksheet that holds the data you want. You can, if you want, specify the exact range that is occupied by the data. However I suggest you avoid doing this unless it turns out that you need to do so. If your data is a nice, neat, rectangular block of rows and columns, you should find that you don't need to specify the range.
 
 ```{r}
 filepath<-here("data","difference_data.xlsx")
 iris<-read_excel(path = filepath,
-                 sheet = "iris",
-                 range= "A1:F151")
+                 sheet = "iris", # delete the comma if you choose not to specify the range in the line below
+                 range= "A1:F151" # optional - try leaving it out first. Only include if necessary.
+                 ) 
 glimpse(iris)
 ```
 
@@ -134,7 +175,7 @@ We can look at this table and already get an idea as to whether the petal widths
 
 ### Plot the data
 
-The next step is usually to plot the data in some way. We would typically use the `ggplot` package from `tidyverse` to do this. 
+The next step is usually to plot the data in some way. We would typically use the `ggplot2` package from `tidyverse` to do this. 
 
 #### Bar plot with error bars
 
@@ -159,7 +200,7 @@ First, what about those error bars?  Three types of error bar are in common usag
 
 Regardless of which error bar you use and why, you should always tell the reader which one you have gone for, as we have in the caption to the figure.
 
-A second point about this bar plot is that it doesn't tell us very much, and indeed notthing that we didn't already know. It only conveys the mean standard error values for each species, which is information we already have, arguably more compactly and in more easily readable form, in the table we created. Further, it  potentially obscures information that might come from knowing the *distribution* of the data. 
+A second point about this bar plot is that it doesn't tell us very much, and indeed nothing that we didn't already know. It only conveys the mean and standard error values for each species, which is information we already have, arguably more compactly and in more easily readable form, in the table we created. Further, it  potentially obscures information that might come from knowing the *distribution* of the data. 
 
 Here are three other plot types that do show the distribution of petal widths for each species and thus add extra information to what we already know from the summary table
 

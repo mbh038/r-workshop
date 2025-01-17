@@ -1,0 +1,140 @@
+---
+title: "Summarising Data and Detecting Difference"
+author: "Michael Hunt"
+date: "06-11-2024"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Introduction
+
+In this notebook we are going to read data in from a spreadsheet, inspect it, then summarize it and plot it. These are steps you will typically want to take at the beginning of almost every data analysis notebook. They help inform your ideas as to whether you are likely to reject or fail to reject any null hypotheses you may have.
+
+We are going to load measurements of the petal and sepal lengths and widths of three species of iris, with measurements made on 50 individuals for each species. Here, we will focus on the petal lengths.
+
+Is there evidence from this data, we might ask, for whether the petal lengths differ between the species?
+
+You will learn best if you use this notebook as a basis for writing your own. To do that, go through it from beginning to end. Read the text before each code chunk, then as you come to the chunks, copy them and their headers into your own notebooks then run them sequentially by pressing the green arrow in the top right corner of the chunk. If you meet any errors, you may want to run the lines in each chunk individually by placing your cursor in the line and pressing Ctrl-Enter (Windows) or Cmd-Enter (Mac).
+
+You may find it easier to write your notebook in 'Source' mode (see the button, top-left of the notebook pane), but may occasionally like to view it in 'Visual' mode, to see the effect of any formatting you try.
+
+In your own notebook, write down explanatory notes in between each code chunk to remind yourself of what it is trying to do or any other useful tips about how it is doing it, as a reminder to yourself when later you come back to read your notebook and want to understand it and perhaps to copy and adapt parts of it for use in another notebook.
+
+### Load Packages
+
+We normally load all packages that we will make use of in one chunk at the top of our notebook.
+
+We can add to this chunk later with lines for other packages if we later decide we need them.
+
+For this notebook
+
+```{r}
+library(tidyverse)
+library(here)
+library(readxl)
+```
+
+### Load data
+
+The `here` package helps us to find our data on our computer.
+
+In this chunk we read the 'iris' worksheet of the `difference_data.xlsx` spreadsheet into an 'object' in R which we have decided to call, ahem, `iris` (why not? Seems a sensible name and is short). 'Object' is the generic term for any 'thing' in R's 'brain'. All the objects you create while working on your Project will appear in the Environment pane, top-left. There can be different kinds of object. `iris` is what is called a `data frame` (or sometimes, these days, a `tibble`). Think of it as being like a worksheet in a spreadsheet, with columns of all kinds of data, usually with column headings.
+
+First we use the `here()` function from the `here` package to work out the file path on our machine to the data file we want to use. Our file is the `difference_data.xlsx` file which we have placed in the `data` subfolder of our Project. We store this path in an object called `filepath`. This is a long and horrible string of text which you can see in the Environment pane once you have run the line that creates it. Then we use the `read_excel()` function from the `readxl` package to read the data in the `iris` worksheet of the spreadsheet into the data frame which we call `iris`. Finally we use the `glimpse()` function to inspect this data frame.
+
+`glimpse()` tells us how many rows and columns we have, what the column headings are and what kind of data they contain.
+
+-   `<dbl>` is R-speak for numerical data
+
+-   `<chr>` means 'character', which is R-speak for text.
+
+```{r}
+filepath<-here("data","difference_data.xlsx")
+iris<-read_excel(filepath,"iris")
+glimpse(iris)
+```
+
+There are other ways besides \`glimpse() by which we can inspect our `iris` object. Another is to click on the word `iris` where it appears in the Environment pane. What do you see if you do that?
+
+### Summarise the data
+
+A step that is often useful to take next is to calculate some summary statistics of interest for each of the groups within the data set. In our case, that means for each species.
+
+In this chunk we are going to use the 'pipe' operator `|>`. This is really useful and it certainly pays to get the hang of its use. Roughly speaking, it feeds the result of one line in to the next line. You can think of it as meaning 'and then'.
+
+So in the chunk below we:
+
+-   start with the `iris` dataframe *and then* we
+
+-   group it by Species *and then*, for each Species, we
+
+-   calculate summary statistics, in this case the mean and standard error of the mean. We choose to do this because these values will help us address our question as to whether the petals lengths are different for different species.
+
+There is no formula in `R` to calculate the standard error of the mean of a sample (an estimate of how precisely the mean of the sample estimates the true mean of the population from which the sample is drawn), but there is one, `sd(),` to calculate the standard deviation of the sample (a measure of the spread of values within the sample) and another `n()` that tells us how many observations we have for each species. We can use these to calculate the standard error of the sample means for each species using the formula:
+
+$$\text{Standard error of the mean}=\frac{\text{Standard deviation of the sample}}{\sqrt{\text{Sample size}}}$$ 
+
+Finally, we write the result to an object called `PL_summary` (in the top line) which we print out by typing its name, alone, in the final line.
+
+```{r}
+PL_summary<-iris |>     # we are using the 'pipe' operator!
+  group_by(Species) |>
+  summarise( mean.PL=mean(Petal.Length), se.PL=sd(Petal.Length)/sqrt(n()) )
+PL_summary
+```
+
+`PL_summary` is a data frame, just like `iris`. We will use it later for creating a bar chart of the mean petal lengths of each of the iris species.
+
+This *and then* pipe operator `|>` is really useful.
+
+### Plot the data
+
+The next stage in our 'workflow' towards doing a statistical analysis that addresses our question (Does the petal length of iris plants differ between species?) is to plot the data. There are different plots we can do. Here we will show you how to do a box plot, a bar chart and a histogram, all of which can be useful for 'difference' questions, where the data fall into two or more categories.
+
+For each of the plots we will use the `ggplot2` package that we have loaded as part of `tidyverse`.
+
+(a) **Box plots**
+
+The code below produces a rough and ready but decent box plot, which is good way of comparing the distributions of measurements of the same thing (here, petal length) across different categories, (jhere, species of iris).
+
+The code illustrates how we go about producing plots using `ggplot2`. One way to think of it is as it being like producing maps in GIS, with the final product being the sum of layers which are added one by one, with subsequent layers adding new information and overlaying earlier ones.
+
+Let's go through it line by line.
+
+-   `iris |>` We start with the iris data set *and then*
+
+-   `ggplot(aes(x=Species,y=Petal.Length)) +` 
+we decide which column of our data set will be 'mapped' to the 
+
+```{r,eval=FALSE}
+iris |>
+  ggplot(aes(x=Species,y=Petal.Length)) +
+  geom_boxplot() +
+  labs(x="Species", y="Petal Length")  +
+  theme_classic()
+```
+
+(b) **Bar charts with standard errors of the mean**
+
+Bar charts show the mean values of different sub-groups of a dataset. They are only really useful if a 'standard error' bar is included on each bar. Only then can a reader assess, however crudely, whether the difference between the means of different samples, shown by the height of the bars is 'significant'. Remember that our samples, (50 of this iris species, 50 of that species, or 167 penguins from this island, 124 from that island etc, are, almost always, a tiny fraction of the populations from which they are drawn. There are vastly more than 50 specimens of *setosa* iris out there in the wild, and)
+
+```{r}
+PL_summary |>
+  ggplot(aes(x=Species,y=mean.PL,fill=Species)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=mean.PL-se.PL,ymax=mean.PL+se.PL),width=0.1) +
+  labs(x="Species", y="Petal Length") +
+  theme_classic()
+```
+
+(c) **Histograms**
+
+```{r}
+iris |> 
+  ggplot(aes(x=Petal.Length)) +
+  geom_histogram(binwidth=0.2) +
+  labs(x="Petal Length") +
+  facet_wrap(~Species,ncol=1) +
+  theme_classic()
+```

@@ -36,7 +36,8 @@ The one below is taken from Barnard et al (2007), "Asking Questions in Biology".
 
 ### Test finder
 
-**A**    Are you looking for a trend or for a difference? (If unsure, go to *Help* 1)  
+**A**    Are you looking for a trend or for a difference? (If unsure, go to *Help* 1) 
+        Trend
 
 
 

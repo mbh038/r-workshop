@@ -19,14 +19,6 @@ always_allow_html: yes
 #     toc_float: true
 ---
 
-
-title: " "
-output:
-   bookdown::html_document2:
-     number_sections: false
-   # df_print: paged
-always_allow_html: yes
-
 # A primer in statistics
 
 ```{r, include=FALSE}
@@ -37,7 +29,7 @@ always_allow_html: yes
 
 ```
 
-Based on the very helpful revision chapter in [Modern Statistics for the Life Sciences, Alen Grafen and Rosie Hails, OUP](https://global.oup.com/ukhe/product/modern-statistics-for-the-life-sciences-9780199252312?cc=gb&lang=en&).
+This primer is indebted to the very helpful revision chapter in [Modern Statistics for the Life Sciences, Alen Grafen and Rosie Hails, OUP](https://global.oup.com/ukhe/product/modern-statistics-for-the-life-sciences-9780199252312?cc=gb&lang=en&).
 
 
 ```{r global-options, include=FALSE, echo=FALSE}
@@ -115,7 +107,7 @@ One of the first tasks of statistics is to state this in more precise terms.
 
 Suppose, for example, we wanted to know the average height of adult women between the ages of 25 and 35 in the United Kingdom. It is quite impossible to measure the height of every single woman of that age. Instead we must content ourselves with taking a sample, finding the average height of women within that and hoping that it is representative of the whole population.
 
-A **sample** is a **random** selection from within a **population of interest**. For this to be the case the population of interest needs to be precisely defined, since our sampling strategy will depend on this. In the case above, our population of interest is not people, or women, or adult women, or adult women between the ages of 25 and 35, but adult women between the ages of 25 and 35 in the United Kingdom. We would thus choose our sample randomly from among just these women, and ignore all other people on the planet.
+A **sample** is a **random** selection of replicates from within a **population of interest**. For this to be the case the population of interest needs to be precisely defined, since our sampling strategy will depend on this. In the case above, our population of interest is not people, or women, or adult women, or adult women between the ages of 25 and 35, but adult women between the ages of 25 and 35 in the United Kingdom. We would thus choose our sample randomly from among just these women, and ignore all other people on the planet.
 
 Having taken our sample we can compute the sample mean $\bar{y}$ (pronounced y-bar) by summing over the $y_i$ and dividing by the number of values:
 
@@ -467,8 +459,7 @@ myfun<-function(x,mean,sd,N,binwidth){
 ```
 
 ```{r pop-distribution,out.width="50%"}
-#| fig.cap="Histogram of the weights of the entire population of adult grey seals in South West England. #| In reality, we would never be able to measure this, but if we could, it would very likely closely
-#| approximate a normal distribution, as shown here."
+#| fig.cap="Histogram of the weights of the entire population of adult grey seals in South West England. In reality, we would never be able to measure this, but if we could, it would very likely closely approximate a normal distribution, as shown here."
 population_dist<-
   seal.population |>
   ggplot(aes(x=mass)) +
@@ -596,7 +587,7 @@ sampling_dist<-
            x=152,y=29.2,
            hjust=0,
            vjust=0,
-           label="The true mean and the\nmean of our one sample\nare somewhere in there ",
+           label="The true mean is at the\nmiddle of this.\nThe mean of our one sample\nis somewhere in there ",
            size=2.5,
            colour="darkred") +
   theme_cowplot() +

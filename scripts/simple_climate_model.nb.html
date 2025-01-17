@@ -9,10 +9,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Michael Hunt" />
 
 
-<title>Predator -prey model: hoew to construct a model</title>
+<title>Greenhouse effect</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1747,27 +1746,41 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Predator -prey model: hoew to construct a
-model</h1>
-<h4 class="author">Michael Hunt</h4>
-<h4 class="date">02-12-2024</h4>
+<h1 class="title toc-ignore">Greenhouse effect</h1>
 
 </div>
 
 
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0aWR5dmVyc2UpXG5saWJyYXJ5KGhlcmUpXG5gYGAifQ== -->
+<pre class="r"><code>library(tidyverse)
+library(here)</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubXlpbWFnZXM8LWhlcmUoXCJmaWd1cmVzXCIsXCJnbG9iYWxfZW5lcmd5X2J1ZGdldC5wbmdcIilcbmtuaXRyOjppbmNsdWRlX2dyYXBoaWNzKG15aW1hZ2VzKVxuYGBgIn0= -->
+<pre class="r"><code>myimages&lt;-here(&quot;figures&quot;,&quot;global_energy_budget.png&quot;)
+knitr::include_graphics(myimages)</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Suppose we had a world that consisted of two species, one</p>
+<div id="outgoing-longwave-radiation-olr" class="section level3">
+<h3>Outgoing longwave radiation (OLR)</h3>
+<p><span class="math display">\[ \text{OLR} = \tau\sigma T_s^4
+\]</span></p>
+<p>Where <span class="math inline">\(T_s\)</span> is the globally
+averaged surface temperature, <span class="math inline">\(\sigma\)</span> is the Stefan-Boltzmann constant =
+$5.67 ^{-8} Wm<sup>-2</sup>K<sup>-4</sup></p>
 <!-- rnb-text-end -->
+</div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUHJlZGF0b3IgLXByZXkgbW9kZWw6IGhvZXcgdG8gY29uc3RydWN0IGEgbW9kZWwiCmF1dGhvcjogIk1pY2hhZWwgSHVudCIKZGF0ZTogIjAyLTEyLTIwMjQiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KCmBgYHtyfQprbml0cjo6b3B0c19jaHVuayRzZXQobWVzc2FnZSA9IEZBTFNFLCB3YXJuaW5nID0gRkFMU0UpCmBgYAoKYGBge3J9CmxpYnJhcnkodGlkeXZlcnNlKQpsaWJyYXJ5KGhlcmUpCmBgYAoKU3VwcG9zZSB3ZSBoYWQgYSB3b3JsZCB0aGF0IGNvbnNpc3RlZCBvZiB0d28gc3BlY2llcywgb25lIAoKCgo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiR3JlZW5ob3VzZSBlZmZlY3QiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KCmBgYHtyLCBpbmNsdWRlID0gRkFMU0V9CmtuaXRyOjpvcHRzX2NodW5rJHNldChtZXNzYWdlID0gRkFMU0UsIHdhcm5pbmcgPSBGQUxTRSkKYGBgCgpgYGB7cn0KbGlicmFyeSh0aWR5dmVyc2UpCmxpYnJhcnkoaGVyZSkKYGBgCgoKCmBgYHtyfQpteWltYWdlczwtaGVyZSgiZmlndXJlcyIsImdsb2JhbF9lbmVyZ3lfYnVkZ2V0LnBuZyIpCmtuaXRyOjppbmNsdWRlX2dyYXBoaWNzKG15aW1hZ2VzKQpgYGAKCiMjIyBPdXRnb2luZyBsb25nd2F2ZSByYWRpYXRpb24gKE9MUikKCiQkIFx0ZXh0e09MUn0gPSBcdGF1XHNpZ21hIFRfc140ICQkCgpXaGVyZSAkVF9zJCBpcyB0aGUgZ2xvYmFsbHkgYXZlcmFnZWQgc3VyZmFjZSB0ZW1wZXJhdHVyZSwgJFxzaWdtYSQgaXMgdGhlIFN0ZWZhbi1Cb2x0em1hbm4gY29uc3RhbnQgPSAkNS42NyBcdGltZXMgMTBeey04fSBXbV4tMl5LXi00Xg==</div>
 
 
 
@@ -1814,7 +1827,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("predator-prey.Rmd");
+  window.initializeSourceEmbed("simple_climate_model.Rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>

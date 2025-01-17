@@ -1,12 +1,12 @@
 ---
 title: "Correlation"
-author: Michael Hunt
-date: 19-01-22 - 04-12-2024
+author: "Michael Hunt"
+date: "19-01-22 - 17-12-2024"
 output:
   html_document:
-    # df_print: paged
     toc: true
-    # toc_float: true
+  pdf_document:
+    toc: true
 ---
 
 ```{r, include=FALSE}
@@ -619,6 +619,8 @@ The message here is that failure to spot importnat 'missing' variables, in the c
 
 ### The correlation coefficient measures the degree of *linear* association.
 
+#### Pearson correlation coefficient
+
 Sometimes the Pearson correlation coefficient *r* is a poor measure of the degree of association within a data set. Outliers and non-linearity are two problem cases.
 
 Consider first a data set where there is a very strong association between variables, but where the data sset contains an outlier, and then a data set where there is a strong but non-linear association between variables. Here we mean by 'strong' that knowing the value of one variable gives you a very good idea of the value of the other.
@@ -654,10 +656,16 @@ p2<-ggplot(tibble(x=x2,y=y2),aes(x=x,y=y)) +
 grid.arrange(p1,p2,nrow=1)
 ```
 
-The outlier in the left-hand figure above brings the correlation coefficient down to `r round(cor.test(x1,y1)$estimate,3)`, which is close to zero. The correlation coefficient in the right-hand figure is similarly small at `r round(cor.test(x2,y2)$estimate,3)`, despite that there is a strong association between the *x* and *y* data. The reason is that the association is non linear.
+The outlier in the left-hand figure above brings the correlation coefficient down to `r round(cor.test(x1,y1)$estimate,3)`, which is close to zero. The correlation coefficient in the right-hand figure is similarly small at `r round(cor.test(x2,y2)$estimate,3)`, despite that there is a strong association between the *x* and *y* data. The reason is that the association is non-linear.
+
+#### Spearman's rank correlation coefficient *r*~Sp~
+
+The Spearman's rank correlation coefficient is a valid measure of the association between two variables providing their relationship is *monotonic* - that is, continuously rising or flat, or continuously falling or flat. Linear relationships are monotonic, so the Spearman's rank correlation coefficient is always a useful (if not necessarily the most powerful - Pearson would trump it if it could be used) measure of association for such cases, but it will still be valid when the relationship is monotonic but non-linear, whereas the Pearson correlation coefficient would *not* be.\
+
+Spearman's rank correlation coefficient *r*~Sp~ can also be be used for ordinal data, whereas Pearson's *r* coefficient cannot be. This makes it very useful in much of ecology, animal behaviour and environmental studies where ordinal scales are commonly used. 
 
 ### When is it appropriate to calculate a correlation coefficient?
-So, we note that the correlation coefficient is a measure of *linear* association, not of association in general. At least, this is true if you are calculating the Pearson correlation coefficient. If your data are not suitable for that and you decide to calculate the Spearman's Rank correlation coefficient, then the condition is relaxed somewhat: there might be but there no longer *needs* to be a linear relationship between the two variables, but there must be a *monotonic* one. That means that, as one variable increases, the other should either increase or remain constant, or decrease or remain constant - that is, there should be no peaks or troughs in the data.
+So, to sum up, we note that the Pearson correlation coefficient is a measure of *linear* association, not of association in general. At least, this is true if you are calculating the Pearson correlation coefficient. If your data are not suitable for that and you decide to calculate the Spearman's Rank correlation coefficient, then the condition is relaxed somewhat: there might be but there no longer *needs* to be a linear relationship between the two variables, but there must be a *monotonic* one. That means that, as one variable increases, the other should either increase or remain constant, or decrease or remain constant - that is, there should be no peaks or troughs in the data.
 
 
 
@@ -669,18 +677,128 @@ See [Spurious Correlations](https://www.tylervigen.com/spurious-correlations) fo
 
 ## Examples
 
+### Cyclones
+
+Cyclones are areas of low atmospheric pressure around which steep gradients in air pressure can cause strong winds to develop, which in turn may create large waves if the cylone is over the oceans. Depending on where they occur, these storms are variously also known as hurricanes and typhoons. Here we consider whether the peak wind speeds are associated with the depth of the low pressure at the eye of the storm, and whether the peak wave sizes are associated with how wide the storm is. If the answer to either of these questions is yes, then an outcome of practical importance - wind speed, wave height - can be predicted at least in part by a variable that can be measured easily - pressure, distance.
+
+```{r, include = FALSE}
+cyclones_filepath <- here("data","cyclones.xlsx")
+```
+
+
+```{r, include = FALSE}
+pressure_wind_speed <- read_excel(cyclones_filepath,"pressure_wind_speed")
+```
+
+
+#### South West Indian Ocean intense tropical cyclones 1973 - 2024
+
+Pressure gradients cause winds so it is reasoable to ask whether there a correlation between the peak wind speed and minimum pressure at the eye of cyclones. Here we look at data for for intense tropical cyclones in the south west Indian Ocean over the period 1973-2024. The data are taken (scraped using the R package `rvest`!) from:
+https://en.wikipedia.org/wiki/List_of_South-West_Indian_Ocean_intense_tropical_cyclones . The original data sources are available on that site.
+
+
+
+```{r, echo = FALSE}
+pressure_wind_speed |>
+  ggplot(aes(x = pressure, y = wind_speed)) +
+  # geom_point(alpha=0.5) +
+  geom_jitter(width = 2, height = 2, alpha = 0.5) +
+  scale_y_continuous(limits = c(150,230)) +
+  labs(x = "Pressure (hPa)",
+       y = "Wind speed (kph)") +
+  geom_text(aes(label=ifelse(pressure<910,str_c(name,"\n", year),'')),hjust=0,vjust=1, colour = "blue", size = 3) +
+  annotate("text", x = 960, y = 220, label = bquote(italic(r)[sp]==-0.218~","~italic(p)==0.0289)) +
+  # annotate("text",label=paste0("mu+","sigma"),x=960,y = 220,size = 4, colour = "darkred",parse=TRUE)+
+  theme_cowplot()
+```
+
+
+In this figure we see that there is a weak but significant *negative* correlation between the peak recorded wind speed and the minimum recorded pressure at the centre of intense tropical cyclones that occurred in the south west Indian Ocean between 1973 and 2024. Neither wind speed nor pressure were normally distributed, so the Spearman's rank correlation coefficient *r*~Sp~ has been calculated, and not the Pearson *r* coefficient.
+
+#### Significant wave height vs size of cyclone
+
+Here we look at results displayed in Figure 3f of\
+\
+Oh, Y. et al. (2023) ‘Optimal tropical cyclone size parameter for determining storm-induced maximum significant wave height’, Frontiers in Marine Science, 10, p. 1134579. Available at: https://doi.org/10.3389/fmars.2023.1134579.
+
+The authors seek to determine whether there is an association between the size of a cylone, measured by the 'R50' distance measured outward from the storm centre to where the wind speeds have subsided to 50 kph, and the maximum 'significant wave height' of the swell created by the storm. Significant wave height is a widely used measure that is the average height of the heighest 1/3  of the waves, these being the ones that impact most on practical matters like the fuel consumption of ships, the erosion of shores, and so on.
+
+```{r, include = FALSE}
+swh_vs_cyclone_size <- read_excel(cyclones_filepath,"cyclone_size_swh")
+glimpse(swh_vs_cyclone_size)
+```
+
+
+```{r, include = FALSE}
+shapiro.test(swh_vs_cyclone_size$R50)$p.value # <0.05
+shapiro.test(swh_vs_cyclone_size$HS_max)$p.value # <0.05
+cor.test(swh_vs_cyclone_size$R50,swh_vs_cyclone_size$HS_max,method="pearson") # not valid, not linear anyway
+cor.test(swh_vs_cyclone_size$R50,swh_vs_cyclone_size$HS_max,method="spearman") # valid, monotonic
+```
+```{r}
+swh_vs_cyclone_size |>
+  ggplot(aes(x = R50, y = HS_max)) +
+  geom_point(size = 3, alpha = 0.5) +
+  labs(x = "Radius to 50 kph wind speed (km)",
+       y = "Max. Significant wave height (m)") +
+  scale_x_continuous(limits = c(40,260), breaks=seq(50,250,50)) +
+  scale_y_continuous(limits = c(11,22), breaks=seq(12,22,2)) +
+  annotate("text", x = 220, y = 14, label = bquote(italic(r)[sp]==0.948~","~italic(p)<0.001)) +
+  theme_cowplot()
+```
+
+The plot shows that there is a monotonically rising relationship between the R50 radius of the cyclones included in the study and the maximum significant wave height of swell created by them. The relationship is not linear however, so the only appropriate measure of correlation coefficient is the Spearman's rank, which gives $r_{sp} = 0.948, p<0.001$, indicating a very strong positive association between the size of a cyclone and the height of the waves it creates.\
+
+Why do you think this relationship flattens off for larger storm sizes?\
+
 ### Lichen abundance
 
 ::: csl-entry
 Jovan, S. (2008). <i>Lichen Bioindication of Biodiversity, Air Quality, and Climate: Baseline Results From Monitoring in Washington, Oregon, and California</i>. <http://gis.nacse.org/lichenair/doc/Jovan2008.pdf>
 :::
 
+In this paper the authors investigate the utility of using lichen as bioindicators of air quality. is there an association between air quality and the abundance of this or that species of lichen? 
+
 ```{r}
-myimages<-here("figures","lichen_abundance.png")
-knitr::include_graphics(myimages)
+# myimages<-here("figures","lichen_abundance.png")
+# knitr::include_graphics(myimages)
 ```
 
-There is a strong negative correlation (*r*=-0.78) between air quality score and proportion of nitrophyte lichen. This suggests that this proportion can be used as a bioindicator of air quality.
+```{r, include = FALSE}
+lichen <- read_csv(here("data","jovan-2008-lichen.csv"))
+glimpse(lichen)
+shapiro.test(lichen$AQ)$p.value
+shapiro.test(lichen$PNA)$p.value
+cor.test(lichen$AQ,lichen$PNA,method="spearman")
+```
+
+```{r, echo = FALSE}
+lichen |>
+  ggplot(aes(x = AQ, y = PNA)) +
+  geom_point(size = 3, alpha = 0.5) +
+  scale_x_continuous(limits=c(-1.6,1.6), breaks=seq(-1.5,1.5,0.5)) +
+  guides(
+    x = guide_axis(minor.ticks = TRUE),
+    y = guide_axis(minor.ticks = TRUE)
+  ) +
+  scale_y_continuous(limits=c(0,105), breaks=seq(0,110,20)) +
+  labs(x = "Air Quality Scores",
+       y = "Proportion of nitrophyte abundance\n (percent)") +
+  annotate("text", x = 0.7, y = 90, label = bquote(italic(r)[sp]==-0.78~","~italic(p)<0.001)) +
+  annotate("text", x = -1.5, y = 0, label = "High N/pH") +
+  annotate("text", x = 1.5, y = 0, label = "Low N/pH") +
+  theme_cowplot() +
+  theme(axis.minor.ticks.length = rel(0.5))
+```
+
+  \
+We note that the relationship between air quality score and proportion of nitrophyte abundance is plausibly linear.  \
+\
+
+There is a strong negative correlation (*r*~Sp~=-0.78, *p*<0.001) between air quality score and proportion of nitrophyte lichen. This suggests that this proportion can be used as a bioindicator of air quality.  \
+
+\
+A Spearman's rank correlation coefficient was calculated in this case rather than a Pearson correlation coefficient, despite the fact that both the *x* and *y* variables are plausibly drawn from normally distributed populations of values, according to a Shapiro-Wilk test. The problem is that both the air quality score and the proportion of nitrophyte abundance are ordinal variables - something we learn from reading the paper in which this figure appears. This means that analysis using parametric tests such as the Pearson method for determining linear correlation are not appropriate. A non-parametric method such as Spearman's rank method can be used instead.\
 
 ### Soil bacteria
 
@@ -693,7 +811,11 @@ myimages<-here("figures","soil_bacteria.png")
 knitr::include_graphics(myimages)
 ```
 
-In the Figure above, note that the *r*-values for **C** and **E** are close to zero, and the *p*-values are greater than 0.1, meaning that at this significance level there is no evidence from these data that there is *any* linear association between soil pH and the relative abundances of *Alphaproteobacteria* or *Beta/Gammaproteobacteria*. From the plots, it looks in **C** as if there no assocation at all, whereas in **E** it looks as though there might be, but if so then not a linear association, for which the correlation coefficient r would be a poor measure.
+In the Figure above, note that the Pearson *r*-values for **C** and **E** are close to zero, and the *p*-values are greater than 0.1, meaning that at this significance level there is no evidence from these data that there is *any* linear association between soil pH and the relative abundances of *Alphaproteobacteria* or *Beta/Gammaproteobacteria*. From the plots, it looks in **C** as if there no assocation at all, whereas in **E** it looks as though there might be, but if so then not a linear or even monotonic association, for which the correlation coefficient (Pearson *r* or Spearman *r*~Sp~) would be a poor measure.
+
+### Birds
+
+
 
 ## Exercise 1
 
