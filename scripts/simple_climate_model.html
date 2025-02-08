@@ -2022,9 +2022,9 @@ epsilon from 0 to 1</p>
 <pre class="r"><code>Ts &lt;- 288
 T0 &lt;- 275
 T1 &lt;- 230
-epsilons &lt;- seq(0,1,0.01)
-OLRs &lt;- OLR(epsilons, Ts, T0, T1)
-df &lt;- tibble(epsilon = epsilons, OLR = OLRs)</code></pre>
+epsilons &lt;- seq(0,1,0.01) # generates a vector 0.00, 0.01, 0.02,....0.99, 1.00
+OLRs &lt;- OLR(epsilons, Ts, T0, T1) # for each value in epsilons, calculates the OLR
+df &lt;- tibble(epsilon = epsilons, OLR = OLRs) # combine to a data frame (ggplot needs data frames as input)</code></pre>
 <p>Plot these data:</p>
 <pre class="r"><code>df |&gt;
   ggplot(aes(x = epsilon, y = OLR)) +

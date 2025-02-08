@@ -15,6 +15,12 @@ output:
 knitr::opts_chunk$set(echo=FALSE,message=FALSE,warning=FALSE,comment=NA, fig.width=6, fig.height=6)
 ```
 
+```{r, include=FALSE}
+library(tidyverse)
+library(here)
+```
+
+
 ```{r,include=FALSE}
 theme_no_axes<-function(){
     theme(axis.line=element_blank(),
@@ -43,7 +49,12 @@ For example:
 
 -   If we threw a fair dice a large number of times we would *expect* each possible score, from 1 to 6, to occur the same number of times. ie each score would occur 1/6th of the time. In reality we would probably get each score *roughly* 1/6 of the time, but not exactly 1/6. How far from the expected proportions could the numbers of each score get before we would be justified in thinking that the dice was not fair?
 
--   If the basic idea of Mendelian inheritance with independent assortment involving a single gene is correct, then we would expect that if we crossed a large number of pea plants that were heterozygous for yellow and green pea colour, with yellow being dominant, then the offspring would have yellow:green peas in the ratio 3:1 (plants with genotypes YY, Yy, yY would all have yellow seeds and only those with yy would have green seeds). In practice, if the inheritance *were* according to the simplest type of Mendelian inheritance (ie involving just one gene, amongst other things) we would probably get yellow:green offspring in a ratio that was approximately but not exactly 3:1. How far from 3:1 would the ratio need to be before we would justified in claiming that the outcome was inconsistent with the Mendelian prediction?
+-   If the basic idea of Mendelian inheritance with independent assortment involving a single gene is correct, then we would expect that if we crossed a large number of pea plants that were heterozygous for yellow and green pea colour, with yellow being dominant, then the offspring would have yellow:green peas in the ratio 3:1 (plants with genotypes YY, Yy, yY would all have yellow seeds and only those with yy would have green seeds). In practice, if the inheritance *were* according to the simplest type of Mendelian inheritance (ie involving just one gene, amongst other things) we would probably get yellow:green offspring in a ratio that was *approximately* but not exactly 3:1. How far from 3:1 would the ratio need to be before we would justified in claiming that the outcome was inconsistent with the Mendelian prediction?
+
+```{r, echo = FALSE}
+myimages<-here("figures","mendelian_pea_plants.png")
+knitr::include_graphics(myimages)
+```
 
 In a chi-square 'goodness of fit' test, we are testing data where we have a number of counts for each of two or more possible outcomes of some procedure (heads/tails, dice scores etc). We have an idea of how these counts should be distributed under some null hypothesis (the coin is fair, the dice is fair, genetic inheritance works in this or that way etc). The chi-square goodness of fit test tests how likely it is we would have got the counts we actually got if that null hypothesis were correct. We are testing how well our actual counts 'fit' the expected values.   
 
@@ -59,7 +70,7 @@ Our expected counts of yellow and green are found by simply dividing the total c
 
 #### Doing the chi-square test in R
 
-What we do in R is use the `chisq.test()` command to see how likely it is we would have got counts of 130 and 46 if the null hypothesis, with its expected counts in the ratio 3:1, were true.
+What we do in R is use the `chisq.test()` function to see how likely it is we would have got counts of 130 and 46 if the null hypothesis, with its expected counts in the ratio 3:1, were true.
 
 We do it like this:
 
@@ -67,7 +78,7 @@ We do it like this:
 
 There are two arguments. The first is the counts we got, which we enter as a 'vector' `c(z,y,....)`, so we write `c(130,46)`. The second is a vector of the proportions we expect for the two counts, where these proportions should add up to one. So for our expected 3:1 ratio we enter `c(0.75,0.25)`.
 
-Let's do it: type the above command into the console window (bottom left). You will get an output something like this:
+Let's do it: type the above function into the console window (bottom left). You will get an output something like this:
 
 ```{r,echo=FALSE}
 chisq.test(c(130,46),p=c(0.75,0.25))
@@ -408,7 +419,7 @@ Look at the plot - given these sample data, does it seem plausible that the prop
 
 **Preparation**
 
-We will use the command `chisq.test()` to carry out the chi square test. However, this requires a matrix of the total counts and our data is in one column of a data frame, spread over 20 rows, one count per colour per site. We need to convert this data frame into a 2x2 matrix of the total counts of each colour in each setting. We can use the `xtabs()` function to do this.
+We will use the function `chisq.test()` to carry out the chi square test. However, this requires a matrix of the total counts and our data is in one column of a data frame, spread over 20 rows, one count per colour per site. We need to convert this data frame into a 2x2 matrix of the total counts of each colour in each setting. We can use the `xtabs()` function to do this.
 
 ```{r, echo = TRUE}
 lady.mat<-xtabs(number~Habitat + morph_colour, data=lady)
@@ -451,7 +462,7 @@ Select which of the two following statements would be an appropriate way to repo
 
 #### Exercise One
 
-A researcher investigates whether two species **A** and **B** are associated with one another. If one is present at a site, does the other tend to be present, and if one is absent, does the other tend to be absent?. If the species were not associated with one another, then the presence of one would say nothing about the likely presence or absence of the other. Teir occurrences would be independent.
+A researcher investigates whether two species **A** and **B** are associated with one another. If one is present at a site, does the other tend to be present, and if one is absent, does the other tend to be absent?. If the species were not associated with one another, then the presence of one would say nothing about the likely presence or absence of the other. Their occurrences would be independent.
 
 The researcher goes to 100 sites and finds the following:
 
@@ -472,7 +483,7 @@ Think about what each row and column in this table represents: as we have constr
 
 1. Create this table yourself
 2. Is it valid here to use a chi square test for an association between species A and species B?
-3. Supposing the answer to 2. is Yes, Use the table to determine whether there is evidence for an association between species A and species B.
+3. Suppose the answer to 2. is 'Yes', Use the table to determine whether there is evidence for an association between species A and species B.
 4. What conclusion woud you reach if all four counts in the table were the same?
 5. What conclusion would you reach if neither species was ever seen in the absence of the other - meaning that the off-diagonal elements of the table would be zero?
 

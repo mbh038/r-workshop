@@ -5,21 +5,26 @@ date: "21/03/2024"
 output:
   html_document:
     df_print: paged
+    toc: true
+    floating: true
+  pdf_document:
+    toc: true
 ---
 
 ```{r, include=FALSE}
 knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 ```
 
-A class of analytical models that you will use this year and next go under the name **General Linear Models**. They include linear regression, multiple regression, ANOVA, ANCOVA, Pearson correlation and t-tests.
+## Introduction 
+A class of analytical models that you will use often go under the name **General Linear Models**. They include linear regression, multiple regression, ANOVA, ANCOVA, Pearson correlation and t-tests.
 
 Despite appearances, these models are all fundamentally linear models. They share a common framework for estimation (least squares) and a common set of criteria that the data must satisfy before they can be used. These criteria centre around the idea of normally distributed residuals. An important stage of any analysis that uses linear models is that these assumptions are checked, as part of the *Plot* -> *Model* -> *Check Assumptions* -> *Interpret* -> *Plot again* workflow.
 
 Here, we will go through an example of simple linear regression - suitable for trend data where we wish to predict a continuously varying response, given a value of a continuous explanatory variable. As we go we show code snippets from an R script that does this job, and, at the bottom, an example complete script that you could adapt to your own needs.
 
-### Simple Linear Regression
+## Simple Linear Regression - plant growth
 
-As an example, we ask the question: does plant growth rate depend on soil moisture content?
+As a first example, we ask the question: does plant growth rate depend on soil moisture content?
 
 We predict that more moisture will probably allow higher growth rates. We note that this means there will be a clear relationship between the variables, one that should be apparent if we plot the response (dependent) variable - plant growth rate - against the explanatory (independent) variable - soil moisture content. We note that both the explanatory variable and the dependent variables are *continuous* - they do not have categories.
 
@@ -67,7 +72,7 @@ From the plot, we note that:
 * the variance of the data, that is the range of vertical spread is approximately constant for the whole range of soil moisture content. This is one of the key criteria that data must satisfy if we are to analyse them using a linear model such as simple linear regression.
 * we can estimate the intercept and gradient of a best fit line just by looking at the plot. Roughly speaking, the moisture content varies from 0 to 2, while the growth rate rises from 20 to 50, a rise of about 30. Hence the gradient is about 30/2 = 15 mm/week, while the intercept is somewhere between 15 mm and 20 mm / week.
 
-It is always good practice to examine the data before you go on to do any statistical analysis.
+It is always good practice to examine the data before you go on to do any statistical analysis. For all but the smallest data sets, that means plotting them.
 
 ### Make a simple model using linear regression
 
@@ -145,43 +150,162 @@ plants |>
 
 This gives both a straight line and the 'standard error' of that line - meaning, roughly speaking, the wiggle room within which the 'true' line , for the population as opposed to this sample drawn from it, probably lies.
 
+### Report the result
+
+We would likely want to include this plot in our report, along with a statement like:
+
+We find evidence for a linear increase in plant growth rate with soil moisture content (p<0.001), with an additional 12.75 mm of growth per unit increase in soil moisture content.
+
 ### Conclusion
-We have carried out a simple linear regression on continuous data. This is an example of a general linear model. We first plotted the data, then we used `lm()` to fit the model. Next we inspected the validity of the model using `autoplot`. We then inspected the model itself using first `anova()` then `summary()`. Finally we included the output of the model on the plot, in this case by adding to it a straight line with the intercept and gradient determined by the regression model. 
+We have carried out a simple linear regression on continuous data. This is an example of a general linear model. We first plotted the data, then we used `lm()` to fit the model. Next we inspected the validity of the model using `autoplot`. We then inspected the model itself using first `anova()` then `summary()`. Finally we included the output of the model on the plot, in this case by adding to it a straight line with the intercept and gradient determined by the regression model, and reported the result in plain English.
 
-### Sample script
-An example script to do linear regression might look like the following, here written as though a .R script. For this to work you will need to work within a project, with the data in a subfolder of that called "data". Here, the data is taken to be a .csv file called `mydata.csv`, with two columns of data, one called `x_values` and the other called `y_values`. You need to change these to suit your own data.
 
-````
-# load packages
+
+## Simple linear regression - ocean pH
+
+In this second example we provide. the script but leave you to interpret the outcome of each step. You can use the first example to help you do this.
+
+Here we use data from Figure 5.20 of AR6, WG1 from the IPCC. It shows ocean pH measurements from a location (137$^{\circ}$E, 5$^{\circ}$N) in the western Pacific between 1980 and 2020.
+
+Your task is to assess whether there is a significant linear trend in pH with time and if so to determiine the change in pH per decade over the forty year period from 1980 to 2020.
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+### Load packages
+```{r}
 library(tidyverse)
 library(here)
 library(ggfortify)
 library(cowplot)
+```
 
-# load data
+### Load data
+```{r}
+pH_filepath <- here("data","ipcc_AR6_WGI_Figure_5_20-pH.csv")
+pH<-read_csv(pH_filepath,skip=6) # we have to skip the first 6 lines becuase of meta-data - check it out!
+glimpse(pH)
+```
+
+### Plot data
+```{r}
+pH |>
+  ggplot(aes(x = year, y = pH)) +
+  geom_point() +
+  labs(x = "Year",
+       y = "Ocean pH") +
+  scale_y_continuous(limits=c(8.0,8.12), breaks=seq(8.0,8.2,0.02)) +
+  theme_cowplot()
+```
+Is there a linear trend? 
+
+### Fit linear model
+```{r}
+pH_model <- lm(pH ~ year, data= pH)
+```
+
+### Check model validity
+```{r}
+autoplot(pH_model) + theme_cowplot()
+```
+Is it reasonable to apply a linear model to these data? Remember that each of these plots tell you something about whether this is the case.
+
+### Inspect model
+
+#### ANOVA
+```{r}
+anova(pH_model)
+```
+Are we OK to reject the null hypothesis that pH does not change over this time period?
+
+### Summary
+```{r}
+summary(pH_model)
+```
+
+What is the change in ocean pH per decade over the last four decades?
+Is this change statistically significant?
+Does the linear model account for much of the variance in the data?
+
+### Replot the data, model included
+
+```{r}
+pH |>
+  ggplot(aes(x = year, y = pH)) +
+  geom_point() +
+  geom_smooth(method = "lm", colour = "blue") + # add the line. Method ="lm" for a straight line.
+  labs(x = "Year",
+       y = "Ocean pH") +
+  scale_y_continuous(limits=c(8.0,8.12), breaks=seq(8.0,8.2,0.02)) + # fix limits and break points of y-axis
+  annotate(geom="text", x = 2015, y = 8.11, label = "137W, 5N", size = 5) + # measurement site
+  theme_cowplot()
+```
+
+How would you report this result?
+
+
+## Sample script
+
+A notebook to do linear regression might look like the following, here written as a .Rmd notebook. For this to work you will need to work within a project, with the data in a sub-folder of that called "data". Here, the data is taken to be a .csv file called `mydata.csv`, with two columns of data, one called `x_values` and the other called `y_values`. You need to change these to suit your own data.
+
+To use this, open a new notebook of your own (`File/New File/R Notebook`), delete everything, paste in all the code below, then adapt the code as needed. Remember to save the notebook in your project scripts folder!
+
+````
+---
+title: "Sensible title"
+author: "your name"
+date: "the date"
+output: html_notebook
+---
+
+### load packages
+```{r}`r ''`
+library(tidyverse)
+library(here)
+library(ggfortify)
+library(cowplot)
+```
+
+### load data
+```{r load_data}`r ''`
 filepath <- here("data", "mydata.csv")
 mydata <- read_csv(filepath)
 glimpse(mydata)
+```
 
-# plot the data
+### plot the data
+```{r}`r ''`
 mydata |>
   ggplot(aes(x=x_values, y=y_values)) +
   geom_point() +
   labs(x = "X variable",
        y = "Y variable") +
   theme_cowplot()
+```
 
-# fit the model
+### fit the model
+```{r}`r ''`
 mydata.model <- lm (y_values ~ x_values, data = mydata)
+```
 
-# diagnostics
+### diagnostics
+```{r}`r ''`
 autoplot(mydata.model)
+```
 
-# investigate the model
+### investigate the model
+```{r}`r ''`
 anova(mydata.model)
-summary(mydata.model)
+```
 
-# replot the data, now with the model included
+```{r}`r ''`
+summary(mydata.model)
+```
+
+### replot the data, now with the model included
+```{r}`r ''`
 mydata |>
   ggplot(aes(x=x_values, y=y_values)) +
   geom_point() +
@@ -189,5 +313,9 @@ mydata |>
   labs(x = "X variable",
        y = "Y variable") +
   theme_cowplot()
+```
+
 ````
+
+
 

@@ -517,11 +517,13 @@ Then it reports the *p*-value. A tiny (close to zero) value here means that it t
 
 The *p*-value reported here is 4.3e-12. That is R's way of saying what in standard form would be written 4.3 x 10^-12^. This is a really tiny value. It is 0.0000000000043, which is a very inconvenient way to write such a small number. Hence R's way of doing it or the standard form way of doing it. In the context of a statistical test and when *p* is is that small we don't care about its exact value, we simply note that it is very, very small. We thus can confidently reject the null hypothesis and assert that the data provide evidence that *x* and *y* are correlated, in this case positively.
 
-Further, it reports the actual correlation coefficient. Here it finds *r*=0.797, which we happen to know to be correct because we created this data set ourselves, and a 95% confidence interval for the coefficient. The precise meaning of the confidence interval is subtle, but it is a kind of error bar for the correlation coefficient *r*. It means that if we drew sample after sample from the population and calculated the confidence interval for *r* for each sample, then 95% of the time that interval would capture the true value of *r*.
+Further, it reports the actual correlation coefficient. Here it finds *r* = 0.797, which we happen to know to be correct because we created this data set ourselves, and a 95% confidence interval for the coefficient. The precise meaning of the confidence interval is subtle, but it is a kind of error bar for the correlation coefficient *r*. It means that if we drew sample after sample from the population and calculated the confidence interval for *r* for each sample, then 95% of the time that interval would capture the true value of *r*. Thus, you can reasonably think of the confidence interval as being the range of values within which the true population correlation coefficient plausibly lies, given the value that was found for the sample.
 
-If the *p*-value is small enough that we reject the null-hypothesis, then this confidence interval should not encompass zero. If the *p*-value is large enough that we do not reject the null hypothesis then this confidence interval *will* encompass zero.
+If the *p*-value is small enough that we reject the null-hypothesis, then this confidence interval should not encompass zero. Why? Because any value inside the confidence interval is a plausible value for the population correlation coefficient andif we are going to reject the null hypothesis, then zero should *not* be a plausible value for the population correlation coefficient, given the data. 
 
-Here, the confidence interval is from 0.67 to 0.88. This does not encompass zero. In fact it is far from zero, so is consistent with our finding a really small *p*-value.
+If the *p*-value is large enough that we do not reject the null hypothesis then this confidence interval *will* encompass zero. Why? Becuase if the confidence interval encompasses zero, then zero *is* a plausible value for the correlation coefficient and so we should not reject the null.
+
+Here, the confidence interval is from 0.67 to 0.88. This does not encompass zero. In fact it is far from zero, so is consistent with our finding a really small *p*-value. On both groundss, we reject the null.
 
 To report the result of this test we would say something like:
 
@@ -815,7 +817,64 @@ In the Figure above, note that the Pearson *r*-values for **C** and **E** are cl
 
 ### Birds
 
+::: csl-entry
+Pain, D.J., Mateo, R. and Green, R.E. (2019) ‘Effects of lead from ammunition on birds and other wildlife: A review and update’, <i>Ambio</i>, <i>48</i>(9), pp. 935–953. <https://doi.org/10.1007/s13280-019-01159-0>
+:::
 
+```{r}
+myimages<-here("figures","bird_shot_ingestion.png")
+knitr::include_graphics(myimages)
+```
+This figure is from a study on the impact on bird populations of ingestion of lead from spent lead ammunition arising from hunting using rifles and shot guns. For several species of wetland birds, the population trend (as measured by a proxy scale) is plotted against the prevalence of carcasses found to contain lead shot. 
+
+There is a clear negative trend here that is plausibly linear, or at least monotonic. Shapiro-Wilk tests show that neither data set is plausibly drawn from a normally distributed population, so a Spearman's rank correlation coefficient is calculated. The result is $r_{\text{Sp}} = -0.697, p < 0.01$ so we can say that there is a evidence of a significant and strong negative correlation between lead shot ingestion of waterbird species and their population trends.
+```{r, include = FALSE}
+
+birds_lead <- read_csv(here("data","birds_lead_shot.csv"),skip=5)
+glimpse(birds_lead)
+
+shapiro.test(birds_lead$pc_lead) # p = 0.036
+shapiro.test(birds_lead$pop_trend) # p = 0.030
+
+#Have to use Spearman's rank
+cor.test(birds_lead$pc_lead,birds_lead$pop_trend, method = "spearman")
+```
+### Heart rate vs life expectancy
+```{r}
+# myimages<-here("figures","heart_rate_vs_age.png")
+# knitr::include_graphics(myimages)
+```
+
+```{r, include = FALSE}
+hr_le  <- read_csv(here("data","heart_rate_vs_age.csv"))
+glimpse(hr_le)
+```
+```{r, include = FALSE}
+shapiro.test(hr_le$age)
+```
+```{r, include=FALSE}
+shapiro.test(hr_le$lg10_hr)
+```
+
+
+
+```{r, include = FALSE}
+cor.test(hr_le$age, hr_le$lg10_hr)
+```
+
+
+```{r, echo = FALSE}
+
+hr_le  |>
+  ggplot(aes(x = age, y=lg10_hr)) +
+  geom_point(size = 3, colour="gray60") +
+  geom_text(aes(label=Species), vjust = -0.9) +
+  labs(x = "Life expectancy (years)",
+       y = bquote("log"[10]~"Heart rate (bpm)")) +
+    annotate("text", x = 60, y = 2.5, label = bquote(italic(r)==-0.858~","~italic(p)<0.001)) +
+  theme_cowplot()
+```
+Here we see a strong negative linear correlation between the life expectancy of different species and the log of the mean heart rate in beats per minute. On this plot, humans are almost an outlier. In this case, use of a Shapirro Wilk test showed that both life expectancy and log of the heart rate were found to be consistent with being drawn from normally distributed populations, so the Pearson method was used to calculate the correlation coeficient.
 
 ## Exercise 1
 

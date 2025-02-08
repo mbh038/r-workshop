@@ -112,10 +112,10 @@ A **sample** is a **random** selection of replicates from within a **population 
 Having taken our sample we can compute the sample mean $\bar{y}$ (pronounced y-bar) by summing over the $y_i$ and dividing by the number of values:
 
 $$
-\bar{y}=\frac{y_1+y_2+\dots + y_n}{n}=\frac{\Sigma y_i}{n}
+\bar{y}=\frac{y_1+y_2+\dots + y_n}{n}=\dfrac{\Sigma_{i=1}^n y_i}{n}
 $$
 
-In this equation, we suppose that we have a sample of size $n$ women, with each individual woman denoted by $y_1, y_2\dots y_n$ or in general for any individual by $y_i$ where the subscript $i$ runs from $1$ to $n$. To find the mean value we first sum the $y_i$ from $i=1$ to $i=n$ and then divide the result by $n$. A compact way to denote the sum is to use the summation sign $\Sigma$ (sigma), as we do in the righ*t*-hand term of the equation
+In this equation, we suppose that we have a sample of $n$ women, with each individual woman denoted by $y_1, y_2\dots y_n$ or in general for any individual by $y_i$ where the subscript $i$ runs from $1$ to $n$. To find the mean value we first sum the $y_i$ from $i=1$ to $i=n$ and then divide the result by $n$. A compact way to denote the sum is to use the summation sign $\Sigma$ (sigma), as we do in the right-hand term of the equation
 
 This is our estimate of the true population mean, $\mu$. It is similar when we do an experiment. Measurements in an experiment inevitably involve error, and so we can think of the data readings we actually take as being a sample from the population of all the readings that could have occurred. The mean value that we get at the end from our data is thus an estimate of the true mean $\mu_\text{A}$, which we would only have obtained if there was no error involved in the experiment.
 
@@ -425,6 +425,16 @@ We are interested in the population. We want to know its true mean $\mu$, but wh
 The bigger the variance $\sigma^2$ of the population, the more we would expect our estimate to differ from the true mean, and the less variable the population was, the closer we would expect our estimate to be to the true mean. Similarly, if we took a large sample then our estimate is likely to be closer to the true mean than if we took a small sample.
 
 If we take these observations together, what we find is that the variance of the distribution of our estimates is $\sigma^2/n$, and so the standard deviation of our estimate is the square root of this ie $\frac{\sigma}{\sqrt{n}}$. This is sometimes called the **standard error of the mean**. This gives us an idea of how precise our sample mean is as an estimate of the true mean. 
+
+Note that, from the formula for the standard error $\frac{\sigma}{\sqrt{n}}$, we can see that:
+
+* The larger the variability within a population, and hence the larger the value of $\sigma$, the larger will be the standard error
+* the larger the sample sie $n$, the *smaller* will be the standard error.
+
+So, standard errors, that is, the uncertainty with which a sample mean estimates a true population mean, will be:
+
+* small for large samples and for samples drawn from populations with low instrinsic variability (ie those with low standard deviation)
+* large for small samples and for samples drawn from populations with high instrinsic variability (ie those with large standard deviation)
 
 In most figures that you come across in published papers where error bars are used, these error bars will be ± one standard error of the mean. You may also come across error bars that are ± one standard deviation of the sample and yet others that show the (typically) 95% confidence interval for an estimate.
 

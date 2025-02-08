@@ -105,7 +105,7 @@ Let's go through it line by line.
 -   `iris |>` We start with the iris data set *and then*
 
 -   `ggplot(aes(x=Species,y=Petal.Length)) +` 
-we decide which column of our data set will be 'mapped' to the 
+- we stipulate which column of our data set will be 'mapped' to the x-axis and which to the y-axis
 
 ```{r,eval=FALSE}
 iris |>

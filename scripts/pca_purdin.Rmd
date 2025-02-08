@@ -22,7 +22,7 @@ Shlens, J. (2014). *A Tutorial on Principal Component Analysis*. https://doi.org
 
 
 ```{r,include=FALSE}
-knitr::opts_chunk$set(message=FALSE,warnings=FALSE,echo=FALSE)
+knitr::opts_chunk$set(message=FALSE,warnings=FALSE,echo=TRUE)
 ```
 
 Before we do anything else, let's load the packages we are going to use, just like we always do:

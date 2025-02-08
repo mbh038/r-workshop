@@ -1,0 +1,20 @@
+###
+Pain, D.J., Mateo, R. and Green, R.E. (2019) ‘Effects of lead from ammunition on birds and other wildlife: A review and update’, Ambio, 48(9), pp. 935–953. Available at: https://doi.org/10.1007/s13280-019-01159-0.
+##
+Data from Fig 3: Correlation between the prevalence of lead shot ingestion and the trend of the wintering population in Europe of 15 species of waterfowl.
+###
+pc_lead,pop_trend
+-0.0298,3e-05
+0.0521,2.9947
+1.9968,-0.023
+2.6749,2.971
+3.9864,2.9696
+4.4036,2.9692
+4.6725,-0.9473
+10.5663,-2.0006
+11.8255,-1.0176
+12.3917,2.9608
+16.0733,1.0303
+22.9655,-2.0345
+30.2976,-2.0631
+31.8999,-3.0282
