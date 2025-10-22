@@ -1,0 +1,123 @@
+---
+title: "Analysis of covariance with count data: use of a glm"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Why is simple linear regression often inappropriate for count data?
+
+Simple linear regression assumes constant variance and normal distrivution of the errors (residuals)
+
+* the linear model might lead to the prediction of negative counts
+* the variance of the response variable is likely to increase with the mean
+* the errors will not be normally distributed
+* zeros are difficult to handle in transformations
+
+All the issues can be handled if instead we use genralised linear models (GLM)
+
+This example is taken from Crawley (2015) _Statistics: An Introduction using R_, 2nd ed. Wiley, p247
+
+Suppose we are investigating the effect on species richness in some plots that have different total biomass and one of three different levels of soil acidity: low, medium and high pH. Richness values have been counted on each of 90 plots, 30 with each level of soil pH.
+
+```{r}
+knitr::opts_chunk$set(warning=FALSE,message=FALSE)
+```
+
+```{r}
+# these are the packages we will need for this script
+library(tidyverse)
+library(here)
+library(cowplot)
+library(ggfortify)
+```
+
+```{r}
+filepath<-here("data","species.csv") # species.csv needs to be in the data folder within your project folder.
+species<-read_csv(filepath)
+glimpse(species)
+```
+
+We have one response variable `Species` which is a count, and two predictors: `Biomass` which is a continuous numerical variable and `pH` which has been recorded as an ordinal variable with three levels (low, mid, high).
+
+First, a bit of housekeeping. We ensure that the levels of pH are logged in R's brain in the ordering that makes sense, that is, "low", then "medium" then "high", and not as R would unless we did something about it, which is to do so alphabetically" "high" then "low" then "medium".
+
+This minor but important task often comes up when dealing with a categorical variable that has several levels, so this small chunk of code is worth remembering:
+```{r}
+species<-species %>%
+  mutate(pH=fct_relevel(pH,"low","mid","high"))
+```
+
+Now we'll plot the data as species richness vs biomass, with a best-fit straight line for each class of pH.
+
+```{r}
+species %>%
+  ggplot(aes(x=Biomass,y=Species,colour=pH)) +
+  geom_point(alpha=0.6) +
+  geom_smooth(aes(colour=pH),method="lm",se=F,alpha=0.2,linewidth=0.7) +
+  scale_colour_brewer(palette="Set1") +
+  theme_cowplot()
+```
+
+How did we get these straight lines? We can find the intercept and gradients for these lines by using a linear model, in the form of an ANCOVA (ANalysis of COVAriance), which is just like a two-way ANOVA except that one of the explanatory variables is continuous.
+
+First we try an interactive model, remembering that `Biomass*pH` is shorthand for `Biomass + pH + Biomass:pH`, where the `Biomass` and `pH` terms are the main effects of each variable, and `Biomass:pH` is the interaction between them. 
+
+```{r}
+model_interaction<-lm(Species~Biomass*pH,data=species)
+```
+
+In this model, a non-zero main effect of biomass means that the lines have non-zero gradient - the species richness depends on biomass, irrespective of pH class. A non-zero main-effect of pH means that the lines for each pH class are separate from each other - pH makes a difference to species richness, for all values of biomass. A non-zero interaction between biomass and pH class means that the gradients of the lines are different - the degree to which the species richness varies with one factor depends on the value of the other factor.
+
+To see if any of these terms are significant, we use the `anova()` function:
+```{r}
+anova(model_interaction)
+```
+
+This tells us that there is no evidence for an interaction between biomass and pH class, but that there is a main effect of biomass and of pH. Species richness does vary with biomass, and for any given value of biomass the richness will differ depending on the pH class.
+
+How big are these effects?
+
+```{r}
+summary(model_interaction)
+```
+
+According to this model there is evidence that species richness declines with increasing biomass and is substantially greater at higher pH values, but there is no evidence that pH affects the relationship between species richness and biomass. 
+
+Make sure you can see how the intercepts and gradients of the three lines in the plot above can be got from the model summary.
+
+But, is it really true? Do we believe what it is telling us, that pH has no effect on the relationship between species and biomass?
+
+That there is a problem here with the linear model becomes clear if we extropolate its predictions (ie the lines in the plot) to higher values of biomass. For each pH class it predicts negative species counts above some value of biomass, for example above about 6 at low pH. But this is nonsense: counts are strictly bounded below by zero and any sensible model should take account of this. 
+
+So we refit using a GLM and Poisson errors instead of a linear model.
+
+### Fit using GLM
+
+```{r}
+model_glm_poisson_interaction<-glm(Species~Biomass*pH,family="poisson",data=species)
+summary(model_glm_poisson_interaction)
+```
+
+The residual deviance is not greater than the number of degrees of freedom so we do not need to correct for overdispersion. Do we need to retain the interaction term? Let us test this by fitting an additive model without it:
+
+```{r}
+model_glm_poisson_NO_interaction<-glm(Species~Biomass+pH,data=species)
+anova(model_glm_poisson_interaction,model_glm_poisson_NO_interaction,test="Chi")
+```
+
+So we *do* need to retain the interaction. There is a highly significant difference between the slopes at different levels of pH. So Model 1 is the minimally adequate model.
+
+Now we plot fitted curves through the data
+
+```{r}
+species %>%
+  ggplot(aes(x=Biomass,y=Species,colour=pH)) +
+  geom_point() +
+  geom_smooth(method="glm", se = FALSE,
+              method.args = list(family = "poisson")) +
+  scale_colour_brewer(palette="Set1") +
+  theme_cowplot()
+```
+
+

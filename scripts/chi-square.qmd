@@ -1,0 +1,227 @@
+---
+title: "Chi-squared analysis of count data"
+subtitle: "$\\chi$-squared, pronounced Kai squared, often written as X-squared"
+author: "Michael Hunt"
+date: "02/27/2025"
+format:
+  html:
+    code-link: true 
+  revealjs:
+    transition: slide
+    transition-speed: fast
+    slide-number: c/t
+    width: 1600
+    height: 900
+editor: source
+execute: 
+  warning: false
+  message: false
+bibliography: references.bib
+---
+
+```{r}
+#| include: false
+library(tidyverse)
+library(here)
+
+```
+
+## When to use chi-square analysis
+
+A chi-square analysis is used when our data are in the form of
+
+-   raw counts for two or more categorical groups eg pea plants with either yellow peas or green peas, survival rate of mice if they took drug A or took drug B, etc.
+-   Each independent observation must definitely belong to either one group or the other
+-   there are no replicates. That is, for each category we just have one count.
+-   Each count is five or more
+
+What we do is compare the counts we got to some *expected* value according either to the long term results of chance or to some prior theory.
+
+## Example: tossing a coin
+
+-   If we were tossing a fair coin 1000 times we would expect 500 heads and 500 tails, ie heads and tails in the proportion 1:1.
+
+-   [In reality, if the coin were fair, we would probably get roughly the same number of heads and tails, but probably not exactly 500 of each.]{style="color: blue;"}
+
+-   **How far from 50:50 would the proportion of heads and tails have to be before we would be justified in rejecting the idea that the coin is fair?**
+
+## Example: throwing a dice
+
+-   [If we threw a fair dice a large number of times we would expect each possible score, from 1 to 6, to occur the same number of times.]{style="color: blue;"}
+
+-   ie each score would occur 1/6th of the time.
+
+-   [In reality we would probably get each score roughly 1/6 of the time, but not exactly 1/6.]{style="color: blue;"}
+
+-   **How far from the expected proportions could the numbers of each score get before we would be justified in thinking that the dice was not fair?**
+
+## Example: Mendelian inheritance
+
+```{r,eval=TRUE, echo = FALSE}
+myimages<-here("scripts","mendelian_pea_plants.png")
+knitr::include_graphics(myimages)
+```
+
+How far from 3:1 would the yellow:green ratio need to be before we would justified in claiming that the outcome was inconsistent with the Mendelian prediction?
+
+## Chi-square Goodness of Fit Test
+
+-   [In a chi-square ‘**goodness of fit**’ test, we are testing data where we have a number of counts for each of two or more possible outcomes of some procedure (heads/tails, dice scores, pea colour etc).]{style="color: blue;"}
+
+-   We have an idea of how these counts should be distributed under some **null hypothesis** (the coin is fair, the dice is fair, genetic inheritance works in this or that way etc).
+
+-   [The chi-square goodness of fit test tests how likely it is we would have got the counts we actually got or more extreme counts if that null hypothesis were correct.]{style="color: blue;"}
+
+-   We are testing how well our actual counts ‘fit’ the expected values.
+
+## Chi-square Goodness of Fit Test in R
+
+-   [In a typical software implementation of the test, such as in R, we give it the counts we actually got for each possible outcome and also the expected proportion for each outcome.]{style="color: blue;"}
+
+-   The test then gives us a p-value, a probability, for how likely it is that we would have got the counts we actually got, or counts even further from the null hypothesis, if that null hypothesis were correct.
+
+-   [If this p-value is too small, and by that we usually mean less than 0.05, then we reject the null hypothesis.]{style="color: blue;"}
+
+## Example: Mendelian pea plants
+
+-   [Suppose we have self-fertilized an F1 generation of pea plants that were all heterozygous for yellow/green pea colour. In the F2 generation we get 176 offspring, of which 130 are yellow and 46 are green.]{style="color: blue;"}
+
+We ask, **are these numbers consistent with a null hypothesis that Mendelian genetics is the underlying mechanism of inheriance here, or, if that were true, are they so unlikely that we sould reject that null?**
+
+-   [The data here are raw counts, an individual pea plant offspring contributes either to the yellow count or to the green count, but not to both, and both counts are much larger than 5.]{style="color: blue;"}
+
+-   Hence, a Chi-square goodness of fit test can be used to test whether our data are plausibly consistent with the null hypothesis.
+
+-   [Our expected counts of yellow and green are found by simply dividing the total count of offspring, 176, in the ratio 3:1, giving us an expected 132 yellow pea plants and an expected 44 green pea plants in the offspring F1 generation.]{style="color: blue;"}
+
+## Doing the chi-square test in R
+
+We type this function into the console pane of RStudio:
+
+`chisq.test(c(130,46),p=c(0.75,0.25))`
+
+We have given the function `chisq.test()` two *arguments*, separated by a comma:
+
+-   The first argument `c(130,46)` is a vector (denoted by `c()`) of the two observed counts for yellow and green.
+
+-   the second argument `p = c(0.75,0.25)` is another vector, this time of the proportions in which we *expect* the two colours to appear. If these proportions were all equal, as is common but not the case here, then we could leave out this argument, since that is the default presumption.
+
+## Output of chi-square goodness of fit test:
+
+```{r}
+#| echo: true
+chisq.test(c(130, 46), p = c(0.75, 0.25))
+```
+
+This output is typical of tests done in R.
+
+-   [We get the ‘test statistic’ whose name varies depending on the test. Here it is called X-squared, pronounced kai-squared. This is a number that the test calculates, based on the data you have given it. For the most part, we don’t need to worry about how it does that. Then there is the p-value, which is the probability of getting this test statistic if the null hypothesis were true.]{style="color: blue;"}
+
+-   In this case, we see that the p-value is 0.73, which is large.
+
+-   [We could very plausibly have got yellow:green numbers of 130 and 46 if the null hypothesis were true, so we cannot reject that null hypothesis.]{style="color: blue;"}
+
+-   In other words, our data are consistent at the 5% significance level with the predictions of simple Mendelian inheritance.
+
+## Reporting the result in English
+
+In English, we might report this result as:
+
+*We found counts of 130 yellow plants and 46 green plants, which are consistent at the 5% significance level with the predictions of Mendelian inheritance (chi-squared test, X-squared = 0.12, p=0.73).*
+
+### Caution
+
+Note that we do not say we have proved Mendelian inheritance to be correct. We haven’t. We never prove things in science. We haven’t said anything about the truth of the null hypothesis. All we can say is whether our data are or are not consistent with the null hypothesis. In this case they are. We then report the test we used and the values of the test statistic and p-value. Other tests might give you other details to report too.
+
+## Exercise 1: Is this coin a fair coin?
+
+[Suppose you tossed a fair coin 100 times and got 43 heads and 57 tails.]{style="color: blue;"}
+
+Under a null hypothesis that the coin is fair, what would the expected numbers of heads and tails be?
+
+[Now, you use R to do a chi-square test of that null hypothesis. Here is the code to do that and the output it would give:]{style="color: blue;"}
+
+```{r}
+#| echo: true
+chisq.test(c(43,57),p=c(0.5,0.5)) # we could leave out the second argument here
+```
+
+-   [What do you conclude?]{style="color: blue;"}
+
+-   How would you report the result?
+
+## Solution 1
+
+-   [The expectation is that half the outcomes would be heads and half would be tails.]{style="color: blue;"}
+
+-   The null hypothesis of this test is that heads and tails are equally likely, ie that the coin is fair.
+
+-   [Under this null hypothesis the expected outcome is 50 heads and 50 tails.]{style="color: blue;"}
+
+-   From the output of the R code we see that the p-value, the probability of getting an outcome as far or further from that, is 0.161. That is pretty high. Would you do anything if you knew that the probability of a bad (or worse) outcome was 0.161 (ie about 1 in 6)?
+
+-   [In particular, this p-value is greater than 0.05, so we cannot reject the null hypothesis that the coin is fair. That is, even with a fair coin it is not unlikely that you would get head/tail numbers as different or more different from 50/50 as 43/57 if you tossed the coin 100 times. That will happen about 1/6 of the time if you repeatedly do trials where you toss the coin 100 times.]{style="color: blue;"}
+
+## Solution 1 (continued)
+
+-   To report this result, you might say something like
+
+*From 100 coin tosses we got 43 heads and 57 tails. These counts are consistent at the 5% significance level with the coin being fair (chi-squared test, X2 = 1.96, df = 1, p \> 0.05).*
+
+## Exercise 2: Is a scientist's competence associated with their astrological star sign?
+
+Suppose someone told you that the competence of scientists was linked to their astrological zodiac sign. I won’t name all of these, but there are twelve of them: Pisces, Scorpio, Cancer etc.
+
+[To test this hypothesis, you spend a lot of time on Primo and identify 240 scientists, currently active, that have each published at least five papers in high impact journals in the last year. All of these people, you presume, are successful scientists. You write to each of them and ask them their date of birth.]{style="color: blue;"}
+
+Amazingly(!) all of them respond. You then assign each of them to a zodiac sign according to their birth date and get the following counts for each sign:
+
+[In this code chunk we have typed out the counts and collected them as a vector, using the function `c()`, we have saved this under the name `stars`.]{style="color: blue;"}
+
+```{r,echo = TRUE}
+stars<-c(22,20,17,22,20,19,18,21,19,22,23,17) # <1>
+```
+
+1.  Create a stars vector
+
+## Exercise 2 (continued)
+
+-   [What would be a suitable null hypothesis in this investigation?]{style="color: blue;"}
+
+-   What proportion of the total count would we expect for each star sign if this null were true?
+
+-   [Do the data meet the criteria required for use of a chi-square goodness of fit test.]{style="color: blue;"}
+
+-   If you have access to R, use the `chisq.test()` function to implement this test.
+
+-   [On the basis of the output of the test, do you reject the null hypothesis?]{style="color: blue;"}
+
+-   Report the result of the test in plain English.
+
+## Solution 2
+
+-   [H0: There is no association between the astrological star sign of a researcher and their success in science (who knew?)]{style="color: blue;"}
+
+-   One twelfth for each sign. ie a researcher is as likely to have one star sign as any other.
+
+-   [These are count data, there are at least five counts for every sign and the counts are independent - any individual researcher only contributes to one of the twelve counts.]{style="color: blue;"}
+
+-   Note that we do not need to include the second `p=...` argument in this case since the default presumption, that all proportions are equal, is true here.
+
+```{r}
+#| echo: true
+chisq.test(stars)
+```
+
+## Solution 2 (continued)
+
+```{r}
+#| echo: true
+chisq.test(stars)
+```
+
+-   [We see that the p-value is almost one so we emphatically do not reject the null hypothesis.]{style="color: blue;"}
+
+-   We find no evidence that star sign affects success in science (X-sq=2.29, df = 11, p=0.997)
+
+[Note the degrees of freedom that is reported: df = 11. The degrees of freedom is the number of independent pieces of information. Here, given that we know the total number of researchers, only eleven of the individual counts are independent. Once they are known, the twelfth can be calculated.]{style="color: blue;"}

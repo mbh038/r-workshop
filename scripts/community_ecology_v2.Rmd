@@ -342,7 +342,6 @@ The dendrograms are a useful, but for most real data, approximate summary of the
 Note also that dendrograms become very hard to interpret when the number of data points (in this case sites) becomes very large. This is less often an issue in the field of ecology where we are typically dealing within a samll number of sites, as here, but in other settings such as molecular biology of the gene where the data may consist of thousands of DNA sequences, they become impossible to decipher, and also very expensive computationally.
 
 
-
 **Exercise**
 
 For the dune data, find the species richness and Simpson diversity index for each site, then create a dendrogram that illustrates which sites are most similar/dissimilar to each other
@@ -363,12 +362,12 @@ plot(dune.hc)
 
 ```
 
-#### Ordination plot of disimilarites
+#### Ordination plot of disimilarites using NMDS
 
-Another commonly used technique for spotting patterns of (dis)similarity between sites based on their flora or on environmental variables is to use some form of 'ordination'. Roughly speaking, these are plots that show in two dimensions patterns that exist among multidimensional data. In the dune case, the multiple dimensions are the many species. What patterns exist among them? Which seem to like similar conditions and tend to appear at the same sites, and vice versa. Also, which sites are similar to each other, in respect of what grows there, and which are different? These are the questions that ordination plots are intended to shed light on. For data based on the presence/absence/abundance of species, Non-Metric Multidimensional Scaling (NMDS) is a widely used type of ordination technique.
+Another commonly used technique for spotting patterns of (dis)similarity between sites based on their flora or on environmental variables is to use some form of 'ordination'. Roughly speaking, these are plots that attempt to show in two dimensions patterns that exist among multidimensional data. In the dune case, the multiple dimensions are the many species. What patterns exist among them? Which seem to like similar conditions and tend to appear at the same sites, and vice versa. Also, which sites are similar to each other, in respect of what grows there, and which are different? These are the questions that ordination plots are intended to shed light on. For data based on the presence/absence/abundance of species, Non-Metric Multidimensional Scaling (NMDS) is a widely used type of ordination technique.
 
 
-Here, we will entirely skate over the details, but will carry out the analysis using the `vegan` function `metaMDS()` hen plot the result.
+Here, we will entirely skate over the details, but will carry out the analysis using the `vegan` function `metaMDS()` then plot the result.
 
 ```{r}
 ord <- metaMDS(dune)
@@ -379,8 +378,27 @@ plot(ord, type = "t")
 points(ord, display = "sites", cex = 0.2, pch=21, col="red", bg="yellow")
 #text(ord, display = "spec", cex=0.7, col="blue")
 ```
+
 The plot shows in two dimensions the sites, here numbered 1-18, and in red, the species. Sites that appear close together on this plot are more similar than sites that are far apart. Species that are close together on the plot tend to occur together, while species that are far apart do so less often.
 
 Check that this plot accords with the dendrogram above.
 
 Improvements to this plot can be made using `ggplot` - plenty of blogs exist that tell you how to do this.
+
+#### How well does the NMDS plot reflect true patterns in the data?
+
+This can be quantified by calculating the 'stress' of the process. A low value indicates that the NMDS ordination plot is capturing the true patterns in the data well. Anything above about 0.2 means that it is doing a poor job and that you may need to transform the data in some way and try again.
+
+```{r}
+ord$stress
+```
+
+We find here a stress value of less than 0.2, so we can infer that the NMDS plot gives a useful indication of patterns in the data.
+
+A **Shephard Plot** is another way to visually indicatye the degree of stress. If the data ate tightly grouped around a diagonal straight line then there is low strees. If they are, the stres is higher.
+
+```{r}
+stressplot(ord)
+```
+
+For our data, the plot indicates low stress, in accordance with the direct measurement of the stress value.

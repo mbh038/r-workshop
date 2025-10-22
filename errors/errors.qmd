@@ -1,0 +1,167 @@
+---
+title: "Errors"
+subtitle: "Type One and Type Two"
+format: revealjs
+incremental: true
+editor: visual
+---
+
+## **Type I error** (false positive) 
+
+\
+This occurs when a researcher claims to detect an effect or relationship that does not actually exist. 
+
+##  Misidentifying Pollution Impacts
+
+\
+A study claims that a new coastal construction project (e.g., an offshore wind farm) significantly reduces local fish diversity.\
+ 
+* **Type I Error**: 
+  * The observed decline might actually be due to natural fluctuations (e.g., seasonal migration or temperature changes), but the study attributes it to the construction.\
+* **Cause**: 
+  * Insufficient baseline data or short-term monitoring that doesn’t account for natural variability.
+
+------------------------------------------------------------------------
+
+## Species Detection Errors: 
+
+\
+A study uses camera traps to assess whether a critically endangered leopard subspecies is extinct.
+   
+* **Type 1 Error**:
+  * Researchers conclude the subspecies still exists—when it is actually gone
+* **Cause**:
+  * Poor camera placement or a fleeting misidentification (e.g., a similar-looking common leopard)  
+* **Consequence:** Conservation efforts (funding, patrols) might be directed to a "ghost" population instead of other urgent needs. 
+
+------------------------------------------------------------------------
+
+## False Detection of Species Invasions
+
+\
+Researchers report a "new" invasive crab species on an artificial reef.\
+
+* **Type I Error**: 
+  * The crab might be a rare native species misidentified due to limited taxonomic expertise or atypical habitat use (e.g., displaced by storms).\
+
+* **Cause**: 
+  * Sampling bias (e.g., only surveying the reef edge) or lack of genetic confirmation.
+
+------------------------------------------------------------------------
+
+## Habitat Impact Studies:
+
+\
+A team studies logging impacts on bird diversity, finds no birds and concludes that logging does have an impact on diversity  
+
+* **Type I Error**:
+  * This was just a fluke in sampling timing.
+  
+* **Cause**:
+  * The researchers sampled a patch that birds had temporariliy vacated due to a storm.
+
+
+------------------------------------------------------------------------
+
+## Overestimating Climate Change Effects
+
+
+\
+A study concludes that coral bleaching in a specific reef is caused by rising sea temperatures.\
+
+* **Type I Error**: 
+  * The bleaching might actually stem from a local stressor (e.g., sediment runoff or disease), but the broader climate narrative dominates interpretation.\
+
+* **Cause**: 
+  * Confounding variables not measured or controlled.
+
+------------------------------------------------------------------------
+
+## Faulty Conservation Priorities
+
+\
+A paper claims a marine protected area (MPA) is failing because fish sizes decreased.\
+
+* **Type I Error**: 
+  * The decline could reflect normal population cycling or sampling artifacts (e.g., larger fish avoiding divers), not MPA ineffectiveness.\
+
+* **Cause**: 
+  * Small sample sizes or non-random sampling (e.g., only surveying easily accessible sites).
+
+------------------------------------------------------------------------
+
+## Misleading Behavioral Studies
+
+\
+A study suggests that underwater noise from ships alters dolphin communication.\
+
+* **Type I Error**: 
+  * The dolphins’ behavior might vary naturally (e.g., due to prey availability), but noise is blamed without proper controls.\
+
+* **Cause**: 
+  * Lack of pre-noise baseline data or pseudoreplication (repeating observations on the same group).
+
+------------------------------------------------------------------------
+
+## **How to Minimize Type I Errors**:
+
+-   **Increase sample size/replication** to capture natural variability.\
+
+-   **Use controls** (e.g., comparing impacted sites to unaffected "control" sites).\
+
+-   **Long-term monitoring** to distinguish trends from noise.\
+
+-   **Statistical rigour**: Adjust significance thresholds (e.g., Bonferroni correction) for multiple comparisons.
+
+------------------------------------------------------------------------
+
+## **Type II error** (false negative) 
+
+\
+This occurs when a researcher fails to detect an effect or relationship that actually exists.
+
+------------------------------------------------------------------------
+
+## Missed Species Detection
+
+A camera trap survey concludes that a rare carnivore is absent from a forest 
+
+* **Type II Error**: 
+  * In reality, the species is present.
+
+* **Cause**:
+  * The carnivore went undetected due to poor placement of cameras or insufficient survey duration.
+  
+------------------------------------------------------------------------
+
+## **Underestimating Population Decline**  
+
+\
+A bird population monitoring study finds no significant decline in numbers, leading to the conclusion that the population is stable. 
+
+* **Type II Error**: 
+  * In reality, the population is in decline.
+
+* **Cause**:
+  * The survey was conducted outside the breeding season when the birds were less visible, masking the real decline.
+   
+------------------------------------------------------------------------
+
+## Ineffective Conservation Action
+
+\
+A study evaluates the impact of a marine protected area (MPA) on fish populations and finds no increase in fish abundance. 
+
+* **Type II Error**: 
+  * In fact, there is a real decline in fish numbers.
+
+* **Cause**:
+  * The study period was too short to detect long-term effects, leading to the false conclusion that MPAs are ineffective.
+
+
+## **How to Minimize Type II Errors**:
+
+-   **Failure to account for confounding variables** to capture natural variability.\
+
+-   **Low statistical power** (This is often due to sample sizes being too samll, but could also arise from high variability of the target population.\
+

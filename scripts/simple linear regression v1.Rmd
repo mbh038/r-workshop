@@ -1,0 +1,450 @@
+---
+title: 'General Linear Models: simple linear regression'
+author: "Michael Hunt"
+date: "21/03/2024"
+output:
+  html_document:
+    df_print: paged
+    theme: flatly
+    toc: true
+    floating: true
+  pdf_document:
+    toc: true
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+```
+
+## Introduction 
+A class of analytical models that you will use often go under the name **General Linear Models**. They include simple linear regression, multiple linear regression, ANOVA, ANCOVA, Pearson correlation and t-tests, among others.
+
+Despite appearances, these models are all fundamentally linear models. They share a common framework for estimation (least squares) and a common set of criteria that the data must satisfy before they can be used. These criteria centre around the idea of normally distributed residuals. An important stage of any analysis that uses linear models is that these assumptions are checked, as part of the *Plot* -> *Model* -> *Check Assumptions* -> *Interpret* -> *Plot again* workflow.
+
+Here, we will go through an example of simple linear regression - suitable for trend data where we wish to predict a continuously varying response, given a value of a continuous explanatory variable. As we go we show code snippets from an R script that does this job, and, at the bottom, an example complete script that you could adapt to your own needs.
+
+## Simple Linear Regression - plant growth
+
+As a first example, we ask the question: does plant growth rate depend on soil moisture content?
+
+We predict that more moisture will probably allow higher growth rates. We note that this means there will be a clear relationship between the variables, one that should be apparent if we plot the response (dependent) variable - plant growth rate - against the explanatory (independent) variable - soil moisture content. We note that both the explanatory variable and the dependent variables are *continuous* - they do not have categories.
+
+What we want to do in linear regression is be able to predict the value of the dependent variable, knowing the value of the independent variable. In practice, this means drawing a 'best fit' straight line through the data and determining the intercept and gradient of this line.
+
+
+### Load packages
+```{r}
+library(tidyverse)
+library(here)
+library(ggfortify)
+library(cowplot)
+# un-comment and run the next line if you have not yet installed mbhR.
+# remotes::install_github("mbh038/mbhR")
+library(mbhR)
+```
+
+### Get the data
+We have a data set to explore our question: The `plants` data set is available through the `mbhR` package which you have already installed and loaded
+
+```{r}
+data(plants)
+glimpse(plants)
+```
+We see that the data set contains two continuous variables, as expected.
+
+### Plot the data
+
+We can use the package `ggplot2`, which is part of `tidyverse` to do this:
+
+```{r}
+plants |>
+  ggplot(aes(x=soil.moisture.content, y=plant.growth.rate)) +
+  geom_point() +
+  labs(x="Soil moisture content",
+       y="Plant growth rate (mm/week)") +
+  xlim(0,2) +
+  ylim(0,50) +
+  theme_cowplot()
+```
+
+From the plot, we note that:
+
+* there is an upward trend that is plausibly linear within this range of soil misture content. The more moisture there is in the soil, the greater the growth rate of the plants appears to be.
+* the variance of the data, that is the range of vertical spread is approximately constant for the whole range of soil moisture content. This is one of the key criteria that data must satisfy if we are to analyse them using a linear model such as simple linear regression.
+* we can estimate the intercept and gradient of a best fit line just by looking at the plot. Roughly speaking, the moisture content varies from 0 to 2, while the growth rate rises from 20 to 50, a rise of about 30. Hence the gradient is about 30/2 = 15 mm/week, while the intercept is somewhere between 15 mm and 20 mm / week.
+
+It is always good practice to examine the data before you go on to do any statistical analysis. For all but the smallest data sets, that means plotting them.
+
+### Make a simple model using linear regression
+
+We use the function `lm()` to do this, and we save the results in an object to which we give the name `model_pgr`. This function needs a formula and some data as its arguments:
+
+```{r}
+model_pgr<-lm(plant.growth.rate ~ soil.moisture.content, data = plants)
+```
+
+This reads: 'Fit a linear model, where we hypothesize that plant growth rate is a function of soil moisture content, using the variables from the `plants` data frame.'
+
+### Check assumptions
+
+Before we rush into interpreting the output of the model, we need to check whether it was valid to use a linear model in the first place. Whatever the test within which we are using a linear model, we should do the necessary diagnostic checks at this stage.
+
+You can do this using tests designed for the purpose, but I prefer to do it graphically, using a function `autoplot()` from the package `ggfortify`. You give this the model we have just created using `lm()` and it produces four very useful graphs. I suggest that, after once installing `ggfortify` you include the line `library(ggfortify)` at the start of every script.
+
+Here is how you use it:
+
+```{r}
+autoplot(model_pgr, smooth.colour=NA) + theme_cowplot()
+```
+
+The `theme_cowplot()` part is not necessary, but it gives the plots a nice look, so why not?
+
+These plots are all based around the `residuals', which is the vertical distance between observed values and fitted values ie between each point and the best fit line through the points - the line which the linear model is finding for us, by telling us its intercept and gradient.
+
+Note that in simple linear regression, the best fit line is the one that minimises that sum of the squared residuals.
+
+So what do these plots mean?
+
+* *Top-left*: This tells you about the structure of the model. Was it a good idea to try to fit a straight line to the data? If not, for example because the data did follow a linear trend, then there will be humps or troughs in this plot.
+* *Top-right*: This evaluates the assumption of normality of the residuals. The dots are the residuals and the dashed line is the expectation under the normality assumption. This is a *much* better way to check normality than making a histogram of the residuals, especially with small samples.
+* *Bottom-left*: This examines the assumption of equal variance of the residuals. A linear model assumes that the variance is constant over all predicted values of the response variables. There should be no pattern. Often, however, there is. With count data, for example, the variance typically increases with the mean.
+* *Bottom-right*: This detects leverage - which means points that have undue influence on the gradient of the fitted line, and outliers. If you have outliers in your data, you need to decide what to do with them.
+
+In the case of these data, we are good to go! There is no discernible pattern in either of the left-hand plots, the qq-plot is about as straight as you ever see with real data, and there are no points exerting undue high influence.
+
+### Interpretation of the model
+
+Now that we have established that the data meet the criteria required for the model to be valid, we can go ahead and inspect its output. We will do this using two tools that we also use for every other general linear model we implement (t-test, ANOVA etc). These are `anova()` and `summary()`
+
+Let us first use `anova()`:
+
+```{r}
+anova(model_pgr)
+```
+The F value here is an example of a 'test statistic', a number that a test calculates from the data, from which it is possible to further calulate how likely it is that you would have got the data you got if the null hypothesis were true. This particular test statistic is the ratio of the variation in the data that is explained by the explanatory variable to the leftover variance. The bigger it is, the better the job that the explanatory variable is doing at explaining the variation in the dependent variable. The p value, which here is effectively zero, is the chance you would have got an F value this big or bigger from the data in the sample if in fact there were no relationship between plant growth rate and soil moisture content. If the p value is small (and by that we usually mean less than 0.05) then we can reject the null hypothesis that there is no relationship between plant growth rate and soil moisture content.
+
+Hence, in this case, we emphatically reject the null: there is clear evidence that plant growth rate is at least in part explained by soil moisture content.
+
+Now we use the `summary()` function:
+
+```{r}
+summary(model_pgr)
+```
+This gives us estimates of the intercept (19.348) and gradient (12.750) of the best fit line through the data. The null hypothesis is that both these values are zero, and the p-value is our clue as to whether we can reject this null. Here, in both cases, we clearly can.
+
+We also see the *Adjusted R-squared* value of 0.7599. This is the proportion of the variance in the dependent variable that is explained by the explanatory variable. Thus it can vary between 0 and 1. A large value like this indicates that soil moisture content is a good predictor of plant growth rate.
+
+### Back to the figure
+Typically, a final step in our analysis involves including the model we have fitted into the original figure, if that is possible in a straightforward way. In the case of simple linear regression, it is. It  means adding a straight line with the intercept and gradient displayed by the `summary()` function. We do this by adding a line `geom_smooth(method = "lm")` to our plot code:
+
+```{r}
+plants |>
+  ggplot(aes(x=soil.moisture.content, y=plant.growth.rate)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(x="Soil moisture content",
+       y="Plant growth rate (mm/week)") +
+  xlim(0,2) +
+  ylim(0,50) +
+  theme_cowplot()
+```
+
+This gives both a straight line and the 'standard error' of that line - meaning, roughly speaking, the wiggle room within which the 'true' line , for the population as opposed to this sample drawn from it, probably lies.
+
+### Report the result
+
+We would likely want to include this plot in our report, along with a statement like:
+
+We find evidence for a linear increase in plant growth rate with soil moisture content (p<0.001), with an additional 12.75 mm of growth per unit increase in soil moisture content.
+
+### Conclusion
+We have carried out a simple linear regression on continuous data. This is an example of a general linear model. We first plotted the data, then we used `lm()` to fit the model. Next we inspected the validity of the model using `autoplot`. We then inspected the model itself using first `anova()` then `summary()`. Finally we included the output of the model on the plot, in this case by adding to it a straight line with the intercept and gradient determined by the regression model, and reported the result in plain English.
+
+
+
+## Simple linear regression - ocean pH
+
+In this second example we provide. the script but leave you to interpret the outcome of each step. You can use the first example to help you do this.
+
+Here we use data from Figure 5.20 of AR6, WG1 from the IPCC. It shows ocean pH measurements from a location (137$^{\circ}$E, 5$^{\circ}$N) in the western Pacific between 1980 and 2020.
+
+Your task is to assess whether there is a significant linear trend in pH with time and if so to determiine the change in pH per decade over the forty year period from 1980 to 2020.
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+### Load packages
+```{r}
+library(tidyverse)
+library(here)
+library(ggfortify)
+library(cowplot)
+```
+
+### Load data
+```{r}
+pH_filepath <- here("data","ipcc_AR6_WGI_Figure_5_20-pH.csv")
+pH<-read_csv(pH_filepath,skip=6) # we have to skip the first 6 lines becuase of meta-data - check it out!
+glimpse(pH)
+```
+
+### Plot data
+```{r}
+pH |>
+  ggplot(aes(x = year, y = pH)) +
+  geom_point() +
+  labs(x = "Year",
+       y = "Ocean pH") +
+  scale_y_continuous(limits=c(8.0,8.12), breaks=seq(8.0,8.2,0.02)) +
+  theme_cowplot()
+```
+Is there a linear trend? 
+
+### Fit linear model
+```{r}
+pH_model <- lm(pH ~ year, data= pH)
+```
+
+### Check model validity
+```{r}
+autoplot(pH_model) + theme_cowplot()
+```
+Is it reasonable to apply a linear model to these data? Remember that each of these plots tell you something about whether this is the case.
+
+### Inspect model
+
+#### ANOVA
+```{r}
+anova(pH_model)
+```
+Are we OK to reject the null hypothesis that pH does not change over this time period?
+
+### Summary
+```{r}
+summary(pH_model)
+```
+
+What is the change in ocean pH per decade over the last four decades?
+Is this change statistically significant?
+Does the linear model account for much of the variance in the data?
+
+### Replot the data, model included
+
+```{r}
+pH |>
+  ggplot(aes(x = year, y = pH)) +
+  geom_point() +
+  geom_smooth(method = "lm", colour = "blue") + # add the line. Method ="lm" for a straight line.
+  labs(x = "Year",
+       y = "Ocean pH") +
+  scale_y_continuous(limits=c(8.0,8.12), breaks=seq(8.0,8.2,0.02)) + # fix limits and break points of y-axis
+  annotate(geom="text", x = 2015, y = 8.11, label = "137W, 5N", size = 5) + # measurement site
+  theme_cowplot()
+```
+
+How would you report this result?
+
+
+## Sample script
+
+A notebook to do linear regression might look like the following, here written as a .Rmd notebook. For this to work you will need to work within a project, with the data in a sub-folder of that called "data". Here, the data is taken to be a .csv file called `mydata.csv`, with two columns of data, one called `x_values` and the other called `y_values`. You need to change these to suit your own data.
+
+To use this, open a new notebook of your own (`File/New File/R Notebook`), delete everything, paste in all the code below, then adapt the code as needed. Remember to save the notebook in your project scripts folder!
+
+````
+---
+title: "Sensible title"
+author: "your name"
+date: "the date"
+output: html_notebook
+---
+
+### load packages
+```{r}`r ''`
+library(tidyverse)
+library(here)
+library(ggfortify)
+library(cowplot)
+```
+
+### load data
+```{r load_data}`r ''`
+filepath <- here("data", "mydata.csv")
+mydata <- read_csv(filepath)
+glimpse(mydata)
+```
+
+### plot the data
+```{r}`r ''`
+mydata |>
+  ggplot(aes(x=x_values, y=y_values)) +
+  geom_point() +
+  labs(x = "X variable",
+       y = "Y variable") +
+  theme_cowplot()
+```
+
+### fit the model
+```{r}`r ''`
+mydata.model <- lm (y_values ~ x_values, data = mydata)
+```
+
+### diagnostics
+```{r}`r ''`
+autoplot(mydata.model)
+```
+
+### investigate the model
+```{r}`r ''`
+anova(mydata.model)
+```
+
+```{r}`r ''`
+summary(mydata.model)
+```
+
+### replot the data, now with the model included
+```{r}`r ''`
+mydata |>
+  ggplot(aes(x=x_values, y=y_values)) +
+  geom_point() +
+  geom_smooth(method="linear") +
+  labs(x = "X variable",
+       y = "Y variable") +
+  theme_cowplot()
+```
+
+````
+
+## More examples
+
+### Oregon stream temperatures vs elevation
+
+```{r}
+streams <- read_csv(here("data","oregon_streams_regression.csv"), skip = 5)
+glimpse(streams)
+```
+
+```{r, warning = FALSE, message = FALSE}
+streams |>
+  filter(temperature > 5) |>
+  ggplot(aes(x = elevation, y = temperature)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Elevation (ft)",
+       y = "Temperature (C)") +
+  scale_x_continuous(limits=c(0,4500),
+                     expand = expansion(mult = c(0, 0.1))) +
+  scale_y_continuous(limits=c(5,21),
+                     expand = expansion(mult = c(0, 0.1))) +
+  geom_segment(aes(x = 0, xend = 4000, y = 16.3954-0.0017155*4000, yend = 16.3954-0.0017155*4000), linetype="dashed", colour = "gray80") +
+  geom_segment(aes(x = 4000, xend = 4000, y = 5, yend = 16.3954-0.0017155*4000), linetype="dashed", colour = "gray80") +
+  annotate(geom="text",x = 4000, y = 9.53, label = "9.53", vjust= -0.8, hjust = 0) +
+  theme_cowplot()
+```
+```{r, warning = FALSE, message = FALSE}
+streams |>
+  filter(temperature > 5) |>
+  ggplot(aes(x = elevation, y = temperature)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Elevation (ft)",
+       y = "Temperature (C)") +
+  scale_x_continuous(limits=c(0,4500),
+                     expand = expansion(mult = c(0, 0.1))) +
+  scale_y_continuous(limits=c(5,21),
+                     expand = expansion(mult = c(0, 0.1))) +
+  geom_segment(aes(x = elevation, y =  16.3954 - 0.0017155 * elevation, xend=elevation, yend = temperature), linetype= "dashed", colour = "gray60") +
+  theme_cowplot()
+```
+
+
+
+```{r}
+streams.model <- lm(temperature ~ elevation, data = streams)
+```
+
+```{r}
+autoplot(streams.model) + theme_cowplot()
+```
+
+
+
+```{r}
+anova(streams.model)
+```
+```{r}
+summary(streams.model)
+```
+
+### Arctic sea ice
+
+### Exercise 1: Decline of Arctic sea ice
+
+```{r}
+filepath <- here("data", "arctic_ice_extent_september.csv")
+# filepath <- here("data", "N_09_extent_v3.0.csv")
+# filepath <- here("data", "arctic_sea_ice_minimum.csv")
+arctic_ice <- read_csv(filepath, skip = 4)
+glimpse(arctic_ice)
+```
+
+```{r}
+arctic_ice %>%
+  ggplot(aes(x = year, y = extent_msqkm)) +
+  geom_point() +
+  geom_line(colour="gray80") +
+  geom_smooth(method = "lm", se= FALSE, colour = "blue", linewidth = 0.5) +
+  labs( x = "Year",
+        y = "Sea ice minimum extent (Mkm^2)",
+        caption = "(NOAA, 2024)") +
+  theme_cowplot()
+```
+
+```{r}
+sea_ice_model <- lm(extent_msqkm ~ year, data = arctic_ice)
+```
+
+```{r}
+anova(sea_ice_model)
+```
+
+```{r}
+summary(sea_ice_model)
+```
+
+### Tree volume
+
+```{r}
+trees <- read_csv(here("data","tree_vol.csv"))
+glimpse(trees)
+```
+
+
+```{r}
+pairs(trees)
+```
+```{r}
+cor.test(trees$height,trees$diameter)
+```
+
+```{r}
+trees.model1 <-lm(volume ~ diameter, data = trees)
+```
+
+```{r}
+summary(trees.model1)
+```
+```{r}
+trees.model2 <- lm(volume ~ diameter + height, data= trees)
+```
+
+```{r}
+summary(trees.model2)
+```
+```{r}
+anova(trees.model2,trees.model1)
+```
+

@@ -39,11 +39,11 @@ knitr::include_graphics(myimages)
 * It is no coincidence that our eyes are sensitive to this range of wavelengths!
 * Longer wavelengths are called “infrared”, shorter wavelengths are called “ultraviolet”.
 
-The shape of the spectrum is a fundamental characteristic of radiative emissions (think about the color of burning coals in a fire – cooler = red, hotter = white)
+The shape of the spectrum is a fundamental characteristic of radiative emissions (think about the colour of burning coals in a fire – cooler = red, hotter = white)
 
 Theory and experiments tell us that both the total flux of emitted radiation, and the wavelength of maximum emission, depend only on the temperature of the source.
 
-The theoretical spectrum was worked out by Max Planck and is therefore known as the “Planck” spectrum (or simply the black body spectrum).
+The theoretical spectrum was worked out by Max Planck around the beginning of the 20th century,and is therefore known as the “Planck” spectrum (or simply the black body spectrum).
 
 **Effect on spectrum of change of temperature
 
@@ -54,7 +54,7 @@ knitr::include_graphics(myimages)
 
 Going from cool to warm:
 
-* total emission increases
+* the total emission increases - hotter things shine more brightly
 * maximum emission occurs at shorter wavelengths.
 * The integral of these curves over all wavelengths gives us our familiar $\sigma T^4$
 

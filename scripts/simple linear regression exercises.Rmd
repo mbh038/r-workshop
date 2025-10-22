@@ -1,8 +1,10 @@
 ---
 title: "Simple Linear Regression exercises"
 author: "Michael Hunt"
-date: "06-07-2024
-output: html_notebook
+date: "06-07-2024"
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r, include=FALSE}

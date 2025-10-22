@@ -58,7 +58,7 @@ knitr::include_graphics(myimages)
 
 In a chi-square 'goodness of fit' test, we are testing data where we have a number of counts for each of two or more possible outcomes of some procedure (heads/tails, dice scores etc). We have an idea of how these counts should be distributed under some null hypothesis (the coin is fair, the dice is fair, genetic inheritance works in this or that way etc). The chi-square goodness of fit test tests how likely it is we would have got the counts we actually got if that null hypothesis were correct. We are testing how well our actual counts 'fit' the expected values.   
 
-In a typical software implementation of the test, such as in R, we give it the counts we actually got for each possible outcome and also the expected proportion for each outcome. The test then gives us a p-value, a probability, for how likely it is that we would have got the counts we actually got, or counts even furthe from the null hypothesis, if that null hypothesis were correct. If this p-value is too small, and usually, by that we mean less than 0.05, then we reject the null hypothesis.
+In a typical software implementation of the test, such as in R, we give it the counts we actually got for each possible outcome and also the expected proportion for each outcome. The test then gives us a p-value, a probability, for how likely it is that we would have got the counts we actually got, or counts even further from the null hypothesis, if that null hypothesis were correct. If this p-value is too small, and by that we usually mean less than 0.05, then we reject the null hypothesis.
 
 #### Example
 
@@ -601,7 +601,7 @@ exp.mat
 
 
 
-To get a measurement of how far the actual table numbers are from their expected values we can, for each cell, square the difference between the expected and actual values, then divide the result by the actual value, and finally sum the four results that we get. This has the effect of giving equal weight to positive or negative deviations of the observed values from the expected values, and scales each squared deviation so that all four have equal weight in the final sum. The result is the chi-squared test statistic:
+To get a measurement of how far the actual table numbers are from their expected values we can, for each cell, square the difference between the expected and actual values, then divide the result by the expected value, and finally sum the four results that we get. This has the effect of giving equal weight to positive or negative deviations of the observed values from the expected values, and scales each squared deviation so that all four have equal weight in the final sum. The result is the chi-squared test statistic:
 
 $$
 \begin{align*}
@@ -636,7 +636,7 @@ Under a null hypothesis of no association between habitat and colour all the cou
 
 But how large is large enough to reject the null?
 
-To answer this we use the fact that the sampling distribution of $X^2$ is a chi-squared distribution with (in this case) $(2-1) \times (2-1) = 1$ degrees of freedom. The sampling distribution is the distribution you would get if you were to repeat the study multiple times, each time calculating the $X^2$ statistic from the four counts of black/red, industrial/rural. Each time you would get a slightly different value of $X^2$.  The spread of those hypothetical values is waht we call the sampling distribution. Providing none of the cell values in the tables are too samll (see below) it turns out that this distribution has a known mathematical form, known as a chi-square distribution.
+To answer this we use the fact that the sampling distribution of $X^2$ is a chi-squared distribution with (in this case) $(2-1) \times (2-1) = 1$ degrees of freedom. The sampling distribution is the distribution you would get if you were to repeat the study multiple times, each time calculating the $X^2$ statistic from the four counts of black/red, industrial/rural. Each time you would get a slightly different value of $X^2$.  The spread of those hypothetical values is what we call the sampling distribution. Providing none of the cell values in the tables are too samll (see below) it turns out that this distribution has a known mathematical form, known as a chi-square distribution.
 
 The p-value given in a chi-square test is the probability of getting a chi-squared statistic $X^2$ as big as or bigger than the one you actually got. This is the area under the chi-squared distribution with the appropriate number of degrees of freedom to the right of the test-statistic value $X^2$.
 

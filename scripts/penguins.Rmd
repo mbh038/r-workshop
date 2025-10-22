@@ -1,5 +1,5 @@
 ---
-title: "Pnguoin analysis"
+title: "Penguin analysis"
 author: "Michael Hunt"
 date: "06-11-2024"
 output:
@@ -9,7 +9,7 @@ output:
 
 
 ### Load packages
-Now we will load packages
+
 ```{r}
 library(tidyverse)
 library(here)

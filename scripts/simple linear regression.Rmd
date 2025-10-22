@@ -167,7 +167,7 @@ In this second example we provide. the script but leave you to interpret the out
 
 Here we use data from Figure 5.20 of AR6, WG1 from the IPCC. It shows ocean pH measurements from a location (137$^{\circ}$E, 5$^{\circ}$N) in the western Pacific between 1980 and 2020.
 
-Your task is to assess whether there is a significant linear trend in pH with time and if so to determiine the change in pH per decade over the forty year period from 1980 to 2020.
+Your task is to assess whether there is a significant linear trend in pH with time and if so to determiine the change in pH per year or per decade during the forty year period from 1980 to 2020.
 
 
 ```{r, include = FALSE}
@@ -245,6 +245,9 @@ pH |>
 
 How would you report this result?
 
+## Simple linear regression: Body mass vs metabolic rate
+
+Here we use data from 
 
 ## Sample script
 

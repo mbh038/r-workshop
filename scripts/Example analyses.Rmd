@@ -7,6 +7,11 @@ output:
     df_print: paged
 ---
 
+```{r,include = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+
 This notebook uses the penguin data set from the palmerpenguins package to illustrate the use of correlation, linear regression and t-test / Wilcox tests in R.
 
 ```{r}
@@ -22,7 +27,7 @@ glimpse(penguins)
 
 ```{r}
 penguin_adelie <- penguins |> 
-  filter(species == "penguin_adelie")
+  filter(species == "Adelie")
 glimpse(penguin_adelie)
 ```
 
@@ -113,7 +118,7 @@ penguins |>
 
 #### t_test / Wilcox test
 ```{r}
-penguin_adelie_bodymass <- penguins |> filter(species == "penguin_adelie") |> select(body_mass_g) |> pull()
+penguin_adelie_bodymass <- penguins |> filter(species == "Adelie") |> select(body_mass_g) |> pull()
 chinstrap_bodymass <- penguins |> filter(species == "Chinstrap") |> select(body_mass_g) |> pull()
 gentoo_bodymass <- penguins |> filter(species == "Gentoo") |> select(body_mass_g) |> pull()
 ```

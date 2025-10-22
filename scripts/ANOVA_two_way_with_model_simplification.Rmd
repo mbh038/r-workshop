@@ -18,6 +18,7 @@ library(tidyverse)  # for data manipulation and plotting, and much else besides
 library(here) # for finding our data easily
 library(cowplot) # gives a nice theme for plots
 library(ggfortify) # for diagnostic plots
+library(kableExtra)
 ```
 
 This exercise sheet is heavily indebted to Michael Crawley's *Statistics: An introduction using R*, 2nd Ed, Wiley. Published in 2015 this emphasises statistics over R (in fact, much of the R he presents is written prior to the advent of the `tidyverse` dialect which we use here, and so may seem terse if that is what you are used to). It is very useful and is at a higher level than Beckerman, Childs and Petchey's *Getting Started in R: An introduction for biologists*, 2nd Ed. OUP published in 2017. Their book also includes a simpler version of the example explored here.
@@ -128,7 +129,7 @@ growth_summary <- weights |>
   ungroup()
 
 # if we type the name of an object, it gets printed out for us
-growth_summary
+growth_summary |> kable()
 ```
 
 ```{r, echo = FALSE}

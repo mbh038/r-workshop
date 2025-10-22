@@ -1,0 +1,45 @@
+---
+title: "ANIVA: One Way Repeated Measures"
+author: "Michael Hunt"
+date: "30/01/2025"
+output: html_notebook
+---
+
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(here)
+library(readxl)
+library(ggfortify)
+library(janitor)
+library(cowplot)
+library(rstatix)
+```
+
+
+A repeated measures ANOVA can be used to analyse data where an outcome for the same subject is measured more than once. This can arise when you are tracking changes over time, or before and after a given treatment, or when the same subject undergoes a series of different treatments.
+
+Some examples:
+
+Tracking Changes Over Time:
+If you're monitoring the same coral reef over multiple seasons to see how bleaching severity changes.
+Measuring fish population sizes at the same location across different years to assess the impact of conservation policies.
+
+Comparing the Same Subjects Under Different Conditions:
+Testing how a group of sea turtles responds to different water temperatures in a controlled experiment.
+Measuring oxygen levels in a single lake under different pollution treatments to see how water quality changes.
+
+Reducing Variability Between Subjects:
+In ecology, individual plants, animals, or locations often vary greatly. Since repeated measures ANOVA focuses on the same subjects, it helps control for individual differences, making it easier to detect true effects rather than random variation.
+
+
+
+
+
+
+

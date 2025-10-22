@@ -1,0 +1,116 @@
+---
+title: "GLM prediction intervals"
+format: html
+editor: visual
+execute: 
+  warning: false
+  message: false
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(cowplot)
+theme_set(theme_cowplot())
+```
+
+
+## Binomial GLM
+
+Using:
+https://fromthebottomoftheheap.net/2017/05/01/glm-prediction-intervals-i/
+
+```{r}
+# darlurl <- "http://harvardforest.fas.harvard.edu/sites/harvardforest.fas.harvard.edu/files/ellison-pubs/2004/DarlingtoniaData3.txt"
+# darl <- setNames(read.fwf(darlurl, widths = c(8,9), header = FALSE, skip = 1L),c("leaf_height", "visited"))
+# darl <- transform(darl, visited = as.logical(visited))
+
+filepath <- here("data","darlingtonia.csv")
+darl <- read_csv(filepath) |>
+  mutate(visited = as.logical(visited))
+glimpse(darl)
+```
+
+```{r}
+xlab <- "Leaf height [cm]"
+darl |>
+  ggplot(aes(x = leaf_height, colour = visited)) +
+    geom_line(stat = "density") +
+  labs(x = xlab, y = "Density")
+```
+
+```{r}
+m <- glm(visited ~ leaf_height, data = darl, family = binomial)
+summary(m)
+```
+
+```{r}
+ilink <- family(m)$linkinv
+pd <- with(darl,
+           data.frame(leaf_height = seq(min(leaf_height), max(leaf_height),
+                                       length = 100)))
+pd <- cbind(pd, predict(m, pd, type = "link", se.fit = TRUE)[1:2])
+pd <- transform(pd, Fitted = ilink(fit), Upper = ilink(fit + (2 * se.fit)),
+                Lower = ilink(fit - (2 * se.fit)))
+
+ggplot(darl, aes(x = leaf_height, y = as.numeric(visited))) +
+    geom_ribbon(data = pd, aes(ymin = Lower, ymax = Upper, x = leaf_height),
+                fill = "steelblue2", alpha = 0.2, inherit.aes = FALSE) +
+    geom_line(data = pd, aes(y = Fitted, x = leaf_height)) +
+    geom_point() +
+    labs(y = "Probability of visitation", x = xlab)
+```
+
+## Poisson GLM
+
+From:
+https://fromthebottomoftheheap.net/2017/05/01/glm-prediction-intervals-ii/
+
+Using:
+Korner-Nievergelt, F. et al. (2015) Bayesian Data Analysis in Ecology Using Linear Models with R, BUGS, and STAN. Elsevier. Available at: https://doi.org/10.1016/C2013-0-23227-X.
+
+The example is from Korner-Nievergelt et al. (2015), and concerns the number of breeding pairs of the common whitethroat (*Silvia communis*). This species likes to inhabit field margins and fallow lands and has been adversely affected by intensive agricultural activities reducing these types of habitat on the landscape. As a mitigation effort, wildflower fields are sown and left largely unmanaged for several years. The data come from a study looking at how the number of breeding pairs of common whitethroat change as the composition and structure of the plant community changes over time. The data are in the `blmeco` package available on CRAN.
+
+
+```{r}
+library("blmeco")
+data(wildflowerfields)
+library("tidyverse")
+library(cowplot)
+theme_set(theme_cowplot())
+```
+
+The example in Korner-Nievergelt et al. (2015) uses a Poisson GLM with a quadratic effect of the variable age. We will use a Poisson GAM, but in all other respects the analysis follows that from the text book (only the year 2007 data are used, field size transformed to hectares).
+
+```{r}
+library("mgcv")
+wf <- wildflowerfields |>
+  filter(year == 2007) |>
+  mutate( size = size / 100) |>
+  mutate(size.z = (size - mean(size)) / sd(size))
+mod <- gam(bp ~ s(age, k = 6) + size.z + offset(log(size)), data = wf, family = poisson, method = "REML")
+summary(mod)
+```
+
+The primary variable of interest shows a moderate amount of non-linearity, similar to that of the quadratic effect of age in the version from the text book, though the effect of field age is weak at best. The fitted model is illustrated graphically below, holding size constant at the mean field size
+
+```{r}
+ilink <- family(mod)$linkinv
+newd <- with(wf, expand.grid(age = seq(min(age), max(age), length = 300),
+                             size = 1, size.z = 0))
+newd <- tibble(age = seq(min(wf$age), max(wf$age), length = 300),
+               size = rep(1,300),
+               size.z = rep(0,300))
+newd <- cbind(newd, as.data.frame(predict(mod, newd, type = "link", se.fit = TRUE)))
+newd <- transform(newd, fitted = ilink(fit), upper = ilink(fit + (2 * se.fit)),
+                  lower = ilink(fit - (2 * se.fit)))
+ggplot(wf, aes(x = age, y = bp/size)) +
+    geom_ribbon(data = newd, mapping = aes(ymin = lower, ymax = upper, x = age),
+                alpha = 0.1, inherit.aes = FALSE) +
+    geom_line(data = newd, mapping = aes(y = fitted)) +
+    geom_jitter(width = 0.1, height = 0) +
+    labs(x = "Age [years]", y = expression("Number of Breeding Pairs [" * pairs ~ ha^{-1} * "]"),
+         title = "Common Whitethroat densities in Wildflower Fields",
+         subtitle = "Estimated densities for average field of ~1.8 ha")
+```
+

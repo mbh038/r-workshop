@@ -34,7 +34,7 @@ Using File/New File/R Notebook, start a new R Notebook in your RStuff/scripts fo
 
 ```{r,message=FALSE}
 
-# enter code to load the tidyverse, here, vegan, kableExtra and cowplot packages.
+# enter code to load the tidyverse, here, vegan and cowplot packages.
 # Install them first if you need to using >install.packages("name of package")
 
 ```
@@ -257,7 +257,7 @@ tidy.bird |>
 
 ```
 
-In the next chunk we use the `diversity()` function alone to give us the Shannon diversities for each of the habitats. This line of code uses the original untidy data set `bird`, and asks that the counts in columns 2 to 6 be used to caclulate the diversities of each of the habitats. `MARGIN=2` is the instruction to look down the columns (`MARGIN=1` would mean look along the rows) , while `[,2:6]` is an example of how data fames can be spliced and diced. `bird[2,3]` would mean take the element at row 2, column 3, while `[,2:6]` means take the block of data in *all* the rows, and columns 2 to 6
+In the next chunk we use the `diversity()` function alone to give us the Shannon diversities for each of the habitats. This line of code uses the original untidy data set `bird`, and asks that the counts in columns 2 to 6 be used to calculate the diversities of each of the habitats. `MARGIN=2` is the instruction to look down the columns (`MARGIN=1` would mean look along the rows) , while `[,2:6]` is an example of how data fames can be spliced and diced. `bird[2,3]` would mean take the element at row 2, column 3, while `[,2:6]` means take the block of data in *all* the rows, and columns 2 to 6
 
 ```{r}
 diversity(bird[,2:6],MARGIN=2)

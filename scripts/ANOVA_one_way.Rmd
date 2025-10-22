@@ -36,6 +36,7 @@ knitr::opts_chunk$set(message=FALSE,warning=FALSE)
 library(tidyverse) # for data manipulation and plots, and more besides
 library(ggfortify) # this is useful for diagnostics
 library(palmerpenguins) # for the palmer penguin data
+library(performance) # alternative to ggfortify for diagnostics
 
 ```
 
@@ -176,6 +177,11 @@ There are various ways we can find out whether these consitions are met. A usefu
 ```{r}
 autoplot(females.model) + theme_bw()
 ```
+```{r}
+check_model(females.model)
+```
+
+
 
 All four graphs presented here tell us something about the validity or not of our model. Here we will just focus on the upper two:
 

@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>GLM introduction</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="GLM_files/libs/clipboard/clipboard.min.js"></script>
+<script src="GLM_files/libs/quarto-html/quarto.js"></script>
+<script src="GLM_files/libs/quarto-html/popper.min.js"></script>
+<script src="GLM_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="GLM_files/libs/quarto-html/anchor.min.js"></script>
+<link href="GLM_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="GLM_files/libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="GLM_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="GLM_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="GLM_files/libs/bootstrap/bootstrap-c0367b04c37547644fece4185067e4a7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="GLM_files/libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="GLM_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">GLM introduction</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cowplot)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">kableExtra.auto_format =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In many settings we have a response variable such as a weight, length or concentration that is a continuous real number.</p>
+<p>For many common analyses of those variables, such as t-test, regression, ANOVA, or in fact any manifestation of the linear model, the data needs to have the following attributes:</p>
+<ul>
+<li>random sampling</li>
+<li>constant variance</li>
+<li>normally distributed errors</li>
+<li>independent errors</li>
+<li>additive effects</li>
+</ul>
+<p>If one or more of these assumptions is wrong, the analyses become unreliable in that the claims that they make will be based on assumptions that are false.</p>
+<p>Consider the variance of some commonly encountered types of data:</p>
+<p><strong>Count data</strong></p>
+<p>These are whole numbers that can never be negative. That straight away gives a problem with the assumptons of the linear model if the counts are typically low. To have ‘normally distributed errors’ would require that some of the counts be negative, which is nonsense.</p>
+<p>Regardless of that, it is the case with many examples of count data - examples where we know how often something <em>did</em> happen, but not how often it did <em>not</em> happen - that the higher the counts, the higher the variance of the counts: think say of a situation where you were recording the numbers of individuals of some species per unit time or area. If the mean number were 5 then you might find counts that varied, say, between 3 and 7, but if the mean number were 500 then would not expect the individual counts to be constrained between 498 and 502. You would expect a greater variance than when the mean was only 5. This is common for count data but it breaks a key assumption of the linear model.</p>
+<p>Count data also often has the ‘zero inflation’ problem whereby the number of zeros recorded is high.</p>
+<p>We said that this increase in variance with mean count value is found for count data where we know how often something <em>did</em> happen but not how often it did <em>not</em> happen. Examples of this are counts of lightning strikes, meiofauna on a petri dish, birds in a churchyard,</p>
+<p><strong>Proportion data</strong></p>
+<p>Sometimes, however, as well as knowing how often something did happen, we also know how often it did not happen. We canexpress each count as a <em>poportion</em> of the total. We could characterise the first counts as ‘successes’ and the second as ‘failures’, although this can sometimes be somewhat macabre in a medical context. Both counts are important to a full analysis of the data.</p>
+<p>Examples are:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Successes</th>
+<th>Failures</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>dead</td>
+<td>alive</td>
+</tr>
+<tr class="even">
+<td>female</td>
+<td>male</td>
+</tr>
+<tr class="odd">
+<td>diseased</td>
+<td>healthy</td>
+</tr>
+<tr class="even">
+<td>occupied</td>
+<td>unoccupied</td>
+</tr>
+<tr class="odd">
+<td>pollinated</td>
+<td>not pollinated</td>
+</tr>
+<tr class="even">
+<td>adult</td>
+<td>juvenile</td>
+</tr>
+<tr class="odd">
+<td>exhibits behaviour A</td>
+<td>does not exhibit behaviour A</td>
+</tr>
+</tbody>
+</table>
+<p>As another example you might be studying the behaviour of civets in a zoo in time blocks of 20 minutes. For every minute within each block you record whether the civets appeared agitated. At the end of each block you will know the proportion <em>p</em> of one minute slots within which they were agitated and the proportion <em>1-p</em> when they were not.</p>
+<p>This type of data has low variance when proportions are very low, around zero, or very high, around one, since all or nearly all individuals are alike in either case. In between, the variance peaks when the proportion is around 0.5 (50:50) and there are many successes <em>and</em> failures.</p>
+<p>Hence, unlike count data where the variance increases monotonically with the mean count, with proportion data the variance is a humped function of the mean. For this reason, proportion data is often analysed using the <strong>Binomial distribution</strong>. If <em>p</em> is the probability of a success and <em>(1-p)</em> is the probability of a failure, the mean number of successes is <em>np</em> and the variance of this number of success is <em>np(1-p)</em>. Hence this variance will be zero if <em>p</em> = 0 or if <em>p</em> = 1, and is maximised if <em>p</em> = 0.5.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>base<span class="ot">&lt;-</span><span class="fu">ggplot</span> () <span class="sc">+</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="dv">0</span>,<span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="dv">0</span>,<span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_cowplot</span>() <span class="sc">+</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.ticks=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title=</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.title=</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>))</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>p1<span class="ot">&lt;-</span>base <span class="sc">+</span> <span class="fu">geom_function</span>(<span class="at">fun=</span><span class="cf">function</span>(x) <span class="fl">0.5</span>,<span class="at">colour=</span><span class="st">"blue"</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"mean"</span>, <span class="at">y =</span> <span class="st">"variance"</span>, <span class="at">title =</span> <span class="st">"linear model"</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>p2<span class="ot">&lt;-</span>base <span class="sc">+</span> <span class="fu">geom_function</span>(<span class="at">fun=</span><span class="cf">function</span>(x) x, <span class="at">colour=</span><span class="st">"blue"</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"mean"</span>, <span class="at">y =</span> <span class="st">"variance"</span>, <span class="at">title =</span> <span class="st">"count data"</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>p3<span class="ot">&lt;-</span>base <span class="sc">+</span> <span class="fu">geom_function</span>(<span class="at">fun=</span><span class="cf">function</span>(x) <span class="dv">3</span><span class="sc">*</span>x<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>x), <span class="at">colour=</span><span class="st">"blue"</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"mean"</span>, <span class="at">y =</span> <span class="st">"variance"</span>, <span class="at">title =</span> <span class="st">"proportion data"</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>p4<span class="ot">&lt;-</span>base <span class="sc">+</span> <span class="fu">geom_function</span>(<span class="at">fun=</span><span class="cf">function</span>(x) x<span class="sc">^</span><span class="dv">2</span>, <span class="at">colour=</span><span class="st">"blue"</span>) <span class="sc">+</span><span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"mean"</span>, <span class="at">y =</span> <span class="st">"variance"</span>, <span class="at">title =</span> <span class="st">"age-at-death data"</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_grid</span>(p1,p2,p3,p4,<span class="at">nrow=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="GLM_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Percentage cover data</strong></p>
+<p>This is a type of proportion data where the data are continuous but bounded, ranging from 0% to 100%, with values outside that range being impossible and meaningless. You might encounter this when doing flora and fauna surveys with quadrats, and are recording a species for which individual counts are not possible, for example barnacles or many macroalgae on a rocky shore, or grasses in a meadow. Its variance will vary in a similar way to proportion data derived from count data: tendding towards zero for either 0% or 100% cover, and maximal when the cover is around 50%. In this case, a common approach is to arcsine transform the data, and then analyse it using linear models, but consider usin the GLM approaches discussed below.</p>
+<section id="what-to-do-when-the-linear-model-is-not-applicable" class="level3">
+<h3 class="anchored" data-anchor-id="what-to-do-when-the-linear-model-is-not-applicable">What to do when the linear model is not applicable?</h3>
+<p>A common approach to try to solve at least part of the problem is to ‘transform’ the response data such that its distribution more resembles that of a ‘normal’ distribution. This usually means operating on it with functions such as square root or log that have the effect of pulling in the long tails of highly skewed distributions. This approach has its limitations. For one thing, it is the erros (ie the difference between the actual and the predicted values) that should be normally distributed, not the the data themselves.</p>
+<p>A more powerful and versatile approach is to use generalized linear models, commonly referred to as GLMs.</p>
+</section>
+<section id="introduction-to-genralized-linear-models-glms" class="level3">
+<h3 class="anchored" data-anchor-id="introduction-to-genralized-linear-models-glms">Introduction to Genralized Linear Models (GLMs)</h3>
+<p>A generalized linear model has three important properties:</p>
+<ul>
+<li>the error structure</li>
+<li>the linear predictor</li>
+<li>the link function</li>
+</ul>
+<p>While none of these concepts is likely to be familiar, the ideas behind each of them are straightforward and it is worth getting to know what each one involves.</p>
+</section>
+<section id="the-error-structure" class="level3">
+<h3 class="anchored" data-anchor-id="the-error-structure">The Error Structure</h3>
+<p>In the linear model, which underpins such analyses as the various forms of t-test, ANOVA, linear regression or pearson correlation, the errors are assumed to be normally distributed. By ‘error’ we means the difference between the mean of a population, or the difference between an observed or a fitted value, as in regression.</p>
+<p>Often, this is not the case, certainly in ecology and in many studies within the life sciences. It is common to have data for which the errors do <em>not</em> have a normal distribution.</p>
+<p>The errors may be:</p>
+<ul>
+<li>strongly skewed - a few errors are much larger (most common) or smaller than the rest</li>
+<li>strongly kurtotic - much more scrunched up or spread out than would be consistent with a normal distribution</li>
+<li>strictly bounded - they can’t imply values beyond the realms of what is phyiscally possible, as in proportion data.</li>
+<li>strictly positive - as with count data, where negative values are meaningless.</li>
+</ul>
+<p>Before the advent of GLMs, any of these error issues would have required the use either of a transformation of the response data or the use of non-parametric methods, whereby the response data were ranked and only those ranks were then used in subsequent analysis, the actual values being ignored, with consequent loss of power as a result of not using this information. A GLM allows one to specify a variety of commonly encountered types of error distribution:</p>
+<ul>
+<li>Poisson errors - useful with count data</li>
+<li>binomial errors - useful with proportion data</li>
+<li>gamma errors - useful with data that show a constant coefficient of variation</li>
+<li>exponential errors - useful with data on time to death (survival analysis)</li>
+</ul>
+<p>In <code>R</code> the error structure is defined by means of the <code>family</code> argument, thus:</p>
+<p><code>glm(y ~ z, family = poisson)</code></p>
+<p>if the response variable has Poisson errors</p>
+<p>or</p>
+<p><code>glm(y ~ z, family = binomial)</code></p>
+<p>if the response is binary and has binomial errors.</p>
+<p>The response variable <code>z</code> can be continuous, leading to a regression analysis, or categorical, leading to an ANOVA-like procedure called analysis of deviance.</p>
+</section>
+<section id="the-linear-predictor" class="level3">
+<h3 class="anchored" data-anchor-id="the-linear-predictor">The linear predictor</h3>
+<p>In a GLM, each observed value <em>y</em> is related to a predicted value, which is obtained by transformation of the value emerging from the <em>linear predictor</em> <span class="math inline">\(\eta\)</span>. This linear predictor is a linear sum of the effects of one or more explanatory variables <span class="math inline">\(x_j\)</span>. It is what you would see if you asked in R for <code>summary.lm</code>.</p>
+<p><span class="math display">\[
+\eta_i = \sum_{j=1}^px_{ib}\beta_j
+\]</span> The <span class="math inline">\(x\)</span>s are the values of the <em>p</em> different explanatory variables and the <span class="math inline">\(\beta\)</span>s are the (usually) unknown poarameters to be estimated from the data. The right-hand side of this equation is called the <em>linear structure</em>. Thre are as many terms in this as there are parameters to be estimated, that is <em>p</em>.</p>
+</section>
+<section id="fitted-values" class="level3">
+<h3 class="anchored" data-anchor-id="fitted-values">Fitted values</h3>
+</section>
+<section id="deviance-a-general-measure-of-variability" class="level3">
+<h3 class="anchored" data-anchor-id="deviance-a-general-measure-of-variability">Deviance: a general measure of variability</h3>
+<p><em>Deviance</em> is a generalisation of the concept of variance: it is a measure of the lack of fit of the model to the data.</p>
+<p><span class="math display">\[
+\text{deviance} = -2\times\text{log likelihood}
+\]</span></p>
+<p>where the log likelihood depends on the model, <em>given the data</em>. Deviance is the same as variance when we have constant variance and normally distributed errors, as with linear regression, ANOVA and ANCOVA. That is, the appropriate measure of lack of it is <span class="math inline">\((y-\hat{y})^2\)</span>. For count data, however, we need another measure of lack of fit, which turns out to be <span class="math inline">\(y\log(\frac{y}{\hat{y}})\)</span>. Other types of data need yet other measures of lack of it. Here is a summary table of them:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Model =</span> <span class="fu">c</span>(<span class="st">"linear"</span>, <span class="st">"log linear"</span>,<span class="st">"logistic"</span>,<span class="st">"gamma"</span>), </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">Deviance =</span> <span class="fu">c</span>(<span class="st">"$</span><span class="sc">\\</span><span class="st">sum </span><span class="sc">\\</span><span class="st">left(y-</span><span class="sc">\\</span><span class="st">hat{y}</span><span class="sc">\\</span><span class="st">right)^2$"</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                              <span class="st">"$2</span><span class="sc">\\</span><span class="st">sum y</span><span class="sc">\\</span><span class="st">log{</span><span class="sc">\\</span><span class="st">left(</span><span class="sc">\\</span><span class="st">dfrac{y}{</span><span class="sc">\\</span><span class="st">hat{y}}</span><span class="sc">\\</span><span class="st">right)}$"</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                              <span class="st">"$2</span><span class="sc">\\</span><span class="st">sum y</span><span class="sc">\\</span><span class="st">log{</span><span class="sc">\\</span><span class="st">left(</span><span class="sc">\\</span><span class="st">dfrac{y}{</span><span class="sc">\\</span><span class="st">hat{y}}</span><span class="sc">\\</span><span class="st">right)} +(n-y)</span><span class="sc">\\</span><span class="st">log{</span><span class="sc">\\</span><span class="st">left(</span><span class="sc">\\</span><span class="st">dfrac{n-y}{n-</span><span class="sc">\\</span><span class="st">hat{y}}</span><span class="sc">\\</span><span class="st">right)}$"</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                              <span class="st">"$2</span><span class="sc">\\</span><span class="st">sum {</span><span class="sc">\\</span><span class="st">dfrac{(y-</span><span class="sc">\\</span><span class="st">hat{y})}{y} - </span><span class="sc">\\</span><span class="st">log{</span><span class="sc">\\</span><span class="st">left(</span><span class="sc">\\</span><span class="st">dfrac{y}{</span><span class="sc">\\</span><span class="st">hat{y}}</span><span class="sc">\\</span><span class="st">right)} }$"</span>), </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                 <span class="at">Error =</span> <span class="fu">c</span>(<span class="st">"Gaussian"</span>, <span class="st">"Poisson"</span>,<span class="st">"binomial"</span>,<span class="st">"gamma"</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">Link =</span> <span class="fu">c</span>(<span class="st">"identity"</span>,<span class="st">"log"</span>,<span class="st">"logit"</span>,<span class="st">"reciprocal"</span>))</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Model"</span>, <span class="st">"Deviance"</span>, <span class="st">"Error"</span>,<span class="st">"Link"</span>), <span class="at">escape =</span> F, <span class="at">caption =</span> <span class="st">""</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">latex_options =</span> <span class="st">"hold_position"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Model</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Deviance</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Error</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">linear</td>
+<td style="text-align: left;">$\sum \left(y-\hat{y}\right)^2$</td>
+<td style="text-align: left;">Gaussian</td>
+<td style="text-align: left;">identity</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">log linear</td>
+<td style="text-align: left;">$2\sum y\log{\left(\dfrac{y}{\hat{y}}\right)}$</td>
+<td style="text-align: left;">Poisson</td>
+<td style="text-align: left;">log</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">logistic</td>
+<td style="text-align: left;">$2\sum y\log{\left(\dfrac{y}{\hat{y}}\right)} +(n-y)\log{\left(\dfrac{n-y}{n-\hat{y}}\right)}$</td>
+<td style="text-align: left;">binomial</td>
+<td style="text-align: left;">logit</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">gamma</td>
+<td style="text-align: left;">$2\sum {\dfrac{(y-\hat{y})}{y} - \log{\left(\dfrac{y}{\hat{y}}\right)} }$</td>
+<td style="text-align: left;">gamma</td>
+<td style="text-align: left;">reciprocal</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</section>
+<section id="the-link-function" class="level3">
+<h3 class="anchored" data-anchor-id="the-link-function">The link function</h3>
+<p>The predicted value of <em>y</em> is related to the linear predictor value <span class="math inline">\(\eta\)</span> via the link function <em>g</em>:</p>
+<p><span class="math display">\[
+\eta = g(\mu)
+\]</span> What we mean by this is that the value of <span class="math inline">\(\eta\)</span> is obtained by transforming <em>y</em> by the link function, and the predicted value of <em>y</em> is obtained by applying the inverse of the link function to <span class="math inline">\(\eta\)</span>.</p>
+<p>In the case of the <em>identity link</em>, the linear predictor <em>is</em> the predicted value of <em>y</em>. Hence, in simple linear regression, we are in effect using a special case of the GLM, one where the link function is the <em>identity</em> ie do nothing.</p>
+</section>
+<section id="canonical-link-functions" class="level3">
+<h3 class="anchored" data-anchor-id="canonical-link-functions">Canonical link functions</h3>
+<p>The most commonly used link functions are shown below. A key requirement of any link function is o ensure that fitted values stay within reasonable bounds. Thus if the response is a count, the fitted values should all be zero or positive, and if a proportion, should be between zero and one, and so on.</p>
+<p>Thus for count data, the log function is an appropriate link function, since the fitted values are then antilogs of the linear predictor, and so are guaranteed to be greater than or equal to zero. For proportion data, the logit function is appropriate since the fitted value is then the antilog of the log odds <span class="math inline">\(\log(\frac{p}{q})\)</span>, ie <span class="math inline">\(\frac{p}{q}\)</span>, which is a proportion, guaranteed to be between zero and one since <span class="math inline">\(p\leq q\)</span> and both <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span> are non-negative.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Error</th>
+<th>Canonical Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>gaussian</td>
+<td>identity</td>
+</tr>
+<tr class="even">
+<td>poisson</td>
+<td>log</td>
+</tr>
+<tr class="odd">
+<td>binomial</td>
+<td>logit</td>
+</tr>
+<tr class="even">
+<td>Gamma</td>
+<td>reciprocal</td>
+</tr>
+</tbody>
+</table>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

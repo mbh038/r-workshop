@@ -247,7 +247,9 @@ p10<-fet_table(resultr1c1,20,10,11,1,minimal=TRUE,arrow=TRUE)[[1]]
 ```
 
 ```{r}
-plot_grid(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,ncol=2,scale=1.5,greedy=TRUE,byrow=FALSE,labels=c("a","f","b","g","c","h","d","i","e","j"))
+plot_grid(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,
+          ncol = 2,scale = 1.5, greedy = TRUE, byrow = FALSE,
+          labels = c("a","f","b","g","c","h","d","i","e","j"))
 ```
 
 We see that tables a), b), c), h) (the actual results), i) and j) all have *p*-values equal to or less than that of the actual results. The combined total of these *p*-values is 0.06978.
@@ -259,7 +261,7 @@ This *p*-value is bigger than 0.05 so we would normally fail to reject the null 
 If we already know the four counts for our $2 \times 2$ table we can create a $2 \times 2$ matrix of them like this:
 
 ```{r,echo=TRUE}
-app.mat <- matrix(c(3,8,7,2),nrow=2)
+app.mat <- matrix(c(3,8,7,2), nrow = 2)
 app.mat
 ```
 

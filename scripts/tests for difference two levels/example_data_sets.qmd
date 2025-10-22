@@ -1,0 +1,170 @@
+---
+title: "which statistical test"
+format: html
+editor: visual
+execute: 
+  message: FALSE
+  warning: FALSE
+  echo: FALSE
+---
+
+```{r}
+library(tidyverse)
+library(cowplot)
+library(rstatix)
+```
+
+```{r}
+mean_one <- 10
+sd_one <- 5
+
+mean_two <- 20
+sd_two <-5
+```
+
+```{r}
+# data set 1
+sample_size <- 100
+sample_data<-data.frame(sample_one = rnorm(sample_size, mean=mean_one, sd= sd_one),
+                        sample_two = rnorm(sample_size, mean=mean_two, sd= sd_two),
+                        sample_three = rlnorm(sample_size, meanlog = 1.2, sdlog = .5),
+                        sample_four = rlnorm(sample_size, meanlog = 1.7, sdlog = .5))
+```
+
+## Tidy data
+
+xczxzsfssz
+
+```{r}
+tidy_data_all <- sample_data |>
+  pivot_longer(sample_one:sample_four, names_to="sample",values_to="response")
+```
+
+## Data set one: normally distributed data
+
+```{r}
+tidy_data <- tidy_data_all |>
+  filter(sample %in% c("sample_one", "sample_two"))
+```
+
+```{r}
+sample_summary <- tidy_data |>
+  group_by(sample) |>
+  summarise(mean.response = mean(response), sd.response=sd(response), se.response = sd(response)/sqrt(n()))
+sample_summary
+```
+
+```{r}
+tidy_data |>
+  ggplot(aes(x = sample, y = response)) +
+  geom_boxplot() +
+  geom_jitter(width=0.2, alpha = 0.5) +
+  labs(x = "Sample",
+       y = "Response variable") +
+  theme_cowplot()
+```
+
+```{r}
+sample_summary |>
+  ggplot(aes(x = sample, y = mean.response, fill = sample)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = mean.response - se.response, ymax = mean.response + se.response), width = 0.2) +
+  labs(x = "Sample",
+       y = "Response variable") +
+  scale_fill_brewer(palette = "Set1") +
+  theme_cowplot() +
+  theme(legend.position = "none")
+```
+
+### Shapiro Wilk test for normality
+
+```{r}
+tidy_data |>
+  group_by(sample) |>
+  shapiro_test(response)
+```
+
+### QQ plots
+
+```{r}
+tidy_data |>
+  ggplot(aes(sample=response)) +
+  stat_qq(colour="blue") +
+  stat_qq_line() +
+  facet_wrap(~sample) +
+  theme_cowplot()
+```
+
+```{r}
+tidy_data |>
+  filter(sample %in% c("sample_one", "sample_two")) |>
+  t_test(response ~ sample)
+```
+
+```{r}
+tidy_data |>
+  t_test(response ~ sample)
+```
+
+## Non-normal data
+
+## Data set two: non-normally distributed data
+
+```{r}
+tidy_data <- tidy_data_all |>
+  filter(sample %in% c("sample_three", "sample_four"))
+```
+
+```{r}
+sample_summary <- tidy_data |>
+  group_by(sample) |>
+  summarise(mean.response = mean(response), sd.response=sd(response), se.response = sd(response)/sqrt(n()))
+sample_summary
+```
+
+```{r}
+tidy_data |>
+  ggplot(aes(x = sample, y = response)) +
+  geom_boxplot() +
+  geom_jitter(width=0.2, alpha = 0.5) +
+  labs(x = "Sample",
+       y = "Response variable") +
+  theme_cowplot()
+```
+
+```{r}
+sample_summary |>
+  ggplot(aes(x = sample, y = mean.response, fill = sample)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = mean.response - se.response, ymax = mean.response + se.response), width = 0.2) +
+  labs(x = "Sample",
+       y = "Response variable") +
+  scale_fill_brewer(palette = "Set1") +
+  theme_cowplot() +
+  theme(legend.position = "nthree")
+```
+
+```{r}
+tidy_data |>
+  group_by(sample) |>
+  shapiro_test(response)
+```
+
+```{r}
+tidy_data |>
+  ggplot(aes(sample=response)) +
+  stat_qq(colour="blue") +
+  stat_qq_line() +
+  facet_wrap(~sample) +
+  theme_cowplot()
+```
+
+```{r}
+tidy_data |>
+  t_test(response ~ sample)
+```
+
+```{r}
+tidy_data |>
+  wilcox_test(response ~ sample)
+```

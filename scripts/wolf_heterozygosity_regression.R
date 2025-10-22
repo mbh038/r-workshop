@@ -1,5 +1,5 @@
 # wolf data linear regression example
-# Michawl Hunt
+# Michael Hunt
 # 23-04-2024
 
 
@@ -21,7 +21,8 @@ wolf %>%
   ggplot(aes(x=year, y=pc_hetero)) +
   geom_point() +
   labs(x = "Year",
-       y = "Individual heterozygosity (%)") +
+       y = "Individual heterozygosity (%)",
+       caption = "Flagstad et al (2023) DOI: 10.1046/j.1365-294X.2003.01784.x") +
   theme_cowplot()
 
 # fit the model
@@ -41,7 +42,8 @@ wolf %>%
   geom_point() +
   geom_smooth(method="lm",linewidth=0.4,se=FALSE) +
   labs(x = "Year",
-       y = "Individual heterozygosity (%)") +
+       y = "Individual heterozygosity (%)",
+       caption = "Flagstad et al (2023) DOI: 10.1046/j.1365-294X.2003.01784.x") +
   scale_x_continuous(breaks=c(seq(1820,1960,20))) +
   scale_y_continuous(limits=c(0,100),breaks=c(seq(0,100,20))) +
   theme_cowplot()

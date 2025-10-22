@@ -97,7 +97,7 @@ knitr::opts_chunk$set(message=FALSE,warning=FALSE)
 
 ### Load Packages
 
-You will nearly always want the first five packages. Others, such as `vegan` will be useful from time to time, depending on what you are doing.
+You will nearly always want the first five packages, and often you will appreciate the sixth, `janitor`. Others, such as `vegan` will be useful from time to time, depending on what you are doing.
 If any of these lines throw an error, it is most likely becuase you have not yet installed that package. Do so in the console pane (not in this script!) using the function `install.packages("name of package")`. Then run this whole chunk again.
  
 ```{r}
@@ -106,6 +106,7 @@ library(here)
 library(ggfortify)
 library(readxl)
 library(cowplot)
+library(janitor)
 library(vegan)
 ```
 
@@ -115,7 +116,7 @@ library(vegan)
 
 There are several ways to do this, so details will differ depending on what file type your data is saved in and where it is stored.
 
-Here are two examples. In each case the data is stored in a subfolder called 'data' within the Project folder, and we use the function `here()` from the `here` package. In my experience this dramatically simplifies the business of finding your data, wherever your script is, and makes it easier for you to share your script woith others and be confident that what worked for you will work for them. It *does* require that you are working within your project.
+Here are two examples. In each case code here presumes that the data is stored in a subfolder called 'data' within the Project folder, and we use the function `here()` from the `here` package. In my experience this dramatically simplifies the business of finding your data, wherever your script is. It makes it easier for you to share your script with others and be confident that what worked for you will work for them. It *does* require that you are working within your project.
 
 #### (a) If from a csv file
 
@@ -135,7 +136,8 @@ filepath<-here("data","difference_data.xlsx")
 iris<-read_excel(path = filepath,
                  sheet = "iris", # delete the comma if you choose not to specify the range in the line below
                  range= "A1:F151" # optional - try leaving it out first. Only include if necessary.
-                 ) 
+                 ) |>
+  clean_names()
 glimpse(iris)
 ```
 
@@ -192,11 +194,11 @@ petal_summary |>
   theme_cowplot()
 ```
 
-Note that we have given the bars a fill colour - we got this color from [this site](https://colorbrewer2.org/#type=sequential&scheme=PuBu&n=3) due to the cartographer Cynthia Brewer, who is behind the various incarnations of the `Brewer` package in R, which is great for getting colours that work well. We have used the same colour for each species since the x-axis labels already tell us which bar relates to which species. To use a different colour for each bar would imply there is some extra information encoded by colour. Since there is not, it serves no purpose to have different colours, and potentially confuses the reader. Remember always that a plot is intended to convey a message. Anything that detracts from that message should be avoided.
+Note that we have given the bars a fill colour - we got this color from [this site](https://colorbrewer2.org/#type=sequential&scheme=PuBu&n=3) due to the cartographer Cynthia Brewer, who is behind the various incarnations of the `Brewer` package in R, which is great for getting colours that work well. We have used the same colour for each species since the x-axis labels already tell us which bar relates to which species. To use a different colour for each bar would imply there is some extra information encoded by colour. Since there is not, it serves no purpose to have different colours, and potentially confuses the reader. Remember always that a plot is intended to convey a message. Anything that detracts from that message should be avoided, however pretty you think it is.
 
 A couple of points could be made about this type of plot:
 
-First, what about those error bars?  Three types of error bar are in common usage and there are arguments in favour and against the use of each of them: the *standard deviation* tells us about the spread of values in a sample, and is an estimate of the spread of values in a population, the *standard error of the mean*, as used here, is an estimate of the precision with which the sample means estiamte the respective population means for each of the species, and a *confidence interval*, typically a *95% confidence interval*, gives us the region within which we are (say) 95% confident that the true species mean petal width might lie. Which type of error bar you should use depends on which story you want to tell. Her, becuase we are interested in whether there is evidence of a difference in the mean petal width of different species, we have gone for the standard eror of the mean. 
+First, what about those error bars?  Three types of error bar are in common usage and there are arguments in favour and against the use of each of them: the *standard deviation* tells us about the spread of values in a sample, and is an estimate of the spread of values in a population, the *standard error of the mean*, as used here, is an estimate of the precision with which the sample means estimates the respective population means for each of the species, and a *confidence interval*, typically a *95% confidence interval*, gives us the region within which we are (say) 95% confident that the true species mean petal width might plausibly lie. Which type of error bar you should use depends on which story you want to tell. Here, because we are interested in whether there is evidence of a difference in the mean petal width of different species, we have gone for the standard eror of the mean. 
 
 Regardless of which error bar you use and why, you should always tell the reader which one you have gone for, as we have in the caption to the figure.
 
@@ -216,7 +218,7 @@ iris |>
   theme_cowplot() # choose a theme to give the plot a 'look' that we like
 ```
 
-Here, we have added the points themselves on top of the box plot. When there are not too many data points, this can be useful. The 'jitter' adds some horizontal or vertical jitter, or both, so that the points do lie on top of each other. In this case we see that the variability of petal widths is not the same for each species and that the data are roughly symmetically distributed around the median values in each case. This information is useful in helping us determine which statistical test might be appropriate for these data.
+Here, we have added the points themselves on top of the box plot. When there are not too many data points, this can be useful. The 'jitter' adds some horizontal or vertical jitter, or both, so that the points do not lie on top of each other. In this case we see that the variability of petal widths is not the same for each species and that the data are roughly symmetrically distributed around the median values in each case. This information is useful in helping us determine which statistical test might be appropriate for these data.
 
 
 #### Violin plot
@@ -285,18 +287,18 @@ Typically, statistical tests are testing the likelihood of the data being as the
 The null hypothesis is typically that the 'nothing going on', 'no difference' or ' no association' scenario is true.
 In this case, it would be that there is no difference between the petal widths of the the three species of iris being considered here.
 
-Typically too, a test will in the end spit out a *p*-value which is the probability that we would have got the data we got, or more extreme data, *if* the null hypothesis were true. Being a probability, it will always be a value between 0 and 1, where 0 means impossible, and 1 means certain. The closer the *p*-value is to zero, the less likely it is we would have got our data if the null hypothesis were true. At some point, if the *p*-value is small enough, we will decide that the probability of getting the data we actually got if the null hypothesis were true is so small that we reject the null hypothesis. Typically, the threshold beyond which we do this is when  *p* = 0.05, but we could choose other thresholds. (Sounds arbitrary - yes, it is, but the choice of 0.05 is a compromise value that makes the risk of making each of two type of error - rejecting the null when we should not, and failing to reject it when we should, both acceptably small. This is a big topic which we won't explore further here.)
+Typically too, a test will in the end spit out a *p*-value which is the probability that we would have got the data we got, or more extreme data, *if* the null hypothesis were true. Being a probability, it will always be a value between 0 and 1, where 0 means impossible, and 1 means certain. The closer the *p*-value is to zero, the less likely it is we would have got our data if the null hypothesis were true. At some point, if the *p*-value is small enough, we will decide that the probability of getting the data we actually got if the null hypothesis were true is so small that we reject the null hypothesis. Typically, the threshold beyond which we do this is when  *p* = 0.05, but we could choose other thresholds. (Sounds arbitrary - yes, it is, but the choice of 0.05 is a compromise value that makes the risk of making each of two types of error - rejecting the null when we should not, and failing to reject it when we should, both acceptably small. This is a big topic which we won't explore further here.)
 
 In the end, whatever other information we get from it, the outcome of a statisical test is typically that we either reject the null hypothesis or we fail to reject it. If we reject it then we are claiming to have detected evidence for an 'effect' and we go on to determine how big that effect is and whether it is scientifically interesting. If we fail to reject the null, that does not necessarily mean that there is no 'effect' (difference, trend, association etc). That might be the case, but it might also just mean that we didn't find evidence for one from our data. 
 
-It is all a bit like in a law court where the 'null hypothesis' is that the defendant is innocent, and at the end of the proceedings this null is either rejected (Guilty!) because the evidence is such as to make it untenable to hold onto the null hypothesis, or not rejected, because the evidence is not strong enough to convict, in which case the defendant walks free - but is nt declared innocent. Formaly, the court has simply found insufficient evidence to convict. In the latter case, the court would have failed to reject the null hypothesis. Crucially, it would *not* have declared that the defendant was innocent. In the same way, in a scientific study, we either reject or fail to reject a null hypothesis. We never *ever* accept the null hypothesis as true.
+It is all a bit like in a law court where the 'null hypothesis' is that the defendant is innocent, and at the end of the proceedings this null is either rejected (Guilty!) because the evidence is such as to make it untenable to hold onto the null hypothesis, or not rejected, because the evidence is not strong enough to convict, in which case the defendant walks free - but is not declared innocent. Formally, the court has simply found insufficient evidence to convict. In the latter case, the court would have failed to reject the null hypothesis. Crucially, it would *not* have declared that the defendant was innocent. In the same way, in a scientific study, we either reject or fail to reject a null hypothesis. We never *ever* accept the null hypothesis as true.
 
 Actually, many researchers are unhappy wih this so-called 'frequentist' narrative and have sought to use an alternative 'Bayesian' approach to testing hypotheses. In this approach we can accept hypotheses and we can bring in prior knowledge. This is an interesting topic, but a very big one so we will not pursue it further here.
 
 
 With all that behind us, we are in a better place to understand what the output of the test is telling us.
 
-For the 1-way ANOVA, as with other examples of the linear model, this output omes in two stages:
+For the 1-way ANOVA, as with other examples of the linear model, this output comes in two stages:
 
 #### Overall picture
 
@@ -319,15 +321,15 @@ Now that we have established that at least two species of iris have differing pe
 summary(pw.model)
 ```
 
-The output here is typical of that from a 1-way ANOVA analysis in R. Each line refers to one of the three levels of the factor being investigated, which is petal width in this case. By default, those levels are arranged alphabetically, so in this case the order is *setosa*, *versicolor* then *virginica*. The first row is always labelled `(Intercept)`, so here that row is referring to *setosa*. This level is used as the 'control' level- the one with which the others are compared. If we are happy that *setos* is that control then we can just carry on, but if we are not, then we have to tell R which level we want to play that role. We'll go through how to do that later on.
+The output here is typical of that from a 1-way ANOVA analysis in R. Each line refers to one of the three levels of the factor being investigated, which is petal width in this case. By default, those levels are arranged alphabetically, so in this case the order is *setosa*, *versicolor* then *virginica*. The first row is always labelled `(Intercept)`, so here that row is referring to *setosa*. This level is used as the 'control' or reference level- the one with which the others are compared. If we are happy to have *setosa* as that control then we can just carry on, but if we are not, then we have to tell R which level we want to play that role. We'll go through how to do that later on.
 
 In the Estimate column the value 0.246 cm in the first row refers to the actual mean petal width of the *setosa* plants in the sample. If we go back to the summary table we created earlier on, or look at one of the plots we created, we see that that is the case.
 
-For all other rows, the value in the Estimate column is not referring to the absolute mean petal width but to the difference between the mean petal width for that species and the mean petal width of the control species. So we see that the mean petals width of the *versicolor* in our sample is 1.08 cm greater than that of *setosa* and so is equal to .246 + 1.08 = 1.326 cm, while that of the *virginica* is 1.78 cm greater and so is equal to 2.26 cm. Check from the table of mean values we created  and the plots that this is correct.
+For all other rows, the value in the Estimate column is not referring to the absolute mean petal width but to the difference between the mean petal width for that species and the mean petal width of the control species. So we see that the mean petal width of the *versicolor* in our sample is 1.08 cm greater than that of *setosa* and so is equal to .246 + 1.08 = 1.326 cm, while that of the *virginica* is 1.78 cm greater and so is equal to 2.026 cm. Check from the table of mean values we created  and the plots that this is correct.
 
 Here though, we are not interested in absolute values so much as we are in differences, which is why that is what the summary table here gives us. Look again at the differences between the mean petal widths for *versicolor* and *virginica* and that for *setosa* and compare them with the standard erros of those differences, which are given in the second column of the table. These standard errors are much smaller than the differences, meaning that we can have confidence that the differences are statistically significant.
 
-This is borne out be the *p*-value in the right hand column of the table. The null hypothesis of this table is that there is no difference in petal width between populations of the different species from which these samples have been drawn.
+This is borne out by the *p*-value in the right hand column of the table. The null hypothesis of this table is that there is no difference in petal width between populations of the different species from which these samples have been drawn.
 
 Lastly, the adjusted $R^2$ tells us the proportion of variation of petal width that is accounted for by taking note of the species. Here, the value is 0.93, which tells us hat little else besides species determines the relative petal widths. Ther are no other variables that we need to have taken into account.
 

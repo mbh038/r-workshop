@@ -106,17 +106,17 @@ where SD is the standard deviation of an individual sample and *n* is the sample
 # set.seed(876543212)
 alpha<-0.05
 
-mean.pop<-40
-sd.pop<-12
-n<-10
-trials<-20
+mean.pop <- 40
+sd.pop <- 12
+n <- 10
+trials <- 20
 
 # uncomment to generate new data
 ys <- matrix(rnorm(n*trials,mean=mean.pop,sd=sd.pop),ncol=trials)
 sample_means<-colMeans(ys)
 sds <- sapply(data.frame(ys),sd)
 
-estimators <- tibble(xs=1:trials,ys=sample_means,sds=sds) |>
+estimators <- tibble(xs = 1:trials, ys = sample_means, sds = sds) |>
   mutate(margins_of_error = abs(qt(alpha/2,df=n-1))*sds/sqrt(n),
          lowers = ys - margins_of_error,
          uppers = ys + margins_of_error,
