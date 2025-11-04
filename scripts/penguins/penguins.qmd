@@ -1,0 +1,291 @@
+---
+title: "Penguins"
+author: "Michael Hunt"
+date: "20/03/2025"
+format: 
+  html:
+    code-link:  true
+    toc: true
+editor: visual
+execute:
+  warning: false
+  message: false
+  echo: false
+---
+
+Some exemplar analyses, using data from the [palmerpenguins](https://allisonhorst.github.io/palmerpenguins/) package in R, developed by Allison Horst and Kristen Gorman and maintained by Allison Horst. The artwork is by [Allison Horst](https://allisonhorst.github.io/palmerpenguins/articles/art.html).
+
+These data comprise measurements across over 300 individuals of various numerical dimensions of three species of penguins, both male and female, on each of three islands in the Palmer archipelago of Antarctica. Measurements were conducted cross several different years.
+
+```{r}
+library(palmerpenguins)
+library(tidyverse)
+library(here)
+library(ggfortify)
+library(cowplot)
+library(GGally)
+
+```
+
+```{r}
+knitr::include_graphics(here("scripts","penguins","penguins.png"))
+```
+
+```{r}
+knitr::include_graphics(here("scripts","penguins","culmen_depth.png"))
+```
+
+```{r}
+#data(penguins)
+glimpse(penguins)
+```
+
+```{r}
+penguins |>
+  group_by(species, sex) |>
+  summarise (n=n())
+```
+
+## Gentoo females
+
+First, let us pick out the females of the Gentoo species.
+
+```{r}
+gentoo_f <- penguins |>
+  filter(species == "Gentoo", sex == "female") |>
+  mutate(body_mass_kg = body_mass_g/1000)
+```
+
+```{r}
+gentoo_f |>
+  select(bill_length_mm:body_mass_g) |>
+  ggpairs(progress= FALSE) + theme_cowplot()
+```
+
+## Correlation
+
+### Body mass vs flipper length
+
+```{r}
+gentoo_f |>
+  ggplot(aes(x = flipper_length_mm, y = body_mass_kg)) +
+  geom_point() +
+  labs(x = " Flipper length (mm)",
+       y = "Body mass (kg)",
+       caption = "Gentoo females:  body mass vs flipper length") +
+  theme_cowplot()
+```
+
+```{r}
+cor.test(gentoo_f$flipper_length_mm, gentoo_f$body_mass_kg)
+```
+
+### Bill length vs flipper length
+
+```{r}
+gentoo_f |>
+  ggplot(aes(x = flipper_length_mm, y = bill_length_mm)) +
+  geom_point() +
+  labs(x = " Flipper length (mm)",
+       y = "Bill length (mm)",
+       caption = "Gentoo females: bill length vs flipper length") +
+  theme_cowplot()
+```
+
+```{r}
+cor.test(gentoo_f$flipper_length_mm, gentoo_f$bill_length_mm)
+```
+
+## Regression
+
+### Body mass vs flipper length
+
+```{r}
+gentoo_f |>
+  ggplot(aes(x = flipper_length_mm, y = body_mass_kg)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(x = " Flipper length (mm)",
+       y = "Body mass (kg)",
+       caption = "Gentoo females:  body mass vs flipper length") +
+  theme_cowplot()
+```
+
+```{r}
+mf.model <- lm(body_mass_kg ~ flipper_length_mm, data = gentoo_f)
+```
+
+```{r}
+summary(mf.model)
+```
+
+### Bill length vs flipper length
+
+```{r}
+gentoo_f |>
+  ggplot(aes(x = flipper_length_mm, y = bill_length_mm)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(x = " Flipper length (mm)",
+       y = "Bill length (mm)",
+       caption = "Gentoo females:  bill length vs flipper length") +
+  theme_cowplot()
+```
+
+```{r}
+mf.model2 <- lm(bill_length_mm ~ flipper_length_mm, data = gentoo_f)
+```
+
+```{r}
+summary(mf.model2)
+```
+
+## Adélie Females
+
+### Difference between Islands
+
+```{r}
+penguins |>
+  group_by(species, sex, island) |>
+  summarise (n=n())
+```
+
+Is the mean mass of the Adélie females on Torgersen island different from that of those on Biscoe island?
+
+```{r}
+adelie_f_bt <- penguins |>
+  mutate(body_mass_kg = body_mass_g/1000) |>
+  filter(island %in% c("Biscoe","Torgersen")) |>
+  filter(species == "Adelie") |>
+  filter(sex == "female")
+```
+
+```{r}
+adelie_f_bt_summary <- adelie_f_bt |>
+  group_by(island) |>
+  summarise(n=n(), mass.mean = mean(body_mass_kg), mass.se = sd(body_mass_kg)/sqrt(n()))
+# adelie_f_bt_summary
+```
+
+```{r}
+p1 <- adelie_f_bt_summary |>
+  ggplot(aes(x = island, y = mass.mean, fill = island)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = mass.mean - mass.se, ymax = mass.mean + mass.se), width = 0.2) +
+  labs(x = "Island",
+       y = "Mean mass (kg)") +
+  scale_fill_brewer(palette = "Set1") +
+  theme_cowplot() +
+  theme(legend.position = "none")
+```
+
+```{r}
+p2 <- adelie_f_bt |>
+  ggplot(aes(x = island, y = body_mass_kg, fill = island)) +
+  geom_boxplot() +
+  labs(x = "Island",
+       y = "Body mass (kg)",
+       caption = "Flipper lengths of Adélie males and females") +
+  scale_fill_brewer(palette = "Set1") +
+  theme_cowplot() +
+  theme(legend.position = "none")
+```
+
+```{r}
+plot_grid(p1, p2, nrow = 1)
+```
+
+```{r}
+biscoes <- adelie_f_bt |>
+  filter(island == "Biscoe") |>
+  select(body_mass_kg) |>
+  pull()
+
+torgersens <- adelie_f_bt |>
+  filter(island == "Torgersen") |>
+  select(body_mass_kg) |>
+  pull()
+```
+
+```{r}
+t.test(torgersens, biscoes)
+```
+
+Was it OK to have used a t-test?
+
+```{r}
+shapiro.test(torgersens)
+shapiro.test(biscoes)
+```
+
+## All Adélies
+
+Do the male and female flipper lengths differ for Adélies?
+
+```{r}
+adelie <- penguins |>
+  drop_na() |>
+  filter(species == "Adelie")
+```
+
+```{r}
+adelie_summary <- adelie |>
+  group_by(sex) |>
+  summarise(n=n(), flipper.mean = mean(flipper_length_mm), flipper.se = sd(flipper_length_mm)/sqrt(n()))
+# adelie_summary
+```
+
+```{r}
+p3 <- adelie_summary |>
+  ggplot(aes(x = sex, y = flipper.mean, fill = sex)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = flipper.mean - flipper.se, ymax = flipper.mean + flipper.se), width = 0.2) +
+  scale_y_continuous(limits=c(180,200)) +
+  labs(x = "Sex",
+       y = "Flipper length (mm)",
+       caption = "Flipper lengths of Adélie\n males and females") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_cowplot() +
+  theme(legend.position = "none")
+```
+
+```{r}
+p4 <- adelie |>
+  ggplot(aes(x = sex, y = flipper_length_mm, fill = sex)) +
+  geom_boxplot() +
+  labs(x = "Sex",
+       y = "Flipper length (mm)",
+       caption = "Flipper lengths of Adélie\n males and females") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_cowplot() +
+  theme(legend.position = "none")
+```
+
+```{r}
+plot_grid(p3, p4, nrow = 1)
+```
+
+```{r}
+males <- adelie |>
+  filter(sex == "male") |>
+  select(flipper_length_mm) |>
+  pull()
+
+females <- adelie |>
+  filter(sex == "female") |>
+  select(flipper_length_mm) |>
+  pull()
+```
+
+```{r}
+t.test(males, females)
+```
+
+Was it OK to have used a t-test?
+
+```{r}
+shapiro.test(males)
+shapiro.test(females)
+```
+
+## Non-Normal data
