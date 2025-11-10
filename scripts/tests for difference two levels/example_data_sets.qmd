@@ -33,8 +33,6 @@ sample_data<-data.frame(sample_one = rnorm(sample_size, mean=mean_one, sd= sd_on
 
 ## Tidy data
 
-xczxzsfssz
-
 ```{r}
 tidy_data_all <- sample_data |>
   pivot_longer(sample_one:sample_four, names_to="sample",values_to="response")
